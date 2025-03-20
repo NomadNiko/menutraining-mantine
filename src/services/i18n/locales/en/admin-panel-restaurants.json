@@ -55,7 +55,12 @@
     "removeSuccess": "User removed successfully",
     "removeConfirmTitle": "Remove User",
     "removeConfirmMessage": "Are you sure you want to remove {{name}} from this restaurant?",
-
+    "userSearch": "Search Users",
+    "userSearchPlaceholder": "Search by name or email",
+    "fetchError": "Failed to fetch restaurant data",
+    "addError": "Failed to add user to restaurant",
+    "removeError": "Failed to remove user from restaurant",
+    "permissionError": "You don't have permission to add users to this restaurant",
     "table": {
       "user": "User",
       "email": "Email",
