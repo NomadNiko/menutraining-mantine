@@ -1,3 +1,4 @@
+// src/app/[language]/admin-panel/restaurants/page-content.tsx
 "use client";
 import { RoleEnum } from "@/services/api/types/role";
 import { useTranslation } from "@/services/i18n/client";
@@ -113,7 +114,7 @@ function Restaurants() {
 
   return (
     <RouteGuard roles={[RoleEnum.ADMIN]}>
-      <Container size={isMobile ? "100%" : "lg"}>
+      <Container size={isMobile ? "100%" : "888px"}>
         <Grid>
           <Grid.Col span={12}>
             <Group justify="space-between" mb="md">
@@ -145,10 +146,16 @@ function Restaurants() {
                   <Table striped highlightOnHover>
                     <thead>
                       <tr>
-                        <th>{t("table.name")}</th>
-                        <th>{t("table.email")}</th>
-                        <th>{t("table.phone")}</th>
-                        <th style={{ width: "20%", textAlign: "right" }}>
+                        <th style={{ width: 200, textAlign: "left" }}>
+                          {t("table.name")}
+                        </th>
+                        <th style={{ width: 200, textAlign: "left" }}>
+                          {t("table.email")}
+                        </th>
+                        <th style={{ width: 150, textAlign: "left" }}>
+                          {t("table.phone")}
+                        </th>
+                        <th style={{ width: 375, textAlign: "right" }}>
                           {t("table.actions")}
                         </th>
                       </tr>
@@ -175,31 +182,63 @@ function Restaurants() {
                       ) : (
                         restaurants.map((restaurant) => (
                           <tr key={restaurant.id}>
-                            <td>{restaurant.name}</td>
-                            <td>{restaurant.email || "-"}</td>
-                            <td>{restaurant.phone || "-"}</td>
-                            <td style={{ textAlign: "right" }}>
+                            <td style={{ width: 200, textAlign: "left" }}>
+                              {restaurant.name}
+                            </td>
+                            <td style={{ width: 200, textAlign: "left" }}>
+                              {restaurant.email || "-"}
+                            </td>
+                            <td style={{ width: 150, textAlign: "left" }}>
+                              {restaurant.phone || "-"}
+                            </td>
+                            <td style={{ width: 375, textAlign: "right" }}>
                               <Group gap="xs" justify="flex-end">
                                 <Button
                                   component={Link}
                                   href={`/admin-panel/restaurants/edit/${restaurant.id}`}
-                                  size="compact-xs"
+                                  size="xs"
                                   variant="light"
                                   leftSection={<IconEdit size={14} />}
+                                  style={{
+                                    width: "88px",
+                                    height: "24px",
+                                    padding: "0 6px",
+                                  }}
+                                  styles={{
+                                    inner: {
+                                      fontSize: "12px",
+                                      height: "100%",
+                                    },
+                                  }}
                                 >
-                                  {t("actions.edit")}
+                                  <Text size="xs" truncate>
+                                    {t("actions.edit")}
+                                  </Text>
                                 </Button>
                                 <Button
                                   component={Link}
                                   href={`/admin-panel/restaurants/${restaurant.id}/users`}
-                                  size="compact-xs"
+                                  size="xs"
                                   variant="light"
                                   leftSection={<IconUsers size={14} />}
+                                  style={{
+                                    width: "88px",
+                                    height: "24px",
+                                    padding: "0 6px",
+                                  }}
+                                  styles={{
+                                    inner: {
+                                      fontSize: "12px",
+                                      height: "100%",
+                                    },
+                                  }}
                                 >
-                                  {t("actions.users")}
+                                  <Text size="xs" truncate>
+                                    {t("actions.users")}
+                                  </Text>
                                 </Button>
                                 <Button
-                                  size="compact-xs"
+                                  size="xs"
                                   variant="light"
                                   color="red"
                                   leftSection={<IconTrash size={14} />}
@@ -209,8 +248,21 @@ function Restaurants() {
                                       restaurant.name
                                     )
                                   }
+                                  style={{
+                                    width: "88px",
+                                    height: "24px",
+                                    padding: "0 6px",
+                                  }}
+                                  styles={{
+                                    inner: {
+                                      fontSize: "12px",
+                                      height: "100%",
+                                    },
+                                  }}
                                 >
-                                  {t("actions.delete")}
+                                  <Text size="xs" truncate>
+                                    {t("actions.delete")}
+                                  </Text>
                                 </Button>
                               </Group>
                             </td>
