@@ -13,8 +13,10 @@ import {
 export type UsersRequest = {
   page: number;
   limit: number;
+  search?: string;
   filters?: {
     roles?: Role[];
+    name?: string; // Add name field to filters
   };
   sort?: Array<{
     orderBy: keyof User;
@@ -59,7 +61,6 @@ export type UsersDeleteResponse = undefined;
 // Format query params for users list endpoint
 const formatUsersQueryParams = (params: UsersRequest) => {
   const searchParams = new URLSearchParams();
-
   searchParams.append("page", params.page.toString());
   searchParams.append("limit", params.limit.toString());
 
@@ -69,6 +70,10 @@ const formatUsersQueryParams = (params: UsersRequest) => {
 
   if (params.sort) {
     searchParams.append("sort", JSON.stringify(params.sort));
+  }
+
+  if (params.search) {
+    searchParams.append("search", params.search);
   }
 
   return searchParams.toString();

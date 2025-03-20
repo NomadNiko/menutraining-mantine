@@ -19,6 +19,11 @@ const createNavigationConfig = (): NavigationItem[] => [
     path: "/admin-panel/users",
     roles: [RoleEnum.ADMIN],
   },
+  {
+    label: "common:navigation.restaurants",
+    path: "/admin-panel/restaurants",
+    roles: [RoleEnum.ADMIN],
+  },
 ];
 
 // Return navigation config with authentication items

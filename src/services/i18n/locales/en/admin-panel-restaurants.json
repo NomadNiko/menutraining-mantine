@@ -1,0 +1,69 @@
+{
+  "title": "Restaurants",
+  "createTitle": "Create Restaurant",
+  "editTitle": "Edit Restaurant",
+  "usersTitle": "Restaurant Users",
+  "noRestaurants": "No restaurants found",
+  "loadMore": "Load More",
+  "backToList": "Back to Restaurants",
+  "create": "Create Restaurant",
+  "createSuccess": "Restaurant created successfully",
+  "updateSuccess": "Restaurant updated successfully",
+  "deleteSuccess": "Restaurant deleted successfully",
+  "deleteConfirmTitle": "Delete Restaurant",
+  "deleteConfirmMessage": "Are you sure you want to delete {{name}}? This action cannot be undone.",
+
+  "table": {
+    "name": "Name",
+    "email": "Email",
+    "phone": "Phone",
+    "actions": "Actions"
+  },
+
+  "actions": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "users": "Users"
+  },
+
+  "form": {
+    "name": "Name",
+    "description": "Description",
+    "address": "Address",
+    "phone": "Phone",
+    "email": "Email",
+    "website": "Website",
+    "submit": "Create",
+    "update": "Update",
+    "cancel": "Cancel",
+
+    "validation": {
+      "nameRequired": "Name is required",
+      "emailInvalid": "Invalid email address"
+    }
+  },
+
+  "users": {
+    "addUser": "Add User",
+    "userId": "User ID",
+    "userIdPlaceholder": "Enter user ID",
+    "addButton": "Add",
+    "removeButton": "Remove",
+    "associatedUsers": "Associated Users",
+    "noUsers": "No users associated with this restaurant",
+    "addSuccess": "User added successfully",
+    "removeSuccess": "User removed successfully",
+    "removeConfirmTitle": "Remove User",
+    "removeConfirmMessage": "Are you sure you want to remove {{name}} from this restaurant?",
+
+    "table": {
+      "user": "User",
+      "email": "Email",
+      "actions": "Actions"
+    },
+
+    "validation": {
+      "userIdRequired": "User ID is required"
+    }
+  }
+}
