@@ -1,0 +1,36 @@
+{
+  "title": "Allergies Management",
+  "createTitle": "Create New Allergy",
+  "editTitle": "Edit Allergy",
+  "create": "Create Allergy",
+  "noAllergies": "No allergies found",
+  "loadMore": "Load More",
+  "deleteSuccess": "Allergy deleted successfully",
+  "updateSuccess": "Allergy updated successfully",
+  "createSuccess": "Allergy created successfully",
+  "deleteConfirmTitle": "Delete Allergy",
+  "deleteConfirmMessage": "Are you sure you want to delete the allergy '{{name}}'?",
+  "backToList": "Back to List",
+  "table": {
+    "name": "Name",
+    "actions": "Actions"
+  },
+  "actions": {
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "form": {
+    "name": "Allergy Name",
+    "logoUrl": "Logo URL",
+    "submit": "Submit",
+    "update": "Update",
+    "cancel": "Cancel",
+    "validation": {
+      "nameRequired": "Allergy name is required",
+      "urlInvalid": "Invalid URL format",
+      "server": {
+        "allergyAlreadyExists": "An allergy with this name already exists"
+      }
+    }
+  }
+}
