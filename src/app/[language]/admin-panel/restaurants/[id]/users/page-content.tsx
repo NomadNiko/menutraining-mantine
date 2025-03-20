@@ -38,6 +38,8 @@ import { IconTrash, IconSearch } from "@tabler/icons-react";
 import { useSnackbar } from "@/components/mantine/feedback/notification-service";
 import useConfirmDialog from "@/components/confirm-dialog/use-confirm-dialog";
 import { useDebouncedValue } from "@mantine/hooks";
+import { useResponsive } from "@/services/responsive/use-responsive";
+import { RestaurantUserCards } from "@/components/restaurants/RestaurantUserCards";
 
 // Define our form data type
 type AddUserFormData = {
@@ -48,7 +50,6 @@ type AddUserFormData = {
 // Create validation schema - make sure selectedUserId is optional to match our type
 const useValidationSchema = () => {
   const { t } = useTranslation("admin-panel-restaurants");
-
   // Simple schema that exactly matches our form data
   return yup.object({
     userSearch: yup.string().required(t("users.validation.userRequired")),
@@ -64,14 +65,13 @@ function RestaurantUsers() {
   const { setLoading } = useGlobalLoading();
   const { enqueueSnackbar } = useSnackbar();
   const { confirmDialog } = useConfirmDialog();
-
+  const { isMobile } = useResponsive();
   const [restaurant, setRestaurant] = useState<Restaurant | null>(null);
   const [users, setUsers] = useState<User[]>([]);
   const [searchUsers, setSearchUsers] = useState<User[]>([]);
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearchQuery] = useDebouncedValue(searchQuery, 300);
   const [isSearching, setIsSearching] = useState(false);
-
   const getRestaurantService = useGetRestaurantService();
   const getRestaurantUsersService = useGetRestaurantUsersService();
   const addUserToRestaurantService = useAddUserToRestaurantService();
@@ -96,15 +96,12 @@ function RestaurantUsers() {
       try {
         // First get the restaurant using the MongoDB ObjectId
         const restaurantResult = await getRestaurantService({ id: params.id });
-
         if (restaurantResult.status === HTTP_CODES_ENUM.OK) {
           setRestaurant(restaurantResult.data);
-
           // Then use the restaurant.restaurantId to fetch users
           const usersResult = await getRestaurantUsersService({
             restaurantId: restaurantResult.data.restaurantId,
           });
-
           if (usersResult.status === HTTP_CODES_ENUM.OK) {
             setUsers(usersResult.data);
           }
@@ -136,7 +133,6 @@ function RestaurantUsers() {
         setSearchUsers([]);
         return;
       }
-
       setIsSearching(true);
       try {
         // Just use the existing pagination approach but with a name filter
@@ -148,7 +144,6 @@ function RestaurantUsers() {
             name: debouncedSearchQuery,
           },
         });
-
         if (status === HTTP_CODES_ENUM.OK && data?.data) {
           // Filter out users that are already in the restaurant
           const currentUserIds = users.map((u) => u.id);
@@ -163,20 +158,17 @@ function RestaurantUsers() {
         setIsSearching(false);
       }
     };
-
     searchForUsers();
   }, [debouncedSearchQuery, getUsersService, users]);
 
   const onSubmit = handleSubmit(async (formData) => {
     if (!restaurant || !formData.selectedUserId) return;
-
     setLoading(true);
     try {
       const { status, data } = await addUserToRestaurantService(
         { userId: formData.selectedUserId },
         { restaurantId: restaurant.restaurantId }
       );
-
       if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY && data.errors) {
         Object.keys(data.errors).forEach((key) => {
           setError(key as keyof AddUserFormData, {
@@ -188,17 +180,14 @@ function RestaurantUsers() {
         });
         return;
       }
-
       if (status === HTTP_CODES_ENUM.OK) {
         // Refresh users list
         const usersResult = await getRestaurantUsersService({
           restaurantId: restaurant.restaurantId,
         });
-
         if (usersResult.status === HTTP_CODES_ENUM.OK) {
           setUsers(usersResult.data);
         }
-
         reset();
         setSearchQuery("");
         setSearchUsers([]);
@@ -208,11 +197,9 @@ function RestaurantUsers() {
       }
     } catch (error: unknown) {
       console.error("Error adding user:", error);
-
       // Type-safe error handling
       if (typeof error === "object" && error !== null && "response" in error) {
         const apiError = error as { response?: { status: number } };
-
         if (apiError.response?.status === 403) {
           enqueueSnackbar(
             t("users.permissionError") ||
@@ -239,12 +226,10 @@ function RestaurantUsers() {
 
   const handleRemoveUser = async (userId: string, userName: string) => {
     if (!restaurant) return;
-
     const confirmed = await confirmDialog({
       title: t("users.removeConfirmTitle"),
       message: t("users.removeConfirmMessage", { name: userName }),
     });
-
     if (confirmed) {
       setLoading(true);
       try {
@@ -252,13 +237,11 @@ function RestaurantUsers() {
           restaurantId: restaurant.restaurantId,
           userId,
         });
-
         if (status === HTTP_CODES_ENUM.OK) {
           // Update users list
           setUsers((prevUsers) =>
             prevUsers.filter((user) => user.id !== userId)
           );
-
           enqueueSnackbar(t("users.removeSuccess"), {
             variant: "success",
           });
@@ -330,7 +313,6 @@ function RestaurantUsers() {
                         onChange={(value) => {
                           field.onChange(value);
                           setSearchQuery(value);
-
                           // Find the selected user from the options
                           const selectedOption = autocompleteOptions.find(
                             (option) => option.value === value
@@ -344,13 +326,11 @@ function RestaurantUsers() {
                       />
                     )}
                   />
-
                   {formState.errors.selectedUserId && (
                     <Text color="red" size="sm">
                       {formState.errors.selectedUserId.message}
                     </Text>
                   )}
-
                   <Box>
                     <Button
                       type="submit"
@@ -369,62 +349,71 @@ function RestaurantUsers() {
               <Title order={5} mb="md">
                 {t("users.associatedUsers")}
               </Title>
-              <Table striped highlightOnHover>
-                <thead>
-                  <tr>
-                    <th>{t("users.table.user")}</th>
-                    <th>{t("users.table.email")}</th>
-                    <th style={{ width: "120px", textAlign: "right" }}>
-                      {t("users.table.actions")}
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {users.length === 0 ? (
+
+              {isMobile ? (
+                <RestaurantUserCards
+                  users={users}
+                  onRemove={handleRemoveUser}
+                  disabled={!restaurant}
+                />
+              ) : (
+                <Table striped highlightOnHover>
+                  <thead>
                     <tr>
-                      <td colSpan={3} style={{ textAlign: "center" }}>
-                        <Text>{t("users.noUsers")}</Text>
-                      </td>
+                      <th>{t("users.table.user")}</th>
+                      <th>{t("users.table.email")}</th>
+                      <th style={{ width: "120px", textAlign: "right" }}>
+                        {t("users.table.actions")}
+                      </th>
                     </tr>
-                  ) : (
-                    users.map((user) => (
-                      <tr key={user.id}>
-                        <td>
-                          <Group gap="sm">
-                            <Avatar
-                              src={user.photo?.path}
-                              alt={`${user.firstName} ${user.lastName}`}
-                              size="sm"
-                              radius="xl"
-                            />
-                            <Text>
-                              {user.firstName} {user.lastName}
-                            </Text>
-                          </Group>
-                        </td>
-                        <td>{user.email}</td>
-                        <td style={{ textAlign: "right" }}>
-                          <Button
-                            size="compact-xs"
-                            variant="light"
-                            color="red"
-                            onClick={() =>
-                              handleRemoveUser(
-                                user.id,
-                                `${user.firstName} ${user.lastName}`
-                              )
-                            }
-                            leftSection={<IconTrash size={14} />}
-                            disabled={!restaurant}
-                          >
-                            {t("users.removeButton")}
-                          </Button>
+                  </thead>
+                  <tbody>
+                    {users.length === 0 ? (
+                      <tr>
+                        <td colSpan={3} style={{ textAlign: "center" }}>
+                          <Text>{t("users.noUsers")}</Text>
                         </td>
                       </tr>
-                    ))
-                  )}
-                </tbody>
-              </Table>
+                    ) : (
+                      users.map((user) => (
+                        <tr key={user.id}>
+                          <td>
+                            <Group gap="sm">
+                              <Avatar
+                                src={user.photo?.path}
+                                alt={`${user.firstName} ${user.lastName}`}
+                                size="sm"
+                                radius="xl"
+                              />
+                              <Text>
+                                {user.firstName} {user.lastName}
+                              </Text>
+                            </Group>
+                          </td>
+                          <td>{user.email}</td>
+                          <td style={{ textAlign: "right" }}>
+                            <Button
+                              size="compact-xs"
+                              variant="light"
+                              color="red"
+                              onClick={() =>
+                                handleRemoveUser(
+                                  user.id,
+                                  `${user.firstName} ${user.lastName}`
+                                )
+                              }
+                              leftSection={<IconTrash size={14} />}
+                              disabled={!restaurant}
+                            >
+                              {t("users.removeButton")}
+                            </Button>
+                          </td>
+                        </tr>
+                      ))
+                    )}
+                  </tbody>
+                </Table>
+              )}
             </Paper>
           </Grid.Col>
         </Grid>

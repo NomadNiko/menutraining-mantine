@@ -11,6 +11,7 @@ import {
   Paper,
   Text,
   ScrollArea,
+  Box,
 } from "@mantine/core";
 import { useEffect, useState, useCallback } from "react";
 import Link from "@/components/link";
@@ -24,6 +25,7 @@ import { IconEdit, IconTrash, IconUsers } from "@tabler/icons-react";
 import useConfirmDialog from "@/components/confirm-dialog/use-confirm-dialog";
 import { useSnackbar } from "@/components/mantine/feedback/notification-service";
 import { useDeleteRestaurantService } from "@/services/api/services/restaurants";
+import { RestaurantCards } from "@/components/restaurants/RestaurantCards";
 
 function Restaurants() {
   const { t } = useTranslation("admin-panel-restaurants");
@@ -46,9 +48,7 @@ function Restaurants() {
         page,
         limit: 10,
       });
-
       console.log("Restaurant data received:", data); // Debug log
-
       if (status === HTTP_CODES_ENUM.OK) {
         // Handle different possible data structures
         if (data && Array.isArray(data.data)) {
@@ -129,98 +129,110 @@ function Restaurants() {
             </Group>
           </Grid.Col>
           <Grid.Col span={12}>
-            <Paper shadow="xs" p="md">
-              <ScrollArea h={500}>
-                <Table striped highlightOnHover>
-                  <thead>
-                    <tr>
-                      <th>{t("table.name")}</th>
-                      <th>{t("table.email")}</th>
-                      <th>{t("table.phone")}</th>
-                      <th style={{ width: "20%", textAlign: "right" }}>
-                        {t("table.actions")}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {restaurants.length === 0 ? (
+            {isMobile ? (
+              <Box>
+                <RestaurantCards
+                  restaurants={restaurants}
+                  handleLoadMore={handleLoadMore}
+                  hasMore={hasMore}
+                  loading={loading}
+                  onDelete={handleDeleteRestaurant}
+                />
+              </Box>
+            ) : (
+              <Paper shadow="xs" p="md">
+                <ScrollArea h={500}>
+                  <Table striped highlightOnHover>
+                    <thead>
                       <tr>
-                        <td colSpan={4} style={{ textAlign: "center" }}>
-                          {loading ? (
-                            <Text>Loading...</Text>
-                          ) : (
-                            <>
-                              <Text>{t("noRestaurants")}</Text>
-                              {process.env.NODE_ENV !== "production" && (
-                                <Text size="xs" c="dimmed" mt="xs">
-                                  Debug info: Restaurant count:{" "}
-                                  {restaurants?.length || 0}
-                                </Text>
-                              )}
-                            </>
-                          )}
-                        </td>
+                        <th>{t("table.name")}</th>
+                        <th>{t("table.email")}</th>
+                        <th>{t("table.phone")}</th>
+                        <th style={{ width: "20%", textAlign: "right" }}>
+                          {t("table.actions")}
+                        </th>
                       </tr>
-                    ) : (
-                      restaurants.map((restaurant) => (
-                        <tr key={restaurant.id}>
-                          <td>{restaurant.name}</td>
-                          <td>{restaurant.email || "-"}</td>
-                          <td>{restaurant.phone || "-"}</td>
-                          <td style={{ textAlign: "right" }}>
-                            <Group gap="xs" justify="flex-end">
-                              <Button
-                                component={Link}
-                                href={`/admin-panel/restaurants/edit/${restaurant.id}`}
-                                size="compact-xs"
-                                variant="light"
-                                leftSection={<IconEdit size={14} />}
-                              >
-                                {t("actions.edit")}
-                              </Button>
-                              <Button
-                                component={Link}
-                                href={`/admin-panel/restaurants/${restaurant.id}/users`}
-                                size="compact-xs"
-                                variant="light"
-                                leftSection={<IconUsers size={14} />}
-                              >
-                                {t("actions.users")}
-                              </Button>
-                              <Button
-                                size="compact-xs"
-                                variant="light"
-                                color="red"
-                                leftSection={<IconTrash size={14} />}
-                                onClick={() =>
-                                  handleDeleteRestaurant(
-                                    restaurant.id,
-                                    restaurant.name
-                                  )
-                                }
-                              >
-                                {t("actions.delete")}
-                              </Button>
-                            </Group>
+                    </thead>
+                    <tbody>
+                      {restaurants.length === 0 ? (
+                        <tr>
+                          <td colSpan={4} style={{ textAlign: "center" }}>
+                            {loading ? (
+                              <Text>Loading...</Text>
+                            ) : (
+                              <>
+                                <Text>{t("noRestaurants")}</Text>
+                                {process.env.NODE_ENV !== "production" && (
+                                  <Text size="xs" c="dimmed" mt="xs">
+                                    Debug info: Restaurant count:{" "}
+                                    {restaurants?.length || 0}
+                                  </Text>
+                                )}
+                              </>
+                            )}
                           </td>
                         </tr>
-                      ))
-                    )}
-                  </tbody>
-                </Table>
-              </ScrollArea>
-              {hasMore && (
-                <Group justify="center" mt="md">
-                  <Button
-                    onClick={handleLoadMore}
-                    disabled={loading}
-                    size="compact-sm"
-                  >
-                    {t("loadMore")}
-                  </Button>
-                </Group>
-              )}
-            </Paper>
+                      ) : (
+                        restaurants.map((restaurant) => (
+                          <tr key={restaurant.id}>
+                            <td>{restaurant.name}</td>
+                            <td>{restaurant.email || "-"}</td>
+                            <td>{restaurant.phone || "-"}</td>
+                            <td style={{ textAlign: "right" }}>
+                              <Group gap="xs" justify="flex-end">
+                                <Button
+                                  component={Link}
+                                  href={`/admin-panel/restaurants/edit/${restaurant.id}`}
+                                  size="compact-xs"
+                                  variant="light"
+                                  leftSection={<IconEdit size={14} />}
+                                >
+                                  {t("actions.edit")}
+                                </Button>
+                                <Button
+                                  component={Link}
+                                  href={`/admin-panel/restaurants/${restaurant.id}/users`}
+                                  size="compact-xs"
+                                  variant="light"
+                                  leftSection={<IconUsers size={14} />}
+                                >
+                                  {t("actions.users")}
+                                </Button>
+                                <Button
+                                  size="compact-xs"
+                                  variant="light"
+                                  color="red"
+                                  leftSection={<IconTrash size={14} />}
+                                  onClick={() =>
+                                    handleDeleteRestaurant(
+                                      restaurant.id,
+                                      restaurant.name
+                                    )
+                                  }
+                                >
+                                  {t("actions.delete")}
+                                </Button>
+                              </Group>
+                            </td>
+                          </tr>
+                        ))
+                      )}
+                    </tbody>
+                  </Table>
+                </ScrollArea>
+                {hasMore && (
+                  <Group justify="center" mt="md">
+                    <Button
+                      onClick={handleLoadMore}
+                      disabled={loading}
+                      size="compact-sm"
+                    >
+                      {t("loadMore")}
+                    </Button>
+                  </Group>
+                )}
+              </Paper>
+            )}
           </Grid.Col>
         </Grid>
       </Container>
