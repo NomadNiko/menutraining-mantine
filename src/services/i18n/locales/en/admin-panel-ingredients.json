@@ -38,7 +38,8 @@
     "name": "Name",
     "allergies": "Allergies",
     "subIngredients": "Sub-ingredients",
-    "actions": "Actions"
+    "actions": "Actions",
+    "image": " "
   },
   "actions": {
     "edit": "Edit",
