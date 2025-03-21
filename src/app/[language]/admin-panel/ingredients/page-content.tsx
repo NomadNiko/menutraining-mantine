@@ -1,4 +1,3 @@
-// src/app/[language]/admin-panel/ingredients/page-content.tsx
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import {

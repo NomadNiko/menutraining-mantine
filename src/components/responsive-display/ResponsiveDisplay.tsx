@@ -1,4 +1,3 @@
-// src/components/responsive-display/ResponsiveDisplay.tsx
 import { ReactNode } from "react";
 import { useResponsive } from "@/services/responsive/use-responsive";
 

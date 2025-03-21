@@ -1,4 +1,3 @@
-// src/components/users/UserCards.tsx
 import { useEffect, useRef } from "react";
 import { Stack, Center, Loader, Text } from "@mantine/core";
 import { User } from "@/services/api/types/user";

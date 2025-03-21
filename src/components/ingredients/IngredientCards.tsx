@@ -1,4 +1,3 @@
-// src/components/ingredients/IngredientCards.tsx
 "use client";
 import { useEffect, useRef } from "react";
 import { Stack, Center, Loader, Text } from "@mantine/core";

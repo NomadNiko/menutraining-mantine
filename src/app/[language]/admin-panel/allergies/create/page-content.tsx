@@ -1,4 +1,3 @@
-// src/app/[language]/admin-panel/allergies/create/page-content.tsx
 "use client";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import { Container, Stack, Box, Title, TextInput, Button } from "@mantine/core";

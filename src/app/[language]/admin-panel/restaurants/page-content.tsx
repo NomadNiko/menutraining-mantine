@@ -1,4 +1,3 @@
-// src/app/[language]/admin-panel/restaurants/page-content.tsx
 "use client";
 import { RoleEnum } from "@/services/api/types/role";
 import { useTranslation } from "@/services/i18n/client";

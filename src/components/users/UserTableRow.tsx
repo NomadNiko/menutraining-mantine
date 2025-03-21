@@ -1,4 +1,3 @@
-// src/components/users/UserTableRow.tsx
 import { Avatar } from "@mantine/core"; // Import Avatar directly from Mantine
 import { User } from "@/services/api/types/user";
 import { useTranslation } from "@/services/i18n/client";

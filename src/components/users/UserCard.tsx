@@ -1,4 +1,3 @@
-// src/components/users/UserCard.tsx
 import {
   Card,
   Text,

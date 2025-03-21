@@ -1,4 +1,3 @@
-// src/app/[language]/admin-panel/ingredients/create/[restaurantId]/page.tsx
 import type { Metadata } from "next";
 import { getServerTranslation } from "@/services/i18n";
 import CreateIngredient from "./page-content";

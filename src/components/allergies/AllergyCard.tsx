@@ -1,4 +1,3 @@
-// src/components/allergies/AllergyCard.tsx
 import { Card, Text, Group, Stack, Button, Image, Box } from "@mantine/core";
 import { Allergy } from "@/services/api/types/allergy";
 import { IconEdit, IconTrash } from "@tabler/icons-react";

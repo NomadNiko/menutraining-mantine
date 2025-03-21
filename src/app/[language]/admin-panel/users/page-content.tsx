@@ -1,5 +1,3 @@
-// Updated page-content.tsx with type fixes
-
 "use client";
 import { RoleEnum } from "@/services/api/types/role";
 import { useTranslation } from "@/services/i18n/client";

@@ -1,4 +1,3 @@
-// src/app/[language]/admin-panel/allergies/edit/[id]/page-content.tsx
 "use client";
 import { useForm, FormProvider, Controller } from "react-hook-form";
 import {
