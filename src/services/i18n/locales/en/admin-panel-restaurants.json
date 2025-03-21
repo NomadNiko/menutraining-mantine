@@ -32,6 +32,8 @@
     "address": "Location",
     "phone": "Phone",
     "email": "Email",
+    "currentImage": "Current Logo",
+    "currentLogo": "Current Logo",
     "website": "Website",
     "submit": "Create",
     "update": "Update",

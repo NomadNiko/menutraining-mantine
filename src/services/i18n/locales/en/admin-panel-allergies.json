@@ -23,6 +23,7 @@
   "form": {
     "name": "Allergy Name",
     "logoUrl": "Logo URL",
+    "currentImage": "Current Logo",
     "currentLogo": "Current Logo",
     "submit": "Submit",
     "update": "Update",

@@ -22,6 +22,8 @@
     "image": "Image URL (optional)",
     "searchSubIngredients": "Search Sub-ingredients",
     "selectedSubIngredients": "Selected Sub-ingredients",
+    "currentImage": "Current Logo",
+    "currentLogo": "Current Logo",
     "submit": "Create",
     "update": "Update",
     "cancel": "Cancel",

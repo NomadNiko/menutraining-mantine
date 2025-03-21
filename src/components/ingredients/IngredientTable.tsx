@@ -88,7 +88,12 @@ export default function IngredientTable({
                 {ingredient.ingredientAllergies &&
                 ingredient.ingredientAllergies.length > 0 ? (
                   ingredient.ingredientAllergies.map((allergyId: string) => (
-                    <Badge key={allergyId} size="sm">
+                    <Badge
+                      key={allergyId}
+                      size="sm"
+                      color="red"
+                      variant="light"
+                    >
                       {allergies[allergyId] || allergyId}
                     </Badge>
                   ))

@@ -65,7 +65,7 @@ export function IngredientCard({
               </Text>
               <Group gap="xs">
                 {ingredient.ingredientAllergies.map((allergyId) => (
-                  <Badge key={allergyId} size="sm">
+                  <Badge key={allergyId} size="sm" color="red" variant="light">
                     {allergies[allergyId] || allergyId}
                   </Badge>
                 ))}
