@@ -9,7 +9,9 @@
     "users": "Users",
     "logout": "Logout",
     "restaurants": "Restaurants",
-    "allergies": "Allergies"
+    "allergies": "Allergies",
+    "ingredients": "Ingredients",
+    "menuItems": "Menu Items"
   },
   "formInputs": {
     "avatarInput": {

@@ -1,3 +1,4 @@
+// src/config/navigation.ts
 import { RoleEnum } from "@/services/api/types/role";
 
 export interface NavigationItem {
@@ -28,6 +29,11 @@ const createNavigationConfig = (): NavigationItem[] => [
     label: "common:navigation.allergies",
     path: "/admin-panel/allergies",
     roles: [RoleEnum.ADMIN],
+  },
+  {
+    label: "common:navigation.ingredients",
+    path: "/admin-panel/ingredients",
+    roles: [RoleEnum.ADMIN, RoleEnum.USER],
   },
 ];
 

@@ -1,0 +1,47 @@
+{
+  "title": "Ingredients",
+  "createTitle": "Create Ingredient",
+  "editTitle": "Edit Ingredient",
+  "forRestaurant": "for {{restaurantName}}",
+  "create": "Create",
+  "fetchError": "Failed to retrieve data",
+  "createSuccess": "Ingredient created successfully",
+  "createError": "Failed to create ingredient",
+  "updateSuccess": "Ingredient updated successfully",
+  "updateError": "Failed to update ingredient",
+  "deleteSuccess": "Ingredient deleted successfully",
+  "deleteError": "Failed to delete ingredient",
+  "deleteConfirmTitle": "Delete Ingredient",
+  "deleteConfirmMessage": "Are you sure you want to delete the ingredient '{{name}}'?",
+  "noIngredients": "No ingredients found",
+  "noRestaurants": "No restaurants found",
+  "ingredientNotFound": "Ingredient not found",
+  "restaurantNotFound": "Restaurant not found",
+  "form": {
+    "name": "Ingredient Name",
+    "image": "Image URL (optional)",
+    "searchSubIngredients": "Search Sub-ingredients",
+    "selectedSubIngredients": "Selected Sub-ingredients",
+    "submit": "Create",
+    "update": "Update",
+    "cancel": "Cancel",
+    "validation": {
+      "nameRequired": "Ingredient name is required"
+    },
+    "allergies": "Allergies",
+    "searchAllergies": "Search allergies",
+    "searchAllergiesPlaceholder": "Type to search allergies...",
+    "selectedAllergies": "Selected allergies",
+    "subIngredients": "Sub-ingredients"
+  },
+  "table": {
+    "name": "Name",
+    "allergies": "Allergies",
+    "subIngredients": "Sub-ingredients",
+    "actions": "Actions"
+  },
+  "actions": {
+    "edit": "Edit",
+    "delete": "Delete"
+  }
+}

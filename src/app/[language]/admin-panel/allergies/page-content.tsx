@@ -167,11 +167,11 @@ function Allergies() {
                       ) : (
                         allergies.map((allergy) => (
                           <tr key={allergy.id}>
-                            <td style={{ width: 80, textAlign: "center" }}>
+                            <td style={{ width: 120, textAlign: "center" }}>
                               {allergy.allergyLogoUrl ? (
                                 <Avatar
                                   src={allergy.allergyLogoUrl}
-                                  size="md"
+                                  size="lg"
                                   radius="md"
                                   alt={allergy.allergyName}
                                 />
