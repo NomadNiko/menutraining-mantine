@@ -29,7 +29,7 @@
   "form": {
     "name": "Name",
     "description": "Description",
-    "address": "Address",
+    "address": "Location",
     "phone": "Phone",
     "email": "Email",
     "website": "Website",

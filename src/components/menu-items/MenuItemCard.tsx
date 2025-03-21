@@ -16,19 +16,11 @@ import { MenuItem } from "@/services/api/types/menu-item";
 
 interface MenuItemCardProps {
   menuItem: MenuItem;
-  ingredients: { [key: string]: string };
-  getMenuItemAllergies: (menuItem: MenuItem) => { id: string; name: string }[];
   onDelete: (id: string, name: string) => void;
 }
 
-export function MenuItemCard({
-  menuItem,
-  ingredients,
-  getMenuItemAllergies,
-  onDelete,
-}: MenuItemCardProps) {
+export function MenuItemCard({ menuItem, onDelete }: MenuItemCardProps) {
   const { t } = useTranslation("admin-panel-menu-items");
-  const allergies = getMenuItemAllergies(menuItem);
 
   return (
     <Card shadow="sm" p="md" radius="md" withBorder mb="sm">
@@ -52,35 +44,32 @@ export function MenuItemCard({
             </Text>
           </Box>
         </Group>
-
         {menuItem.menuItemDescription && (
           <Text size="sm" lineClamp={3}>
             {menuItem.menuItemDescription}
           </Text>
         )}
-
-        {menuItem.menuItemIngredients?.length > 0 && (
+        {menuItem.ingredientNames?.length > 0 && (
           <Stack gap="xs">
             <Text size="sm" fw={500} c="dimmed">
               {t("table.ingredients")}:
             </Text>
             <Group gap="xs">
-              {menuItem.menuItemIngredients.map((ingredientId) => (
-                <Badge key={ingredientId} size="sm">
-                  {ingredients[ingredientId] || ingredientId}
+              {menuItem.ingredientNames.map((name, index) => (
+                <Badge key={index} size="sm">
+                  {name}
                 </Badge>
               ))}
             </Group>
           </Stack>
         )}
-
-        {allergies.length > 0 && (
+        {menuItem.allergies?.length > 0 && (
           <Stack gap="xs">
             <Text size="sm" fw={500} c="dimmed">
               {t("table.allergies")}:
             </Text>
             <Group gap="xs">
-              {allergies.map((allergy) => (
+              {menuItem.allergies.map((allergy) => (
                 <Badge key={allergy.id} size="sm" color="red">
                   {allergy.name}
                 </Badge>
@@ -89,7 +78,6 @@ export function MenuItemCard({
           </Stack>
         )}
       </Stack>
-
       <Group justify="flex-end" mt="md">
         <Button
           component={Link}

@@ -7,8 +7,6 @@ import { MenuItem } from "@/services/api/types/menu-item";
 
 interface MenuItemCardsProps {
   menuItems: MenuItem[];
-  ingredients: { [key: string]: string };
-  getMenuItemAllergies: (menuItem: MenuItem) => { id: string; name: string }[];
   handleLoadMore?: () => void;
   hasMore?: boolean;
   loading?: boolean;
@@ -17,8 +15,6 @@ interface MenuItemCardsProps {
 
 export function MenuItemCards({
   menuItems,
-  ingredients,
-  getMenuItemAllergies,
   handleLoadMore,
   hasMore = false,
   loading = false,
@@ -31,7 +27,6 @@ export function MenuItemCards({
   useEffect(() => {
     const currentTarget = observerTarget.current;
     if (!currentTarget || !hasMore || loading || !handleLoadMore) return;
-
     const observer = new IntersectionObserver(
       (entries) => {
         if (entries[0].isIntersecting) {
@@ -40,7 +35,6 @@ export function MenuItemCards({
       },
       { threshold: 0.1 }
     );
-
     observer.observe(currentTarget);
     return () => {
       if (currentTarget) {
@@ -71,18 +65,14 @@ export function MenuItemCards({
         <MenuItemCard
           key={menuItem.id}
           menuItem={menuItem}
-          ingredients={ingredients}
-          getMenuItemAllergies={getMenuItemAllergies}
           onDelete={onDelete}
         />
       ))}
-
       {loading && hasMore && (
         <Center p="md">
           <Loader size="sm" />
         </Center>
       )}
-
       <div ref={observerTarget} style={{ height: 10 }}></div>
     </Stack>
   );

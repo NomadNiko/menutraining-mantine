@@ -1,4 +1,3 @@
-// src/app/[language]/admin-panel/menu-items/page-content.tsx
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import {
@@ -14,8 +13,6 @@ import {
 } from "@mantine/core";
 import { useGetRestaurantsService } from "@/services/api/services/restaurants";
 import { useGetMenuItemsService } from "@/services/api/services/menu-items";
-import { useGetIngredientsService } from "@/services/api/services/ingredients";
-import { useGetAllergiesService } from "@/services/api/services/allergies";
 import { useResponsive } from "@/services/responsive/use-responsive";
 import { useTranslation } from "@/services/i18n/client";
 import Link from "@/components/link";
@@ -30,9 +27,6 @@ import { RoleEnum } from "@/services/api/types/role";
 import RouteGuard from "@/services/auth/route-guard";
 import { Restaurant } from "@/services/api/types/restaurant";
 import { MenuItem } from "@/services/api/types/menu-item";
-import { Allergy } from "@/services/api/types/allergy";
-import { Ingredient } from "@/services/api/types/ingredient";
-import removeDuplicatesFromArrayObjects from "@/services/helpers/remove-duplicates-from-array-of-objects";
 
 function MenuItemsPage() {
   const { t } = useTranslation("admin-panel-menu-items");
@@ -45,15 +39,6 @@ function MenuItemsPage() {
   const [menuItemsByRestaurant, setMenuItemsByRestaurant] = useState<{
     [key: string]: MenuItem[];
   }>({});
-  const [ingredientsMap, setIngredientsMap] = useState<{
-    [key: string]: string;
-  }>({});
-  const [allergiesMap, setAllergiesMap] = useState<{ [key: string]: string }>(
-    {}
-  );
-  const [ingredientDetails, setIngredientDetails] = useState<{
-    [key: string]: Ingredient;
-  }>({});
   const [loadingRestaurants, setLoadingRestaurants] = useState(true);
   const [loadingData, setLoadingData] = useState<{ [key: string]: boolean }>(
     {}
@@ -61,22 +46,18 @@ function MenuItemsPage() {
 
   const getRestaurantsService = useGetRestaurantsService();
   const getMenuItemsService = useGetMenuItemsService();
-  const getIngredientsService = useGetIngredientsService();
-  const getAllergiesService = useGetAllergiesService();
   const deleteMenuItemService = useDeleteMenuItemService();
 
-  // Fetch restaurants, ingredients, and allergies
+  // Fetch restaurants
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchRestaurants = async () => {
       setLoadingRestaurants(true);
       setLoading(true);
       try {
-        // Fetch restaurants
         const { status, data } = await getRestaurantsService(undefined, {
           page: 1,
-          limit: 100,
+          limit: 100, // Assuming reasonable number of restaurants
         });
-
         if (status === HTTP_CODES_ENUM.OK) {
           const restaurantsArray = Array.isArray(data)
             ? data
@@ -89,80 +70,27 @@ function MenuItemsPage() {
           });
           setLoadingData(loadingState);
         }
-
-        // Fetch ingredients to map IDs to ingredients details
-        const ingredientsResult = await getIngredientsService(undefined, {
-          page: 1,
-          limit: 500, // Increased limit to get more ingredients
-        });
-
-        if (ingredientsResult.status === HTTP_CODES_ENUM.OK) {
-          const ingredientsArray = Array.isArray(ingredientsResult.data)
-            ? ingredientsResult.data
-            : ingredientsResult.data?.data || [];
-
-          const ingredientsMap: { [key: string]: string } = {};
-          const ingredientDetailsMap: { [key: string]: Ingredient } = {};
-
-          ingredientsArray.forEach((ingredient: Ingredient) => {
-            ingredientsMap[ingredient.ingredientId] = ingredient.ingredientName;
-            ingredientDetailsMap[ingredient.ingredientId] = ingredient;
-          });
-
-          setIngredientsMap(ingredientsMap);
-          setIngredientDetails(ingredientDetailsMap);
-        }
-
-        // Fetch allergies to map IDs to names
-        const allergiesResult = await getAllergiesService(undefined, {
-          page: 1,
-          limit: 100,
-        });
-
-        if (allergiesResult.status === HTTP_CODES_ENUM.OK) {
-          const allergiesArray = Array.isArray(allergiesResult.data)
-            ? allergiesResult.data
-            : allergiesResult.data?.data || [];
-
-          const allergiesMap: { [key: string]: string } = {};
-
-          allergiesArray.forEach((allergy: Allergy) => {
-            allergiesMap[allergy.allergyId] = allergy.allergyName;
-          });
-
-          setAllergiesMap(allergiesMap);
-        }
       } catch (error) {
-        console.error("Error fetching data:", error);
+        console.error("Error fetching restaurants:", error);
         enqueueSnackbar(t("fetchError"), { variant: "error" });
       } finally {
         setLoadingRestaurants(false);
         setLoading(false);
       }
     };
-
-    fetchData();
-  }, [
-    getRestaurantsService,
-    getIngredientsService,
-    getAllergiesService,
-    setLoading,
-    t,
-    enqueueSnackbar,
-  ]);
+    fetchRestaurants();
+  }, [getRestaurantsService, setLoading, t, enqueueSnackbar]);
 
   // Load menu items for a specific restaurant
   const loadMenuItemsForRestaurant = useCallback(
     async (restaurantId: string) => {
       setLoadingData((prev) => ({ ...prev, [restaurantId]: true }));
-
       try {
         const { status, data } = await getMenuItemsService(undefined, {
           restaurantId,
           page: 1,
           limit: 100,
         });
-
         if (status === HTTP_CODES_ENUM.OK) {
           const menuItemsArray = Array.isArray(data) ? data : data?.data || [];
           setMenuItemsByRestaurant((prev) => ({
@@ -182,32 +110,6 @@ function MenuItemsPage() {
     [getMenuItemsService]
   );
 
-  // Helper function to get all allergies for a menu item
-  const getMenuItemAllergies = useCallback(
-    (menuItem: MenuItem) => {
-      // Get unique allergies from all ingredients in this menu item
-      const allergies: { id: string; name: string }[] = [];
-
-      menuItem.menuItemIngredients.forEach((ingredientId) => {
-        const ingredient = ingredientDetails[ingredientId];
-        if (ingredient && ingredient.ingredientAllergies) {
-          ingredient.ingredientAllergies.forEach((allergyId) => {
-            if (allergiesMap[allergyId]) {
-              allergies.push({
-                id: allergyId,
-                name: allergiesMap[allergyId],
-              });
-            }
-          });
-        }
-      });
-
-      // Remove duplicates
-      return removeDuplicatesFromArrayObjects(allergies, "id");
-    },
-    [ingredientDetails, allergiesMap]
-  );
-
   // Load menu items when an accordion item is opened
   const handleAccordionChange = (value: string | null) => {
     if (value && !menuItemsByRestaurant[value]) {
@@ -221,7 +123,6 @@ function MenuItemsPage() {
       title: t("deleteConfirmTitle"),
       message: t("deleteConfirmMessage", { name }),
     });
-
     if (confirmed) {
       setLoading(true);
       try {
@@ -253,7 +154,6 @@ function MenuItemsPage() {
         <Title order={2} mb="xl">
           {t("title")}
         </Title>
-
         {loadingRestaurants ? (
           <Center p="xl">
             <Loader size="md" />
@@ -285,7 +185,6 @@ function MenuItemsPage() {
                       {t("create")}
                     </Button>
                   </Group>
-
                   <Paper p="md" withBorder>
                     {loadingData[restaurant.restaurantId] ? (
                       <Center p="md">
@@ -296,8 +195,6 @@ function MenuItemsPage() {
                         menuItems={
                           menuItemsByRestaurant[restaurant.restaurantId] || []
                         }
-                        ingredients={ingredientsMap}
-                        getMenuItemAllergies={getMenuItemAllergies}
                         onDelete={handleDeleteMenuItem}
                       />
                     ) : (
@@ -305,8 +202,6 @@ function MenuItemsPage() {
                         menuItems={
                           menuItemsByRestaurant[restaurant.restaurantId] || []
                         }
-                        ingredients={ingredientsMap}
-                        getMenuItemAllergies={getMenuItemAllergies}
                         onDelete={handleDeleteMenuItem}
                       />
                     )}

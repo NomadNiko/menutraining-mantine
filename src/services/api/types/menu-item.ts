@@ -1,3 +1,4 @@
+// ./menutraining-mantine/src/services/api/types/menu-item.ts
 export type MenuItem = {
   id: string;
   menuItemId: string;
@@ -6,6 +7,9 @@ export type MenuItem = {
   menuItemIngredients: string[];
   menuItemUrl?: string | null;
   restaurantId: string;
+  // New fields from backend
+  ingredientNames: string[];
+  allergies: { id: string; name: string }[];
 };
 
 export type CreateMenuItemDto = {
