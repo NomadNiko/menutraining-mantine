@@ -29,6 +29,7 @@
     "searchIngredientsPlaceholder": "Start typing to search for ingredients...",
     "selectedIngredients": "Selected Ingredients",
     "submit": "Create Menu Item",
+    "derivedAllergies": "Derived Allergies",
     "update": "Update Menu Item",
     "cancel": "Cancel",
 

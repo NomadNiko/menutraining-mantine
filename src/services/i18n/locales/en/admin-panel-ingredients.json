@@ -34,6 +34,7 @@
     "searchAllergies": "Search allergies",
     "searchAllergiesPlaceholder": "Type to search allergies...",
     "selectedAllergies": "Selected allergies",
+    "derivedAllergies": "Derived Allergies",
     "subIngredients": "Sub-ingredients"
   },
   "table": {
@@ -41,6 +42,7 @@
     "allergies": "Allergies",
     "subIngredients": "Sub-ingredients",
     "actions": "Actions",
+    "derivedAllergies": "Nested Allergies",
     "image": " "
   },
   "actions": {

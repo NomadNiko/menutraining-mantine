@@ -6,12 +6,13 @@ export type Ingredient = {
   ingredientImageUrl?: string | null;
   subIngredients: string[];
   restaurantId: string;
+  derivedAllergies?: string[]; // New field for allergies derived from sub-ingredients
 };
 
 export type CreateIngredientDto = {
   ingredientName: string;
   ingredientAllergies: string[];
-  ingredientImageUrl?: string | null; // This will store the path from FileEntity
+  ingredientImageUrl?: string | null;
   subIngredients?: string[];
   restaurantId: string;
 };

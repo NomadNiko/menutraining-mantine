@@ -85,23 +85,45 @@ export default function IngredientTable({
             </td>
             <td>
               <Group>
+                {/* Direct allergies */}
                 {ingredient.ingredientAllergies &&
-                ingredient.ingredientAllergies.length > 0 ? (
-                  ingredient.ingredientAllergies.map((allergyId: string) => (
-                    <Badge
-                      key={allergyId}
-                      size="sm"
-                      color="red"
-                      variant="light"
-                    >
-                      {allergies[allergyId] || allergyId}
-                    </Badge>
-                  ))
-                ) : (
-                  <Text size="sm" c="dimmed">
-                    -
-                  </Text>
-                )}
+                ingredient.ingredientAllergies.length > 0
+                  ? ingredient.ingredientAllergies.map((allergyId: string) => (
+                      <Badge
+                        key={allergyId}
+                        size="sm"
+                        color="red"
+                        variant="filled"
+                      >
+                        {allergies[allergyId] || allergyId}
+                      </Badge>
+                    ))
+                  : null}
+
+                {/* Derived allergies */}
+                {ingredient.derivedAllergies &&
+                ingredient.derivedAllergies.length > 0
+                  ? ingredient.derivedAllergies.map((allergyId: string) => (
+                      <Badge
+                        key={`derived-${allergyId}`}
+                        size="sm"
+                        color="red"
+                        variant="outline"
+                      >
+                        {allergies[allergyId] || allergyId}
+                      </Badge>
+                    ))
+                  : null}
+
+                {/* Show message if no allergies at all */}
+                {(!ingredient.ingredientAllergies ||
+                  ingredient.ingredientAllergies.length === 0) &&
+                  (!ingredient.derivedAllergies ||
+                    ingredient.derivedAllergies.length === 0) && (
+                    <Text size="sm" c="dimmed">
+                      -
+                    </Text>
+                  )}
               </Group>
             </td>
             <td>

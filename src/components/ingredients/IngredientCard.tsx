@@ -21,6 +21,7 @@ interface IngredientCardProps {
     ingredientAllergies: string[];
     ingredientImageUrl?: string | null;
     subIngredients: string[];
+    derivedAllergies?: string[];
   };
   allergies: { [key: string]: string };
   subIngredientNames: { [key: string]: string };
@@ -34,6 +35,7 @@ export function IngredientCard({
   onDelete,
 }: IngredientCardProps) {
   const { t } = useTranslation("admin-panel-ingredients");
+
   return (
     <Card shadow="sm" p="md" radius="md" withBorder mb="sm">
       <Stack gap="xs">
@@ -57,6 +59,7 @@ export function IngredientCard({
           </Box>
         </Group>
 
+        {/* Direct allergies */}
         {ingredient.ingredientAllergies &&
           ingredient.ingredientAllergies.length > 0 && (
             <Stack gap="xs">
@@ -65,13 +68,37 @@ export function IngredientCard({
               </Text>
               <Group gap="xs">
                 {ingredient.ingredientAllergies.map((allergyId) => (
-                  <Badge key={allergyId} size="sm" color="red" variant="light">
+                  <Badge key={allergyId} size="sm" color="red" variant="filled">
                     {allergies[allergyId] || allergyId}
                   </Badge>
                 ))}
               </Group>
             </Stack>
           )}
+
+        {/* Derived allergies */}
+        {ingredient.derivedAllergies &&
+          ingredient.derivedAllergies.length > 0 && (
+            <Stack gap="xs">
+              <Text size="sm" fw={500} c="dimmed">
+                {t("table.derivedAllergies")}:
+              </Text>
+              <Group gap="xs">
+                {ingredient.derivedAllergies.map((allergyId) => (
+                  <Badge
+                    key={allergyId}
+                    size="sm"
+                    color="red"
+                    variant="outline"
+                  >
+                    {allergies[allergyId] || allergyId}
+                  </Badge>
+                ))}
+              </Group>
+            </Stack>
+          )}
+
+        {/* Sub-ingredients */}
         {ingredient.subIngredients && ingredient.subIngredients.length > 0 && (
           <Stack gap="xs">
             <Text size="sm" fw={500} c="dimmed">
@@ -87,6 +114,7 @@ export function IngredientCard({
           </Stack>
         )}
       </Stack>
+
       <Group justify="flex-end" mt="md">
         <Button
           component={Link}
