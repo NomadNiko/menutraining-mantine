@@ -19,6 +19,7 @@ import "@mantine/notifications/styles.css";
 import "../globals.css";
 import "@/services/i18n/config";
 import GlobalLoadingProvider from "@/services/loading/global-loading-provider";
+import RestaurantContextProvider from "@/services/restaurant/restaurant-context-provider";
 
 type Props = {
   params: Promise<{ language: string }>;
@@ -58,13 +59,15 @@ export default async function RootLayout(props: {
               <ConfirmDialogProvider>
                 <GlobalLoadingProvider>
                   <AuthProvider>
-                    <GoogleAuthProvider>
-                      <LeavePageProvider>
-                        <NotificationsProvider>
-                          <ResponsiveAppBar>{children}</ResponsiveAppBar>
-                        </NotificationsProvider>
-                      </LeavePageProvider>
-                    </GoogleAuthProvider>
+                    <RestaurantContextProvider>
+                      <GoogleAuthProvider>
+                        <LeavePageProvider>
+                          <NotificationsProvider>
+                            <ResponsiveAppBar>{children}</ResponsiveAppBar>
+                          </NotificationsProvider>
+                        </LeavePageProvider>
+                      </GoogleAuthProvider>
+                    </RestaurantContextProvider>
                   </AuthProvider>
                 </GlobalLoadingProvider>
               </ConfirmDialogProvider>
