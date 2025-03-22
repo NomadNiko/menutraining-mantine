@@ -22,7 +22,7 @@ const Logo = ({ isMobile = false }: LogoProps) => {
         textDecoration: "none",
       }}
     >
-      <Text size={isMobile ? "xl" : "lg"} fw={700}>
+      <Text size={isMobile ? "lg" : "md"} fw={500}>
         {t("common:app-name")}
       </Text>
     </Anchor>

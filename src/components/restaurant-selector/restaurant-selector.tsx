@@ -1,15 +1,17 @@
+// ./menutraining-mantine/src/components/restaurant-selector/restaurant-selector.tsx
 "use client";
-import { Box, Menu, Button, Text, Group } from "@mantine/core";
+import { Box, Menu, Button, Text, Group, ActionIcon } from "@mantine/core";
 import { IconBuilding, IconChevronDown } from "@tabler/icons-react";
 import useSelectedRestaurant from "@/services/restaurant/use-selected-restaurant";
+import { useResponsive } from "@/services/responsive/use-responsive";
 import { useState } from "react";
 
 const RestaurantSelector = () => {
   const { selectedRestaurant, availableRestaurants, setSelectedRestaurant } =
     useSelectedRestaurant();
   const [menuOpened, setMenuOpened] = useState(false);
+  const { isMobile } = useResponsive();
 
-  // Remove all conditional rendering for testing
   return (
     <Box>
       <Menu
@@ -19,15 +21,26 @@ const RestaurantSelector = () => {
         offset={5}
       >
         <Menu.Target>
-          <Button
-            variant="subtle"
-            leftSection={<IconBuilding size={16} />}
-            rightSection={<IconChevronDown size={14} />}
-            data-testid="restaurant-selector"
-            size="compact-sm"
-          >
-            {selectedRestaurant?.name || "Select Restaurant"}
-          </Button>
+          {isMobile ? (
+            <ActionIcon
+              variant="subtle"
+              size="lg"
+              aria-label="Select restaurant"
+              data-testid="restaurant-selector-mobile"
+            >
+              <IconBuilding size={20} />
+            </ActionIcon>
+          ) : (
+            <Button
+              variant="subtle"
+              leftSection={<IconBuilding size={16} />}
+              rightSection={<IconChevronDown size={14} />}
+              data-testid="restaurant-selector"
+              size="compact-sm"
+            >
+              {selectedRestaurant?.name || "Select Restaurant"}
+            </Button>
+          )}
         </Menu.Target>
         <Menu.Dropdown>
           {(availableRestaurants || []).map((restaurant) => (

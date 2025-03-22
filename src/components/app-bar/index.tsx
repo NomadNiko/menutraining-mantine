@@ -8,11 +8,15 @@ import MobileNavigation from "./mobile-navigation";
 import AuthSection from "./auth-section";
 import RestaurantSelector from "../restaurant-selector/restaurant-selector";
 import useAuth from "@/services/auth/use-auth";
+import { RoleEnum } from "@/services/api/types/role";
 
 const ResponsiveAppBar = ({ children }: { children: React.ReactNode }) => {
   const [opened, setOpened] = useState(false);
   const { user } = useAuth();
-  const isRegularUser = !!user;
+
+  // Correct role checking pattern matching the rest of the application
+  const isRegularUser =
+    user && user.role?.id && String(user.role.id) === String(RoleEnum.USER);
 
   return (
     <AppShell
@@ -41,18 +45,14 @@ const ResponsiveAppBar = ({ children }: { children: React.ReactNode }) => {
               {/* Desktop Navigation - moved next to Logo */}
               <DesktopNavigation onCloseMenu={() => setOpened(false)} />
             </Group>
-
             {/* Mobile Logo - centered */}
             <Logo isMobile />
-
             {/* Right side: Restaurant Selector, Theme Switch and Auth Section */}
             <Group>
               {/* Restaurant Selector - only for regular users */}
               {isRegularUser && <RestaurantSelector />}
-
               {/* Theme Switch Button */}
               <SwitchThemeButton />
-
               {/* Authentication Section */}
               <AuthSection />
             </Group>
@@ -63,7 +63,6 @@ const ResponsiveAppBar = ({ children }: { children: React.ReactNode }) => {
         <MobileNavigation onCloseMenu={() => setOpened(false)} />
       </AppShell.Navbar>
       <AppShell.Main>{children}</AppShell.Main>
-
       {/* Overlay to allow clicking outside navbar to close it */}
       {opened && (
         <div
