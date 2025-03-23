@@ -1,52 +1,93 @@
 {
   "title": "Ingredients",
-  "createTitle": "Create Ingredient",
-  "editTitle": "Edit Ingredient",
-  "forRestaurant": "for {{restaurantName}}",
-  "create": "Create",
-  "fetchError": "Failed to retrieve data",
-  "createSuccess": "Ingredient created successfully",
-  "createError": "Failed to create ingredient",
-  "updateSuccess": "Ingredient updated successfully",
-  "updateError": "Failed to update ingredient",
-  "deleteSuccess": "Ingredient deleted successfully",
-  "deleteError": "Failed to delete ingredient",
-  "deleteConfirmTitle": "Delete Ingredient",
-  "deleteConfirmMessage": "Are you sure you want to delete the ingredient '{{name}}'?",
+  "create": "New Ingredient",
   "noIngredients": "No ingredients found",
-  "noRestaurants": "No restaurants found",
-  "ingredientNotFound": "Ingredient not found",
-  "restaurantNotFound": "Restaurant not found",
-  "form": {
-    "name": "Ingredient Name",
-    "image": "Image URL (optional)",
-    "searchSubIngredients": "Search Sub-ingredients",
-    "selectedSubIngredients": "Selected Sub-ingredients",
-    "currentImage": "Current Logo",
-    "currentLogo": "Current Logo",
-    "submit": "Create",
-    "update": "Update",
-    "cancel": "Cancel",
-    "validation": {
-      "nameRequired": "Ingredient name is required"
-    },
-    "allergies": "Allergies",
-    "searchAllergies": "Search allergies",
-    "searchAllergiesPlaceholder": "Type to search allergies...",
-    "selectedAllergies": "Selected allergies",
-    "derivedAllergies": "Derived Allergies",
-    "subIngredients": "Sub-ingredients"
+  "deleteConfirmTitle": "Delete Ingredient",
+  "deleteConfirmMessage": "Are you sure you want to delete {{name}}?",
+  "deleteSuccess": "Ingredient deleted successfully!",
+  "deleteError": "Error deleting ingredient",
+  "fetchError": "Error loading data",
+  "errorLoading": "Error loading ingredients. Please try again.",
+  "forRestaurant": "for {{restaurantName}}",
+  "noRestaurantSelected": "No restaurant selected",
+  "unauthorized": "You do not have permission to access this ingredient",
+
+  "search": {
+    "placeholder": "Search ingredients...",
+    "ariaLabel": "Search ingredients"
   },
+
+  "filters": {
+    "title": "Filters",
+    "active": "{{count}} active filters",
+    "show": "Show filters",
+    "hide": "Hide filters",
+    "apply": "Apply filters",
+    "reset": "Reset filters",
+    "allergies": {
+      "label": "Filter by allergies",
+      "placeholder": "Select allergies..."
+    },
+    "hasSubIngredients": {
+      "label": "Has sub-ingredients"
+    },
+    "allergyMode": {
+      "label": "Allergy Filter Mode",
+      "exclude": "Without allergies",
+      "include": "With allergies",
+      "excludeHint": "Show ingredients that do NOT contain selected allergies",
+      "includeHint": "Show ingredients that DO contain selected allergies"
+    }
+  },
+
+  "results": {
+    "loading": "Loading ingredients...",
+    "noIngredients": "No ingredients found",
+    "noMatchingIngredients": "No ingredients match your filters",
+    "showing": "Showing {{start}}-{{end}} of {{total}} ingredients",
+    "filtered": "with filters",
+    "search": "Search",
+    "hasSubIngredients": "Has sub-ingredients",
+    "noSubIngredients": "No sub-ingredients",
+    "excludes": "Free from",
+    "includes": "Contains"
+  },
+
+  "pagination": {
+    "show": "Show",
+    "itemsPerPage": "{{count}} per page"
+  },
+
   "table": {
+    "image": "Image",
     "name": "Name",
     "allergies": "Allergies",
+    "derivedAllergies": "Derived Allergies",
     "subIngredients": "Sub-ingredients",
-    "actions": "Actions",
-    "derivedAllergies": "Nested Allergies",
-    "image": " "
+    "actions": "Actions"
   },
+
   "actions": {
     "edit": "Edit",
     "delete": "Delete"
+  },
+
+  "form": {
+    "name": "Ingredient Name",
+    "allergies": "Allergies",
+    "subIngredients": "Sub-ingredients",
+    "validation": {
+      "nameRequired": "Ingredient name is required"
+    },
+    "searchAllergies": "Search Allergies",
+    "searchAllergiesPlaceholder": "Type to search allergies...",
+    "selectedAllergies": "Selected Allergies",
+    "searchSubIngredients": "Search Sub-ingredients",
+    "selectedSubIngredients": "Selected Sub-ingredients",
+    "currentImage": "Current Image",
+    "imageAlt": "Ingredient Image",
+    "submit": "Save Ingredient",
+    "update": "Update Ingredient",
+    "cancel": "Cancel"
   }
 }

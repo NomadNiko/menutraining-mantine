@@ -9,11 +9,19 @@ import {
   Loader,
   Image,
   Box,
+  UnstyledButton,
+  Flex,
 } from "@mantine/core";
-import { IconEdit, IconTrash } from "@tabler/icons-react";
+import {
+  IconEdit,
+  IconTrash,
+  IconSortAscending,
+  IconSortDescending,
+} from "@tabler/icons-react";
 import Link from "@/components/link";
 import { useTranslation } from "@/services/i18n/client";
 import { Ingredient } from "@/services/api/types/ingredient";
+import { memo } from "react";
 
 interface IngredientTableProps {
   ingredients: Ingredient[];
@@ -21,14 +29,59 @@ interface IngredientTableProps {
   subIngredientNames: { [key: string]: string };
   loading?: boolean;
   onDelete: (id: string, name: string) => void;
+  sortField?: string;
+  sortDirection?: "asc" | "desc";
+  onSort?: (field: string) => void;
 }
 
-export default function IngredientTable({
+function SortableTableHeader({
+  label,
+  field,
+  currentSortField,
+  currentSortDirection,
+  onSort,
+}: {
+  label: string;
+  field: string;
+  currentSortField?: string;
+  currentSortDirection?: "asc" | "desc";
+  onSort?: (field: string) => void;
+}) {
+  const isActive = currentSortField === field;
+
+  return (
+    <UnstyledButton
+      onClick={() => onSort && onSort(field)}
+      style={{
+        display: "flex",
+        alignItems: "center",
+        cursor: onSort ? "pointer" : "default",
+        width: "100%",
+      }}
+      data-testid={`sort-${field}`}
+    >
+      <Flex align="center" justify="space-between">
+        <Text fw={500}>{label}</Text>
+        {isActive &&
+          (currentSortDirection === "asc" ? (
+            <IconSortAscending size={14} />
+          ) : (
+            <IconSortDescending size={14} />
+          ))}
+      </Flex>
+    </UnstyledButton>
+  );
+}
+
+function IngredientTableComponent({
   ingredients,
   allergies,
   subIngredientNames,
   loading = false,
   onDelete,
+  sortField,
+  sortDirection,
+  onSort,
 }: IngredientTableProps) {
   const { t } = useTranslation("admin-panel-ingredients");
 
@@ -53,9 +106,33 @@ export default function IngredientTable({
       <thead>
         <tr>
           <th style={{ width: 80 }}>{t("table.image")}</th>
-          <th>{t("table.name")}</th>
-          <th>{t("table.allergies")}</th>
-          <th>{t("table.subIngredients")}</th>
+          <th>
+            <SortableTableHeader
+              label={t("table.name")}
+              field="ingredientName"
+              currentSortField={sortField}
+              currentSortDirection={sortDirection}
+              onSort={onSort}
+            />
+          </th>
+          <th>
+            <SortableTableHeader
+              label={t("table.allergies")}
+              field="allergies"
+              currentSortField={sortField}
+              currentSortDirection={sortDirection}
+              onSort={onSort}
+            />
+          </th>
+          <th>
+            <SortableTableHeader
+              label={t("table.subIngredients")}
+              field="subIngredients"
+              currentSortField={sortField}
+              currentSortDirection={sortDirection}
+              onSort={onSort}
+            />
+          </th>
           <th style={{ textAlign: "right" }}>{t("table.actions")}</th>
         </tr>
       </thead>
@@ -99,7 +176,6 @@ export default function IngredientTable({
                       </Badge>
                     ))
                   : null}
-
                 {/* Derived allergies */}
                 {ingredient.derivedAllergies &&
                 ingredient.derivedAllergies.length > 0
@@ -114,7 +190,6 @@ export default function IngredientTable({
                       </Badge>
                     ))
                   : null}
-
                 {/* Show message if no allergies at all */}
                 {(!ingredient.ingredientAllergies ||
                   ingredient.ingredientAllergies.length === 0) &&
@@ -198,3 +273,7 @@ export default function IngredientTable({
     </Table>
   );
 }
+
+// Memoize the component to prevent unnecessary re-renders
+const IngredientTable = memo(IngredientTableComponent);
+export default IngredientTable;

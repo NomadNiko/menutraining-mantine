@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import {
   Container,
   Title,
@@ -7,11 +7,9 @@ import {
   Button,
   Text,
   Group,
-  Loader,
+  Stack,
   Center,
 } from "@mantine/core";
-import { useGetIngredientsService } from "@/services/api/services/ingredients";
-import { useGetAllergiesService } from "@/services/api/services/allergies";
 import { useResponsive } from "@/services/responsive/use-responsive";
 import { useTranslation } from "@/services/i18n/client";
 import Link from "@/components/link";
@@ -22,9 +20,15 @@ import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import useConfirmDialog from "@/components/confirm-dialog/use-confirm-dialog";
 import { useSnackbar } from "@/components/mantine/feedback/notification-service";
 import { useDeleteIngredientService } from "@/services/api/services/ingredients";
-import { Ingredient } from "@/services/api/types/ingredient";
-import { Allergy } from "@/services/api/types/allergy";
 import useSelectedRestaurant from "@/services/restaurant/use-selected-restaurant";
+
+// Import new components
+import { SearchBar } from "@/components/ingredients/SearchBar";
+import { FilterPanel } from "@/components/ingredients/FilterPanel";
+import { PaginationControls } from "@/components/ingredients/PaginationControls";
+import { ResultsInfo } from "@/components/ingredients/ResultsInfo";
+import { useIngredientsQuery } from "@/hooks/useIngredientsQuery";
+import { useSearchParams } from "next/navigation";
 
 function RestaurantIngredientsPage() {
   const { t } = useTranslation("admin-panel-ingredients");
@@ -33,101 +37,140 @@ function RestaurantIngredientsPage() {
   const { confirmDialog } = useConfirmDialog();
   const { enqueueSnackbar } = useSnackbar();
   const { selectedRestaurant } = useSelectedRestaurant();
-
-  const [ingredients, setIngredients] = useState<Ingredient[]>([]);
-  const [allergiesMap, setAllergiesMap] = useState<{ [key: string]: string }>(
-    {}
-  );
-  const [subIngredientNames, setSubIngredientNames] = useState<{
-    [key: string]: string;
-  }>({});
-  const [loading, setLocalLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
-
-  const getIngredientsService = useGetIngredientsService();
-  const getAllergiesService = useGetAllergiesService();
   const deleteIngredientService = useDeleteIngredientService();
+  const searchParams = useSearchParams();
 
-  // Fetch ingredients for the selected restaurant
-  const fetchIngredients = useCallback(async () => {
+  // Get URL parameters or use defaults
+  const initialPage = Number(searchParams.get("page") || "1");
+  const initialPageSize = Number(searchParams.get("limit") || "10");
+  const initialSearch = searchParams.get("search") || "";
+  const initialAllergies = searchParams.get("allergies")?.split(",") || [];
+  const initialHasSubIngredients = searchParams.get("hasSubIngredients")
+    ? searchParams.get("hasSubIngredients") === "true"
+    : null;
+  const initialSortField = searchParams.get("sortField") || "ingredientName";
+  const initialSortDirection = (searchParams.get("sortDirection") || "asc") as
+    | "asc"
+    | "desc";
+  const initialAllergyExcludeMode =
+    searchParams.get("allergyExcludeMode") !== "false"; // Default to true if not explicitly set to false
+
+  // State for filtering, pagination, and sorting
+  const [page, setPage] = useState(initialPage);
+  const [pageSize, setPageSize] = useState(initialPageSize);
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [selectedAllergies, setSelectedAllergies] =
+    useState<string[]>(initialAllergies);
+  const [hasSubIngredients, setHasSubIngredients] = useState<boolean | null>(
+    initialHasSubIngredients
+  );
+  const [sortField, setSortField] = useState(initialSortField);
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">(
+    initialSortDirection
+  );
+  const [allergyExcludeMode, setAllergyExcludeMode] = useState<boolean>(
+    initialAllergyExcludeMode
+  );
+
+  // Query for ingredients with filters
+  const {
+    ingredients,
+    allergiesMap,
+    subIngredientNames,
+    isLoading,
+    isError,
+    totalCount,
+    totalPages,
+    refetch,
+  } = useIngredientsQuery({
+    restaurantId: selectedRestaurant?.restaurantId || "",
+    page,
+    pageSize,
+    searchQuery,
+    allergyIds: selectedAllergies,
+    allergyExcludeMode,
+    hasSubIngredients,
+    sortField,
+    sortDirection,
+  });
+
+  // Update URL when filters change
+  useEffect(() => {
     if (!selectedRestaurant) return;
 
-    setLocalLoading(true);
-    setLoading(true);
-    try {
-      const { status, data } = await getIngredientsService(undefined, {
-        restaurantId: selectedRestaurant.restaurantId,
-        page,
-        limit: 10,
-      });
+    const params = new URLSearchParams();
+    params.set("page", page.toString());
+    params.set("limit", pageSize.toString());
 
-      if (status === HTTP_CODES_ENUM.OK) {
-        const ingredientsArray = Array.isArray(data) ? data : data?.data || [];
-        setIngredients((prevIngredients) =>
-          page === 1
-            ? ingredientsArray
-            : [...prevIngredients, ...ingredientsArray]
-        );
-        setHasMore(ingredientsArray.length === 10);
+    if (searchQuery) params.set("search", searchQuery);
+    if (selectedAllergies.length > 0)
+      params.set("allergies", selectedAllergies.join(","));
+    if (hasSubIngredients !== null)
+      params.set("hasSubIngredients", hasSubIngredients.toString());
+    params.set("allergyExcludeMode", allergyExcludeMode.toString());
+    params.set("sortField", sortField);
+    params.set("sortDirection", sortDirection);
 
-        // Build sub-ingredient names map
-        const namesMap: { [key: string]: string } = {};
-        ingredientsArray.forEach((ingredient: Ingredient) => {
-          namesMap[ingredient.ingredientId] = ingredient.ingredientName;
-        });
-        setSubIngredientNames((prev) => ({
-          ...prev,
-          ...namesMap,
-        }));
-      }
-
-      // Fetch allergies if this is the first page
-      if (page === 1) {
-        const allergiesResult = await getAllergiesService(undefined, {
-          page: 1,
-          limit: 100,
-        });
-
-        if (allergiesResult.status === HTTP_CODES_ENUM.OK) {
-          const allergiesArray = Array.isArray(allergiesResult.data)
-            ? allergiesResult.data
-            : allergiesResult.data?.data || [];
-
-          const allergyMap: { [key: string]: string } = {};
-          allergiesArray.forEach((allergy: Allergy) => {
-            allergyMap[allergy.allergyId] = allergy.allergyName;
-          });
-          setAllergiesMap(allergyMap);
-        }
-      }
-    } catch (error) {
-      console.error("Error fetching ingredients:", error);
-      enqueueSnackbar(t("fetchError"), { variant: "error" });
-    } finally {
-      setLocalLoading(false);
-      setLoading(false);
-    }
+    const newUrl = `?${params.toString()}`;
+    window.history.replaceState({}, "", newUrl);
   }, [
-    selectedRestaurant,
     page,
-    getIngredientsService,
-    getAllergiesService,
-    setLoading,
-    t,
-    enqueueSnackbar,
+    pageSize,
+    searchQuery,
+    selectedAllergies,
+    hasSubIngredients,
+    allergyExcludeMode,
+    sortField,
+    sortDirection,
+    selectedRestaurant,
   ]);
 
-  // Load data when restaurant changes or page changes
-  useEffect(() => {
-    if (selectedRestaurant) {
-      fetchIngredients();
-    }
-  }, [fetchIngredients, selectedRestaurant]);
+  // Handle page change
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+  };
 
-  const handleLoadMore = () => {
-    if (hasMore && !loading) {
-      setPage((prevPage) => prevPage + 1);
+  // Handle page size change
+  const handlePageSizeChange = (newPageSize: number) => {
+    setPageSize(newPageSize);
+    setPage(1); // Reset to first page when changing page size
+  };
+
+  // Handle search
+  const handleSearch = (query: string) => {
+    setSearchQuery(query);
+    setPage(1); // Reset to first page when searching
+  };
+
+  // Handle filter change
+  const handleFilterChange = (
+    allergies: string[],
+    subIngredients: boolean | null,
+    newAllergyExcludeMode: boolean
+  ) => {
+    setSelectedAllergies(allergies);
+    setHasSubIngredients(subIngredients);
+    setAllergyExcludeMode(newAllergyExcludeMode);
+    setPage(1); // Reset to first page when filtering
+  };
+
+  // Handle filter reset
+  const handleFilterReset = () => {
+    setSelectedAllergies([]);
+    setHasSubIngredients(null);
+    setAllergyExcludeMode(true); // Default to exclude mode
+    setPage(1); // Reset to first page when clearing filters
+  };
+
+  // Handle sorting
+  const handleSort = (field: string) => {
+    if (sortField === field) {
+      // Toggle direction if same field
+      setSortDirection(sortDirection === "asc" ? "desc" : "asc");
+    } else {
+      // Set new field and default to ascending
+      setSortField(field);
+      setSortDirection("asc");
     }
   };
 
@@ -143,10 +186,8 @@ function RestaurantIngredientsPage() {
       try {
         const { status } = await deleteIngredientService({ id });
         if (status === HTTP_CODES_ENUM.NO_CONTENT) {
-          setIngredients((prevIngredients) =>
-            prevIngredients.filter((ingredient) => ingredient.id !== id)
-          );
           enqueueSnackbar(t("deleteSuccess"), { variant: "success" });
+          refetch(); // Refresh the data after delete
         }
       } catch (error) {
         console.error("Error deleting ingredient:", error);
@@ -181,43 +222,78 @@ function RestaurantIngredientsPage() {
         </Button>
       </Group>
 
-      <Paper p="md" withBorder>
-        {loading && ingredients.length === 0 ? (
-          <Center p="xl">
-            <Loader size="md" />
-          </Center>
-        ) : isMobile ? (
-          <IngredientCards
-            ingredients={ingredients}
-            allergies={allergiesMap}
-            subIngredientNames={subIngredientNames}
-            onDelete={handleDeleteIngredient}
-            handleLoadMore={handleLoadMore}
-            hasMore={hasMore}
-            loading={loading}
+      <Stack gap="md">
+        {/* Search and Filters */}
+        <Group align="flex-start" grow>
+          <SearchBar
+            initialValue={searchQuery}
+            onSearch={handleSearch}
+            placeholder={t("search.placeholder")}
+            disabled={isLoading}
           />
-        ) : (
-          <>
+        </Group>
+
+        <FilterPanel
+          allergies={allergiesMap}
+          selectedAllergies={selectedAllergies}
+          hasSubIngredients={hasSubIngredients}
+          allergyExcludeMode={allergyExcludeMode}
+          onFilterChange={handleFilterChange}
+          onFilterReset={handleFilterReset}
+          disabled={isLoading}
+        />
+
+        {/* Results Information */}
+        <ResultsInfo
+          totalCount={totalCount}
+          currentPage={page}
+          pageSize={pageSize}
+          searchQuery={searchQuery}
+          selectedAllergies={selectedAllergies}
+          allergiesMap={allergiesMap}
+          hasSubIngredients={hasSubIngredients}
+          allergyExcludeMode={allergyExcludeMode}
+          isLoading={isLoading}
+        />
+
+        {/* Ingredients Table/Cards */}
+        <Paper p="md" withBorder>
+          {isError ? (
+            <Center p="xl">
+              <Text color="red">{t("errorLoading")}</Text>
+            </Center>
+          ) : isMobile ? (
+            <IngredientCards
+              ingredients={ingredients}
+              allergies={allergiesMap}
+              subIngredientNames={subIngredientNames}
+              onDelete={handleDeleteIngredient}
+              loading={isLoading}
+            />
+          ) : (
             <IngredientTable
               ingredients={ingredients}
               allergies={allergiesMap}
               subIngredientNames={subIngredientNames}
               onDelete={handleDeleteIngredient}
+              loading={isLoading}
+              sortField={sortField}
+              sortDirection={sortDirection}
+              onSort={handleSort}
             />
-            {hasMore && (
-              <Group justify="center" mt="md">
-                <Button
-                  onClick={handleLoadMore}
-                  disabled={loading}
-                  size="compact-sm"
-                >
-                  {t("loadMore")}
-                </Button>
-              </Group>
-            )}
-          </>
-        )}
-      </Paper>
+          )}
+        </Paper>
+
+        {/* Pagination Controls */}
+        <PaginationControls
+          currentPage={page}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          onPageChange={handlePageChange}
+          onPageSizeChange={handlePageSizeChange}
+          disabled={isLoading || totalCount === 0}
+        />
+      </Stack>
     </Container>
   );
 }
