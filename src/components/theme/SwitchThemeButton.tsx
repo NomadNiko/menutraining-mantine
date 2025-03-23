@@ -11,7 +11,7 @@ export function SwitchThemeButton() {
       aria-label="Toggle color scheme"
       size="lg"
     >
-      {isDark ? <IconSun size={24} /> : <IconMoon size={24} />}
+      {isDark ? <IconSun size={24} /> : <IconMoon size={23} />}
     </ActionIcon>
   );
 }
