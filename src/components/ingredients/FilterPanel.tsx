@@ -42,7 +42,6 @@ interface FilterPanelProps {
 }
 
 export function FilterPanel({
-  allergies,
   selectedAllergies,
   hasSubIngredients,
   allergyExcludeMode,
