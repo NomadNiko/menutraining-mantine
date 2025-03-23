@@ -60,7 +60,7 @@ export function AllergyCheckboxGroup({
       {isLoading ? (
         <Text size="sm">{t("loading")}</Text>
       ) : (
-        <SimpleGrid cols={{ base: 1, sm: 2 }}>
+        <SimpleGrid cols={{ base: 1, xs: 2, lg: 3 }}>
           {allergies.map((allergy) => (
             <Group key={allergy.allergyId} wrap="nowrap">
               <Checkbox

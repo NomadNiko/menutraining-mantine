@@ -19,7 +19,6 @@ import {
   IconChevronUp,
 } from "@tabler/icons-react";
 import { useTranslation } from "@/services/i18n/client";
-import { useResponsive } from "@/services/responsive/use-responsive";
 import { AllergyCheckboxGroup } from "./AllergyCheckboxGroup";
 import { CategoryCheckboxGroup } from "./CategoryCheckboxGroup";
 
@@ -52,8 +51,7 @@ export function FilterPanel({
   disabled = false,
 }: FilterPanelProps) {
   const { t } = useTranslation("admin-panel-ingredients");
-  const { isMobile } = useResponsive();
-  const [opened, { toggle }] = useDisclosure(!isMobile);
+  const [opened, { toggle }] = useDisclosure(false);
 
   // Local state for filter values (before applying)
   const [localSelectedAllergies, setLocalSelectedAllergies] =
