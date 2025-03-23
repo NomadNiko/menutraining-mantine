@@ -1,4 +1,3 @@
-// src/app/[language]/restaurant/ingredients/create/page-content.tsx
 "use client";
 import { Container, Paper } from "@mantine/core";
 import { useRouter } from "next/navigation";
@@ -11,6 +10,7 @@ import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { CreateIngredientDto } from "@/services/api/types/ingredient";
 import useSelectedRestaurant from "@/services/restaurant/use-selected-restaurant";
 import { useState } from "react";
+import { useResponsive } from "@/services/responsive/use-responsive";
 
 function CreateIngredient() {
   const { t } = useTranslation("admin-panel-ingredients");
@@ -20,6 +20,10 @@ function CreateIngredient() {
   const { selectedRestaurant } = useSelectedRestaurant();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const createIngredientService = useCreateIngredientService();
+  const { isMobile, isTablet } = useResponsive();
+
+  // Determine container size based on screen size
+  const containerSize = isMobile || isTablet ? "xs" : "sm";
 
   // Fixed the type here to match what IngredientForm expects
   const handleSubmit = async (
@@ -60,7 +64,7 @@ function CreateIngredient() {
   }
 
   return (
-    <Container size="xs">
+    <Container size={containerSize}>
       <Paper p="md" withBorder>
         <IngredientForm
           restaurantId={selectedRestaurant.restaurantId}

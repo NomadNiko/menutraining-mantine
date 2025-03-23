@@ -29,7 +29,7 @@ export function CategoryCheckboxGroup({
       <Text size="sm" fw={500}>
         {t("form.categories")}
       </Text>
-      <SimpleGrid cols={{ base: 2, sm: 3, lg: 4 }}>
+      <SimpleGrid cols={{ base: 2, sm: 3, md: 4 }}>
         {CATEGORY_KEYS.map((categoryKey) => (
           <Group key={categoryKey} wrap="nowrap">
             <Checkbox

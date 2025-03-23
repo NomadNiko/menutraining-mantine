@@ -252,6 +252,7 @@ export function FilterPanel({
               value={getSubIngredientTypeValue()}
               onChange={handleSubIngredientTypeChange}
               disabled={disabled}
+              width="sm"
             />
             <Text size="xs" c="dimmed" mt="xs">
               {t("filters.subIngredientsType.hint")}

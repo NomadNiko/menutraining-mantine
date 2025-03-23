@@ -16,6 +16,7 @@ import {
   UpdateIngredientDto,
 } from "@/services/api/types/ingredient";
 import useSelectedRestaurant from "@/services/restaurant/use-selected-restaurant";
+import { useResponsive } from "@/services/responsive/use-responsive";
 
 function EditIngredient() {
   const params = useParams<{ id: string }>();
@@ -25,6 +26,10 @@ function EditIngredient() {
   const { setLoading } = useGlobalLoading();
   const { enqueueSnackbar } = useSnackbar();
   const { selectedRestaurant } = useSelectedRestaurant();
+  const { isMobile, isTablet } = useResponsive();
+
+  // Determine container size based on screen size
+  const containerSize = isMobile || isTablet ? "xs" : "sm";
 
   const [ingredient, setIngredient] = useState<Ingredient | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -108,7 +113,7 @@ function EditIngredient() {
   };
 
   return (
-    <Container size="xs">
+    <Container size={containerSize}>
       <Paper p="md" withBorder>
         {ingredient && isAuthorized && selectedRestaurant && (
           <IngredientForm
