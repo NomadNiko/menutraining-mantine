@@ -48,7 +48,6 @@ function SortableTableHeader({
   onSort?: (field: string) => void;
 }) {
   const isActive = currentSortField === field;
-
   return (
     <UnstyledButton
       onClick={() => onSort && onSort(field)}
@@ -117,6 +116,15 @@ function IngredientTableComponent({
           </th>
           <th>
             <SortableTableHeader
+              label={t("table.categories")}
+              field="categories"
+              currentSortField={sortField}
+              currentSortDirection={sortDirection}
+              onSort={onSort}
+            />
+          </th>
+          <th>
+            <SortableTableHeader
               label={t("table.allergies")}
               field="allergies"
               currentSortField={sortField}
@@ -159,6 +167,21 @@ function IngredientTableComponent({
             </td>
             <td>
               <Text>{ingredient.ingredientName}</Text>
+            </td>
+            <td>
+              <Group>
+                {ingredient.categories && ingredient.categories.length > 0 ? (
+                  ingredient.categories.map((categoryKey: string) => (
+                    <Badge key={categoryKey} size="sm" color="green">
+                      {t(`categories.${categoryKey}`)}
+                    </Badge>
+                  ))
+                ) : (
+                  <Badge size="sm" color="green">
+                    {t("categories.basic")}
+                  </Badge>
+                )}
+              </Group>
             </td>
             <td>
               <Group>

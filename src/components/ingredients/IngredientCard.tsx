@@ -22,6 +22,7 @@ interface IngredientCardProps {
     ingredientImageUrl?: string | null;
     subIngredients: string[];
     derivedAllergies?: string[];
+    categories: string[];
   };
   allergies: { [key: string]: string };
   subIngredientNames: { [key: string]: string };
@@ -58,6 +59,26 @@ export function IngredientCard({
             </Text>
           </Box>
         </Group>
+
+        {/* Categories */}
+        <Stack gap="xs">
+          <Text size="sm" fw={500} c="dimmed">
+            {t("table.categories")}:
+          </Text>
+          <Group gap="xs">
+            {ingredient.categories && ingredient.categories.length > 0 ? (
+              ingredient.categories.map((categoryKey) => (
+                <Badge key={categoryKey} size="sm" color="green">
+                  {t(`categories.${categoryKey}`)}
+                </Badge>
+              ))
+            ) : (
+              <Badge size="sm" color="green">
+                {t("categories.basic")}
+              </Badge>
+            )}
+          </Group>
+        </Stack>
 
         {/* Direct allergies */}
         {ingredient.ingredientAllergies &&

@@ -21,8 +21,7 @@ import useConfirmDialog from "@/components/confirm-dialog/use-confirm-dialog";
 import { useSnackbar } from "@/components/mantine/feedback/notification-service";
 import { useDeleteIngredientService } from "@/services/api/services/ingredients";
 import useSelectedRestaurant from "@/services/restaurant/use-selected-restaurant";
-
-// Import new components
+// Import components
 import { SearchBar } from "@/components/ingredients/SearchBar";
 import { FilterPanel } from "@/components/ingredients/FilterPanel";
 import { PaginationControls } from "@/components/ingredients/PaginationControls";
@@ -48,12 +47,15 @@ function RestaurantIngredientsPage() {
   const initialHasSubIngredients = searchParams.get("hasSubIngredients")
     ? searchParams.get("hasSubIngredients") === "true"
     : null;
+  const initialCategories = searchParams.get("categories")?.split(",") || [];
   const initialSortField = searchParams.get("sortField") || "ingredientName";
   const initialSortDirection = (searchParams.get("sortDirection") || "asc") as
     | "asc"
     | "desc";
   const initialAllergyExcludeMode =
     searchParams.get("allergyExcludeMode") !== "false"; // Default to true if not explicitly set to false
+  const initialCategoryExcludeMode =
+    searchParams.get("categoryExcludeMode") !== "false"; // Default to true if not explicitly set to false
 
   // State for filtering, pagination, and sorting
   const [page, setPage] = useState(initialPage);
@@ -61,6 +63,8 @@ function RestaurantIngredientsPage() {
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [selectedAllergies, setSelectedAllergies] =
     useState<string[]>(initialAllergies);
+  const [selectedCategories, setSelectedCategories] =
+    useState<string[]>(initialCategories);
   const [hasSubIngredients, setHasSubIngredients] = useState<boolean | null>(
     initialHasSubIngredients
   );
@@ -70,6 +74,9 @@ function RestaurantIngredientsPage() {
   );
   const [allergyExcludeMode, setAllergyExcludeMode] = useState<boolean>(
     initialAllergyExcludeMode
+  );
+  const [categoryExcludeMode, setCategoryExcludeMode] = useState<boolean>(
+    initialCategoryExcludeMode
   );
 
   // Query for ingredients with filters
@@ -89,6 +96,8 @@ function RestaurantIngredientsPage() {
     searchQuery,
     allergyIds: selectedAllergies,
     allergyExcludeMode,
+    categoryIds: selectedCategories,
+    categoryExcludeMode,
     hasSubIngredients,
     sortField,
     sortDirection,
@@ -97,20 +106,20 @@ function RestaurantIngredientsPage() {
   // Update URL when filters change
   useEffect(() => {
     if (!selectedRestaurant) return;
-
     const params = new URLSearchParams();
     params.set("page", page.toString());
     params.set("limit", pageSize.toString());
-
     if (searchQuery) params.set("search", searchQuery);
     if (selectedAllergies.length > 0)
       params.set("allergies", selectedAllergies.join(","));
+    if (selectedCategories.length > 0)
+      params.set("categories", selectedCategories.join(","));
     if (hasSubIngredients !== null)
       params.set("hasSubIngredients", hasSubIngredients.toString());
     params.set("allergyExcludeMode", allergyExcludeMode.toString());
+    params.set("categoryExcludeMode", categoryExcludeMode.toString());
     params.set("sortField", sortField);
     params.set("sortDirection", sortDirection);
-
     const newUrl = `?${params.toString()}`;
     window.history.replaceState({}, "", newUrl);
   }, [
@@ -118,8 +127,10 @@ function RestaurantIngredientsPage() {
     pageSize,
     searchQuery,
     selectedAllergies,
+    selectedCategories,
     hasSubIngredients,
     allergyExcludeMode,
+    categoryExcludeMode,
     sortField,
     sortDirection,
     selectedRestaurant,
@@ -146,11 +157,15 @@ function RestaurantIngredientsPage() {
   const handleFilterChange = (
     allergies: string[],
     subIngredients: boolean | null,
-    newAllergyExcludeMode: boolean
+    newAllergyExcludeMode: boolean,
+    categories: string[],
+    newCategoryExcludeMode: boolean
   ) => {
     setSelectedAllergies(allergies);
     setHasSubIngredients(subIngredients);
     setAllergyExcludeMode(newAllergyExcludeMode);
+    setSelectedCategories(categories);
+    setCategoryExcludeMode(newCategoryExcludeMode);
     setPage(1); // Reset to first page when filtering
   };
 
@@ -159,6 +174,8 @@ function RestaurantIngredientsPage() {
     setSelectedAllergies([]);
     setHasSubIngredients(null);
     setAllergyExcludeMode(true); // Default to exclude mode
+    setSelectedCategories([]);
+    setCategoryExcludeMode(true); // Default to exclude mode
     setPage(1); // Reset to first page when clearing filters
   };
 
@@ -180,7 +197,6 @@ function RestaurantIngredientsPage() {
       title: t("deleteConfirmTitle"),
       message: t("deleteConfirmMessage", { name }),
     });
-
     if (confirmed) {
       setLoading(true);
       try {
@@ -221,7 +237,6 @@ function RestaurantIngredientsPage() {
           {t("create")}
         </Button>
       </Group>
-
       <Stack gap="md">
         {/* Search and Filters */}
         <Group align="flex-start" grow>
@@ -232,17 +247,17 @@ function RestaurantIngredientsPage() {
             disabled={isLoading}
           />
         </Group>
-
         <FilterPanel
           allergies={allergiesMap}
           selectedAllergies={selectedAllergies}
           hasSubIngredients={hasSubIngredients}
           allergyExcludeMode={allergyExcludeMode}
+          selectedCategories={selectedCategories}
+          categoryExcludeMode={categoryExcludeMode}
           onFilterChange={handleFilterChange}
           onFilterReset={handleFilterReset}
           disabled={isLoading}
         />
-
         {/* Results Information */}
         <ResultsInfo
           totalCount={totalCount}
@@ -253,9 +268,10 @@ function RestaurantIngredientsPage() {
           allergiesMap={allergiesMap}
           hasSubIngredients={hasSubIngredients}
           allergyExcludeMode={allergyExcludeMode}
+          selectedCategories={selectedCategories}
+          categoryExcludeMode={categoryExcludeMode}
           isLoading={isLoading}
         />
-
         {/* Ingredients Table/Cards */}
         <Paper p="md" withBorder>
           {isError ? (
@@ -283,7 +299,6 @@ function RestaurantIngredientsPage() {
             />
           )}
         </Paper>
-
         {/* Pagination Controls */}
         <PaginationControls
           currentPage={page}

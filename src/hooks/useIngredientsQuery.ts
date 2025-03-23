@@ -13,6 +13,8 @@ export interface IngredientsQueryParams {
   searchQuery?: string;
   allergyIds?: string[];
   allergyExcludeMode?: boolean;
+  categoryIds?: string[];
+  categoryExcludeMode?: boolean;
   hasSubIngredients?: boolean | null;
   sortField?: string;
   sortDirection?: "asc" | "desc";
@@ -25,6 +27,7 @@ interface ApiQueryParams {
   limit: number;
   name?: string;
   allergyId?: string;
+  category?: string;
   sort?: string;
 }
 
@@ -47,6 +50,8 @@ export const useIngredientsQuery = ({
   searchQuery,
   allergyIds,
   allergyExcludeMode = true, // Default to exclude mode
+  categoryIds,
+  categoryExcludeMode = true, // Default to exclude mode
   hasSubIngredients,
   sortField = "ingredientName",
   sortDirection = "asc",
@@ -62,18 +67,14 @@ export const useIngredientsQuery = ({
         page: 1,
         limit: 100, // Assuming reasonable number of allergies
       });
-
       if (status === HTTP_CODES_ENUM.OK) {
         const allergiesArray = Array.isArray(data) ? data : data?.data || [];
         const allergyMap: Record<string, string> = {};
-
         allergiesArray.forEach((allergy: Allergy) => {
           allergyMap[allergy.allergyId] = allergy.allergyName;
         });
-
         return allergyMap;
       }
-
       return {};
     },
     staleTime: 5 * 60 * 1000, // 5 minutes cache
@@ -89,6 +90,8 @@ export const useIngredientsQuery = ({
       searchQuery,
       allergyIds,
       allergyExcludeMode,
+      categoryIds,
+      categoryExcludeMode,
       hasSubIngredients,
       sortField,
       sortDirection,
@@ -105,16 +108,24 @@ export const useIngredientsQuery = ({
         queryParams.name = searchQuery;
       }
 
-      // For include mode (allergyExcludeMode = false), we can use the API's existing filter
-      // For exclude mode (allergyExcludeMode = true), we need to get all ingredients and filter client-side
-      // NOTE: Since the API doesn't directly support exclusion filtering, we'll get all ingredients
-      // and filter on the client side
+      // We need client-side filtering for:
+      // 1. Exclusion filtering (allergyExcludeMode = true)
+      // 2. Multiple allergy IDs
+      // 3. Category filtering
+      // 4. Sub-ingredients filtering
       const useClientSideFiltering =
         (allergyExcludeMode && allergyIds && allergyIds.length > 0) ||
-        (!allergyExcludeMode && allergyIds && allergyIds.length > 0); // Always use client-side filtering for allergies
+        (!allergyExcludeMode && allergyIds && allergyIds.length > 0) ||
+        (categoryIds && categoryIds.length > 0);
 
+      // If we're not doing client-side filtering, we can use the API's filtering
       if (!useClientSideFiltering && allergyIds && allergyIds.length > 0) {
         queryParams.allergyId = allergyIds[0]; // Currently API supports filtering by one allergyId
+      }
+
+      // Add category filter if present and not doing client-side filtering
+      if (!useClientSideFiltering && categoryIds && categoryIds.length === 1) {
+        queryParams.category = categoryIds[0];
       }
 
       // Sort is currently not supported by the API, but we prepare the params for future implementation
@@ -130,10 +141,11 @@ export const useIngredientsQuery = ({
       if (status === HTTP_CODES_ENUM.OK) {
         const ingredientsData = Array.isArray(data) ? data : data?.data || [];
 
-        // Filter ingredients based on exclusion/inclusion of allergies
+        // Filter ingredients based on exclusion/inclusion of allergies and categories
         let filteredIngredients = [...ingredientsData];
 
-        if (useClientSideFiltering && allergyIds && allergyIds.length > 0) {
+        // Filter by allergies if needed
+        if (allergyIds && allergyIds.length > 0) {
           filteredIngredients = filteredIngredients.filter((ingredient) => {
             // Get all allergies for this ingredient (both direct and derived)
             const allAllergies = [
@@ -150,6 +162,26 @@ export const useIngredientsQuery = ({
               // In include mode, we want ingredients that HAVE ANY of the selected allergies
               return allergyIds.some((allergyId) =>
                 allAllergies.includes(allergyId)
+              );
+            }
+          });
+        }
+
+        // Filter by categories if needed
+        if (categoryIds && categoryIds.length > 0) {
+          filteredIngredients = filteredIngredients.filter((ingredient) => {
+            // Ensure ingredient.categories is an array
+            const categories = ingredient.categories || [];
+
+            if (categoryExcludeMode) {
+              // In exclude mode, we want ingredients that do NOT have ANY of the selected categories
+              return !categoryIds.some((categoryId) =>
+                categories.includes(categoryId)
+              );
+            } else {
+              // In include mode, we want ingredients that HAVE ANY of the selected categories
+              return categoryIds.some((categoryId) =>
+                categories.includes(categoryId)
               );
             }
           });

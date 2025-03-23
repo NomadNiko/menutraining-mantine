@@ -17,6 +17,7 @@ import { useTranslation } from "@/services/i18n/client";
 import Link from "@/components/link";
 import { SubIngredientSelector } from "./SubIngredientSelector";
 import { AllergySelector } from "./AllergySelector";
+import { CategoryCheckboxGroup } from "./CategoryCheckboxGroup";
 import {
   CreateIngredientDto,
   Ingredient,
@@ -54,6 +55,9 @@ export function IngredientForm({
   const [ingredientAllergies, setIngredientAllergies] = useState<string[]>(
     initialData.ingredientAllergies || []
   );
+  const [categories, setCategories] = useState<string[]>(
+    initialData.categories || []
+  );
   const [currentImageUrl] = useState<string | null>(
     initialData.ingredientImageUrl || null
   );
@@ -77,14 +81,22 @@ export function IngredientForm({
     formState: { errors },
     watch,
   } = methods;
+
   const photo = watch("photo");
 
   const submitHandler = async (formData: IngredientFormData) => {
-    // Combine form data with subIngredients and allergies
+    // Enforce at least one category
+    if (categories.length === 0) {
+      // Set a default category if none selected
+      setCategories(["Basic"]);
+    }
+
+    // Combine form data with subIngredients, allergies, and categories
     const submitData = {
       ingredientName: formData.ingredientName,
-      ingredientAllergies, // Include the allergies
+      ingredientAllergies,
       subIngredients,
+      categories: categories.length > 0 ? categories : ["Basic"], // Ensure at least one category
       restaurantId,
       // Use uploaded photo path if available, otherwise keep existing URL
       ingredientImageUrl: formData.photo?.path || currentImageUrl,
@@ -101,7 +113,6 @@ export function IngredientForm({
             {isEdit ? t("editTitle") : t("createTitle")}{" "}
             {t("forRestaurant", { restaurantName })}
           </Title>
-
           <Controller
             name="ingredientName"
             control={control}
@@ -138,6 +149,20 @@ export function IngredientForm({
             name="photo"
             testId="ingredient-image"
           />
+
+          {/* Categories selector */}
+          <Box>
+            <CategoryCheckboxGroup
+              selectedCategories={categories}
+              onChange={setCategories}
+              disabled={isLoading}
+            />
+            {categories.length === 0 && (
+              <Text color="red" size="sm" mt="xs">
+                {t("form.validation.categoryRequired")}
+              </Text>
+            )}
+          </Box>
 
           {/* Allergies selector */}
           <Box>

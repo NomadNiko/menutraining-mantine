@@ -6,7 +6,8 @@ export type Ingredient = {
   ingredientImageUrl?: string | null;
   subIngredients: string[];
   restaurantId: string;
-  derivedAllergies?: string[]; // New field for allergies derived from sub-ingredients
+  derivedAllergies?: string[];
+  categories: string[];
 };
 
 export type CreateIngredientDto = {
@@ -15,6 +16,7 @@ export type CreateIngredientDto = {
   ingredientImageUrl?: string | null;
   subIngredients?: string[];
   restaurantId: string;
+  categories: string[];
 };
 
 export type UpdateIngredientDto = Partial<CreateIngredientDto>;
@@ -25,4 +27,5 @@ export type QueryIngredientDto = {
   name?: string;
   restaurantId?: string;
   allergyId?: string;
+  category?: string;
 };

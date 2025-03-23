@@ -1,3 +1,4 @@
+// src/components/ingredients/SearchBar.tsx
 "use client";
 import { useState, useEffect, useCallback } from "react";
 import { TextInput, ActionIcon } from "@mantine/core";
@@ -62,6 +63,11 @@ export function SearchBar({
       disabled={disabled}
       aria-label={t("search.ariaLabel")}
       data-testid="ingredient-search-input"
+      styles={{
+        input: {
+          fontSize: "16px", // Prevent zoom on mobile
+        },
+      }}
     />
   );
 }

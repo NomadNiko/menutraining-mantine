@@ -1,93 +1,124 @@
 {
   "title": "Ingredients",
-  "create": "New Ingredient",
+  "createTitle": "Create Ingredient",
+  "editTitle": "Edit Ingredient",
   "noIngredients": "No ingredients found",
-  "deleteConfirmTitle": "Delete Ingredient",
-  "deleteConfirmMessage": "Are you sure you want to delete {{name}}?",
-  "deleteSuccess": "Ingredient deleted successfully!",
-  "deleteError": "Error deleting ingredient",
-  "fetchError": "Error loading data",
-  "errorLoading": "Error loading ingredients. Please try again.",
   "forRestaurant": "for {{restaurantName}}",
+  "noRestaurants": "No restaurants available",
+  "fetchError": "Error fetching data",
+  "createSuccess": "Ingredient created successfully",
+  "createError": "Error creating ingredient",
+  "updateSuccess": "Ingredient updated successfully",
+  "updateError": "Error updating ingredient",
+  "deleteSuccess": "Ingredient deleted successfully",
+  "deleteError": "Error deleting ingredient",
+  "errorLoading": "Error loading ingredients",
+  "ingredientNotFound": "Ingredient not found",
+  "restaurantNotFound": "Restaurant not found",
+  "unauthorized": "You are not authorized to access this resource",
   "noRestaurantSelected": "No restaurant selected",
-  "unauthorized": "You do not have permission to access this ingredient",
-
-  "search": {
-    "placeholder": "Search ingredients...",
-    "ariaLabel": "Search ingredients"
-  },
-
-  "filters": {
-    "title": "Filters",
-    "active": "{{count}} active filters",
-    "show": "Show filters",
-    "hide": "Hide filters",
-    "apply": "Apply filters",
-    "reset": "Reset filters",
-    "allergies": {
-      "label": "Filter by allergies",
-      "placeholder": "Select allergies..."
-    },
-    "hasSubIngredients": {
-      "label": "Has sub-ingredients"
-    },
-    "allergyMode": {
-      "label": "Allergy Filter Mode",
-      "exclude": "Without allergies",
-      "include": "With allergies",
-      "excludeHint": "Show ingredients that do NOT contain selected allergies",
-      "includeHint": "Show ingredients that DO contain selected allergies"
-    }
-  },
-
-  "results": {
-    "loading": "Loading ingredients...",
-    "noIngredients": "No ingredients found",
-    "noMatchingIngredients": "No ingredients match your filters",
-    "showing": "Showing {{start}}-{{end}} of {{total}} ingredients",
-    "filtered": "with filters",
-    "search": "Search",
-    "hasSubIngredients": "Has sub-ingredients",
-    "noSubIngredients": "No sub-ingredients",
-    "excludes": "Free from",
-    "includes": "Contains"
-  },
-
-  "pagination": {
-    "show": "Show",
-    "itemsPerPage": "{{count}} per page"
-  },
-
+  "create": "Create Ingredient",
   "table": {
     "image": "Image",
     "name": "Name",
+    "categories": "Categories",
     "allergies": "Allergies",
     "derivedAllergies": "Derived Allergies",
     "subIngredients": "Sub-ingredients",
     "actions": "Actions"
   },
-
   "actions": {
     "edit": "Edit",
     "delete": "Delete"
   },
-
+  "deleteConfirmTitle": "Delete Ingredient",
+  "deleteConfirmMessage": "Are you sure you want to delete '{{name}}'?",
   "form": {
     "name": "Ingredient Name",
+    "categories": "Categories",
     "allergies": "Allergies",
     "subIngredients": "Sub-ingredients",
-    "validation": {
-      "nameRequired": "Ingredient name is required"
-    },
+    "currentImage": "Current Image",
+    "imageAlt": "Ingredient image",
     "searchAllergies": "Search Allergies",
     "searchAllergiesPlaceholder": "Type to search allergies...",
     "selectedAllergies": "Selected Allergies",
     "searchSubIngredients": "Search Sub-ingredients",
     "selectedSubIngredients": "Selected Sub-ingredients",
-    "currentImage": "Current Image",
-    "imageAlt": "Ingredient Image",
-    "submit": "Save Ingredient",
+    "submit": "Create Ingredient",
     "update": "Update Ingredient",
-    "cancel": "Cancel"
+    "cancel": "Cancel",
+    "validation": {
+      "nameRequired": "Ingredient name is required",
+      "categoryRequired": "At least one category is required"
+    }
+  },
+  "search": {
+    "placeholder": "Search ingredients...",
+    "ariaLabel": "Search ingredients"
+  },
+  "filters": {
+    "title": "Filter Ingredients",
+    "active": "{{count}} active filters",
+    "show": "Show Filters",
+    "hide": "Hide Filters",
+    "apply": "Apply Filters",
+    "reset": "Reset Filters",
+    "allergies": {
+      "label": "Filter by Allergies",
+      "placeholder": "Select allergies to filter by..."
+    },
+    "allergyMode": {
+      "label": "Allergy Filter Mode",
+      "exclude": "Exclude",
+      "include": "Include",
+      "excludeHint": "Show ingredients WITHOUT these allergies",
+      "includeHint": "Show ingredients WITH these allergies"
+    },
+    "categories": {
+      "label": "Filter by Categories",
+      "placeholder": "Select categories to filter by..."
+    },
+    "categoryMode": {
+      "label": "Category Filter Mode",
+      "exclude": "Exclude",
+      "include": "Include",
+      "excludeHint": "Show ingredients NOT in these categories",
+      "includeHint": "Show ingredients IN these categories"
+    },
+    "hasSubIngredients": {
+      "label": "Has Sub-ingredients"
+    }
+  },
+  "pagination": {
+    "show": "Show",
+    "itemsPerPage": "{{count}} per page"
+  },
+  "results": {
+    "loading": "Loading ingredients...",
+    "noIngredients": "No ingredients found",
+    "noMatchingIngredients": "No ingredients match your filters",
+    "showing": "Showing {{start}}-{{end}} of {{total}} ingredients",
+    "filtered": "(filtered)",
+    "search": "Search",
+    "excludes": "Excludes",
+    "includes": "Includes",
+    "hasSubIngredients": "Has sub-ingredients",
+    "noSubIngredients": "No sub-ingredients"
+  },
+  "categories": {
+    "meatsPoultry": "Meats & Poultry",
+    "basic": "Basic",
+    "seafood": "Seafood",
+    "dairy": "Dairy",
+    "vegetables": "Vegetables",
+    "fruits": "Fruits",
+    "grainsCereals": "Grains & Cereals",
+    "baking": "Baking",
+    "nutsSeeds": "Nuts & Seeds",
+    "oilsFats": "Oils & Fats",
+    "herbsSpices": "Herbs & Spices",
+    "condimentsSauces": "Condiments & Sauces",
+    "juicesFluids": "Juices & Fluids"
   }
 }

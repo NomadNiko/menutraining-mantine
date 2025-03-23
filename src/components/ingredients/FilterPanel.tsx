@@ -1,4 +1,5 @@
-// src/components/ingredients/FilterPanel.tsx
+// ./menutraining-mantine/src/components/ingredients/FilterPanel.tsx
+
 "use client";
 import { useState, useEffect } from "react";
 import {
@@ -21,6 +22,7 @@ import {
 } from "@tabler/icons-react";
 import { useTranslation } from "@/services/i18n/client";
 import { useResponsive } from "@/services/responsive/use-responsive";
+import { CATEGORY_KEYS } from "@/constants/ingredient-categories";
 
 interface FilterOption {
   value: string;
@@ -32,10 +34,14 @@ interface FilterPanelProps {
   selectedAllergies: string[];
   hasSubIngredients: boolean | null;
   allergyExcludeMode: boolean;
+  selectedCategories: string[];
+  categoryExcludeMode: boolean;
   onFilterChange: (
     allergies: string[],
     hasSubIngredients: boolean | null,
-    allergyExcludeMode: boolean
+    allergyExcludeMode: boolean,
+    categories: string[],
+    categoryExcludeMode: boolean
   ) => void;
   onFilterReset: () => void;
   disabled?: boolean;
@@ -46,6 +52,8 @@ export function FilterPanel({
   selectedAllergies,
   hasSubIngredients,
   allergyExcludeMode,
+  selectedCategories,
+  categoryExcludeMode,
   onFilterChange,
   onFilterReset,
   disabled = false,
@@ -57,18 +65,34 @@ export function FilterPanel({
   // Local state for filter values (before applying)
   const [localSelectedAllergies, setLocalSelectedAllergies] =
     useState<string[]>(selectedAllergies);
+
   const [localHasSubIngredients, setLocalHasSubIngredients] = useState<
     boolean | null
   >(hasSubIngredients);
+
   const [localAllergyExcludeMode, setLocalAllergyExcludeMode] =
     useState<boolean>(allergyExcludeMode);
+
+  const [localSelectedCategories, setLocalSelectedCategories] =
+    useState<string[]>(selectedCategories);
+
+  const [localCategoryExcludeMode, setLocalCategoryExcludeMode] =
+    useState<boolean>(categoryExcludeMode);
 
   // Update local state when props change
   useEffect(() => {
     setLocalSelectedAllergies(selectedAllergies);
     setLocalHasSubIngredients(hasSubIngredients);
     setLocalAllergyExcludeMode(allergyExcludeMode);
-  }, [selectedAllergies, hasSubIngredients, allergyExcludeMode]);
+    setLocalSelectedCategories(selectedCategories);
+    setLocalCategoryExcludeMode(categoryExcludeMode);
+  }, [
+    selectedAllergies,
+    hasSubIngredients,
+    allergyExcludeMode,
+    selectedCategories,
+    categoryExcludeMode,
+  ]);
 
   // Convert allergies object to array of options for MultiSelect
   const allergyOptions: FilterOption[] = Object.entries(allergies).map(
@@ -78,16 +102,26 @@ export function FilterPanel({
     })
   );
 
+  // Create category options for MultiSelect
+  const categoryOptions: FilterOption[] = CATEGORY_KEYS.map((categoryKey) => ({
+    value: categoryKey,
+    label: t(`categories.${categoryKey}`),
+  }));
+
   // Check if any filters are applied
   const hasActiveFilters =
-    selectedAllergies.length > 0 || hasSubIngredients !== null;
+    selectedAllergies.length > 0 ||
+    hasSubIngredients !== null ||
+    selectedCategories.length > 0;
 
   // Apply current filters
   const handleApplyFilters = () => {
     onFilterChange(
       localSelectedAllergies,
       localHasSubIngredients,
-      localAllergyExcludeMode
+      localAllergyExcludeMode,
+      localSelectedCategories,
+      localCategoryExcludeMode
     );
   };
 
@@ -95,7 +129,9 @@ export function FilterPanel({
   const handleResetFilters = () => {
     setLocalSelectedAllergies([]);
     setLocalHasSubIngredients(null);
-    setLocalAllergyExcludeMode(true); // Default to exclude mode
+    setLocalAllergyExcludeMode(true);
+    setLocalSelectedCategories([]);
+    setLocalCategoryExcludeMode(true);
     onFilterReset();
   };
 
@@ -110,7 +146,8 @@ export function FilterPanel({
               {t("filters.active", {
                 count:
                   (selectedAllergies.length || 0) +
-                  (hasSubIngredients !== null ? 1 : 0),
+                  (hasSubIngredients !== null ? 1 : 0) +
+                  (selectedCategories.length || 0),
               })}
             </Text>
           )}
@@ -126,42 +163,91 @@ export function FilterPanel({
           {opened ? t("filters.hide") : t("filters.show")}
         </Button>
       </Group>
-
       <Collapse in={opened}>
         <Stack gap="md">
-          <MultiSelect
-            label={t("filters.allergies.label")}
-            placeholder={t("filters.allergies.placeholder")}
-            data={allergyOptions}
-            value={localSelectedAllergies}
-            onChange={setLocalSelectedAllergies}
-            searchable
-            clearable
-            disabled={disabled}
-          />
-
+          {/* Allergy filters */}
           <Box>
-            <Text size="sm" mb="xs">
-              {t("filters.allergyMode.label")}
+            <Text size="sm" fw={500} mb="xs">
+              {t("filters.allergies.label")}
             </Text>
-            <SegmentedControl
-              data={[
-                { value: "exclude", label: t("filters.allergyMode.exclude") },
-                { value: "include", label: t("filters.allergyMode.include") },
-              ]}
-              value={localAllergyExcludeMode ? "exclude" : "include"}
-              onChange={(value) =>
-                setLocalAllergyExcludeMode(value === "exclude")
-              }
-              disabled={disabled || localSelectedAllergies.length === 0}
+            <MultiSelect
+              placeholder={t("filters.allergies.placeholder")}
+              data={allergyOptions}
+              value={localSelectedAllergies}
+              onChange={setLocalSelectedAllergies}
+              searchable
+              clearable
+              disabled={disabled}
             />
-            <Text size="xs" c="dimmed" mt="xs">
-              {localAllergyExcludeMode
-                ? t("filters.allergyMode.excludeHint")
-                : t("filters.allergyMode.includeHint")}
-            </Text>
+
+            <Box mt="xs">
+              <Text size="sm" mb="xs">
+                {t("filters.allergyMode.label")}
+              </Text>
+              <SegmentedControl
+                data={[
+                  { value: "exclude", label: t("filters.allergyMode.exclude") },
+                  { value: "include", label: t("filters.allergyMode.include") },
+                ]}
+                value={localAllergyExcludeMode ? "exclude" : "include"}
+                onChange={(value) =>
+                  setLocalAllergyExcludeMode(value === "exclude")
+                }
+                disabled={disabled || localSelectedAllergies.length === 0}
+              />
+              <Text size="xs" c="dimmed" mt="xs">
+                {localAllergyExcludeMode
+                  ? t("filters.allergyMode.excludeHint")
+                  : t("filters.allergyMode.includeHint")}
+              </Text>
+            </Box>
           </Box>
 
+          {/* Category filters */}
+          <Box>
+            <Text size="sm" fw={500} mb="xs">
+              {t("filters.categories.label")}
+            </Text>
+            <MultiSelect
+              placeholder={t("filters.categories.placeholder")}
+              data={categoryOptions}
+              value={localSelectedCategories}
+              onChange={setLocalSelectedCategories}
+              searchable
+              clearable
+              disabled={disabled}
+            />
+
+            <Box mt="xs">
+              <Text size="sm" mb="xs">
+                {t("filters.categoryMode.label")}
+              </Text>
+              <SegmentedControl
+                data={[
+                  {
+                    value: "exclude",
+                    label: t("filters.categoryMode.exclude"),
+                  },
+                  {
+                    value: "include",
+                    label: t("filters.categoryMode.include"),
+                  },
+                ]}
+                value={localCategoryExcludeMode ? "exclude" : "include"}
+                onChange={(value) =>
+                  setLocalCategoryExcludeMode(value === "exclude")
+                }
+                disabled={disabled || localSelectedCategories.length === 0}
+              />
+              <Text size="xs" c="dimmed" mt="xs">
+                {localCategoryExcludeMode
+                  ? t("filters.categoryMode.excludeHint")
+                  : t("filters.categoryMode.includeHint")}
+              </Text>
+            </Box>
+          </Box>
+
+          {/* Sub-ingredients filter */}
           <Switch
             label={t("filters.hasSubIngredients.label")}
             checked={localHasSubIngredients === true}
@@ -187,6 +273,7 @@ export function FilterPanel({
                 disabled ||
                 (!hasActiveFilters &&
                   !localSelectedAllergies.length &&
+                  !localSelectedCategories.length &&
                   localHasSubIngredients === null)
               }
               size="compact-sm"
