@@ -1,4 +1,3 @@
-// src/components/ingredients/CategoryCheckboxGroup.tsx
 "use client";
 import { Checkbox, Group, Stack, Text, SimpleGrid } from "@mantine/core";
 import { CATEGORY_KEYS } from "@/constants/ingredient-categories";
@@ -30,7 +29,7 @@ export function CategoryCheckboxGroup({
       <Text size="sm" fw={500}>
         {t("form.categories")}
       </Text>
-      <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }}>
+      <SimpleGrid cols={{ base: 1, sm: 2 }}>
         {CATEGORY_KEYS.map((categoryKey) => (
           <Group key={categoryKey} wrap="nowrap">
             <Checkbox

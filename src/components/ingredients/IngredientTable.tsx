@@ -1,3 +1,5 @@
+// src/components/ingredients/IngredientTable.tsx
+
 "use client";
 import {
   Table,
@@ -22,6 +24,7 @@ import Link from "@/components/link";
 import { useTranslation } from "@/services/i18n/client";
 import { Ingredient } from "@/services/api/types/ingredient";
 import { memo } from "react";
+import { usePathname } from "next/navigation";
 
 interface IngredientTableProps {
   ingredients: Ingredient[];
@@ -83,6 +86,17 @@ function IngredientTableComponent({
   onSort,
 }: IngredientTableProps) {
   const { t } = useTranslation("admin-panel-ingredients");
+  const pathname = usePathname();
+
+  // Determine if we're in the restaurant or admin panel context
+  const isRestaurantRoute = pathname.includes("/restaurant/");
+
+  // Build the correct edit URL based on the current context
+  const getEditUrl = (ingredientId: string) => {
+    return isRestaurantRoute
+      ? `/restaurant/ingredients/edit/${ingredientId}`
+      : `/admin-panel/ingredients/edit/${ingredientId}`;
+  };
 
   if (ingredients.length === 0 && loading) {
     return (
@@ -244,7 +258,7 @@ function IngredientTableComponent({
               <Group gap="xs" justify="flex-end">
                 <Button
                   component={Link}
-                  href={`/admin-panel/ingredients/edit/${ingredient.id}`}
+                  href={getEditUrl(ingredient.id)}
                   size="xs"
                   variant="light"
                   leftSection={<IconEdit size={14} />}

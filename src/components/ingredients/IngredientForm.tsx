@@ -16,7 +16,7 @@ import { useState } from "react";
 import { useTranslation } from "@/services/i18n/client";
 import Link from "@/components/link";
 import { SubIngredientSelector } from "./SubIngredientSelector";
-import { AllergySelector } from "./AllergySelector";
+import { AllergyCheckboxGroup } from "./AllergyCheckboxGroup"; // Import the new component
 import { CategoryCheckboxGroup } from "./CategoryCheckboxGroup";
 import {
   CreateIngredientDto,
@@ -25,6 +25,7 @@ import {
 } from "@/services/api/types/ingredient";
 import FormAvatarInput from "@/components/form/avatar-input/form-avatar-input";
 import { FileEntity } from "@/services/api/types/file-entity";
+import { usePathname } from "next/navigation";
 
 interface IngredientFormProps {
   restaurantId: string;
@@ -61,6 +62,17 @@ export function IngredientForm({
   const [currentImageUrl] = useState<string | null>(
     initialData.ingredientImageUrl || null
   );
+  const pathname = usePathname();
+
+  // Determine if we're in the restaurant or admin panel context
+  const isRestaurantRoute = pathname.includes("/restaurant/");
+
+  // Get the correct cancel URL based on the current context
+  const getCancelUrl = () => {
+    return isRestaurantRoute
+      ? "/restaurant/ingredients"
+      : "/admin-panel/ingredients";
+  };
 
   // Only validate the ingredientName field
   const validationSchema = yup.object().shape({
@@ -126,7 +138,6 @@ export function IngredientForm({
               />
             )}
           />
-
           {/* Display current image if it exists and no new photo is selected */}
           {currentImageUrl && !photo && (
             <Box>
@@ -143,13 +154,11 @@ export function IngredientForm({
               />
             </Box>
           )}
-
           {/* Image upload component */}
           <FormAvatarInput<IngredientFormData>
             name="photo"
             testId="ingredient-image"
           />
-
           {/* Categories selector */}
           <Box>
             <CategoryCheckboxGroup
@@ -163,19 +172,14 @@ export function IngredientForm({
               </Text>
             )}
           </Box>
-
-          {/* Allergies selector */}
+          {/* Allergies selector - now using checkboxes */}
           <Box>
-            <Text size="sm" fw={500} mb="xs">
-              {t("form.allergies")}
-            </Text>
-            <AllergySelector
+            <AllergyCheckboxGroup
               selectedAllergies={ingredientAllergies}
               onChange={setIngredientAllergies}
               disabled={isLoading}
             />
           </Box>
-
           {/* Sub-ingredients selector */}
           <Box>
             <Text size="sm" fw={500} mb="xs">
@@ -191,7 +195,6 @@ export function IngredientForm({
               disabled={isLoading}
             />
           </Box>
-
           <Group mt="xl">
             <Button type="submit" loading={isLoading} size="compact-sm">
               {isEdit ? t("form.update") : t("form.submit")}
@@ -200,7 +203,7 @@ export function IngredientForm({
               variant="light"
               color="red"
               component={Link}
-              href="/admin-panel/ingredients"
+              href={getCancelUrl()}
               disabled={isLoading}
               size="compact-sm"
             >
