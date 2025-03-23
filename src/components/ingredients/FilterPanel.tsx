@@ -1,18 +1,16 @@
-// ./menutraining-mantine/src/components/ingredients/FilterPanel.tsx
-
+// src/components/ingredients/FilterPanel.tsx
 "use client";
 import { useState, useEffect } from "react";
 import {
   Paper,
   Group,
   Text,
-  MultiSelect,
-  Switch,
   Button,
   Stack,
   Collapse,
   Box,
   SegmentedControl,
+  Select,
 } from "@mantine/core";
 import { useDisclosure } from "@mantine/hooks";
 import {
@@ -22,12 +20,8 @@ import {
 } from "@tabler/icons-react";
 import { useTranslation } from "@/services/i18n/client";
 import { useResponsive } from "@/services/responsive/use-responsive";
-import { CATEGORY_KEYS } from "@/constants/ingredient-categories";
-
-interface FilterOption {
-  value: string;
-  label: string;
-}
+import { AllergyCheckboxGroup } from "./AllergyCheckboxGroup";
+import { CategoryCheckboxGroup } from "./CategoryCheckboxGroup";
 
 interface FilterPanelProps {
   allergies: Record<string, string>;
@@ -65,17 +59,13 @@ export function FilterPanel({
   // Local state for filter values (before applying)
   const [localSelectedAllergies, setLocalSelectedAllergies] =
     useState<string[]>(selectedAllergies);
-
   const [localHasSubIngredients, setLocalHasSubIngredients] = useState<
     boolean | null
   >(hasSubIngredients);
-
   const [localAllergyExcludeMode, setLocalAllergyExcludeMode] =
     useState<boolean>(allergyExcludeMode);
-
   const [localSelectedCategories, setLocalSelectedCategories] =
     useState<string[]>(selectedCategories);
-
   const [localCategoryExcludeMode, setLocalCategoryExcludeMode] =
     useState<boolean>(categoryExcludeMode);
 
@@ -94,25 +84,45 @@ export function FilterPanel({
     categoryExcludeMode,
   ]);
 
-  // Convert allergies object to array of options for MultiSelect
-  const allergyOptions: FilterOption[] = Object.entries(allergies).map(
-    ([id, name]) => ({
-      value: id,
-      label: name,
-    })
-  );
-
-  // Create category options for MultiSelect
-  const categoryOptions: FilterOption[] = CATEGORY_KEYS.map((categoryKey) => ({
-    value: categoryKey,
-    label: t(`categories.${categoryKey}`),
-  }));
-
   // Check if any filters are applied
   const hasActiveFilters =
     selectedAllergies.length > 0 ||
     hasSubIngredients !== null ||
     selectedCategories.length > 0;
+
+  // Calculate active filters count safely
+  const calculateActiveFiltersCount = (): number => {
+    let count = 0;
+    if (selectedAllergies.length > 0) count += 1;
+    if (hasSubIngredients !== null) count += 1;
+    if (selectedCategories.length > 0) count += 1;
+    return count;
+  };
+
+  const activeFiltersCount = calculateActiveFiltersCount();
+
+  // Handle subIngredient type change
+  const handleSubIngredientTypeChange = (value: string | null) => {
+    if (!value) return;
+
+    switch (value) {
+      case "raw":
+        setLocalHasSubIngredients(false);
+        break;
+      case "compound":
+        setLocalHasSubIngredients(true);
+        break;
+      default:
+        setLocalHasSubIngredients(null);
+    }
+  };
+
+  // Get current subIngredient type value for select
+  const getSubIngredientTypeValue = (): string => {
+    if (localHasSubIngredients === true) return "compound";
+    if (localHasSubIngredients === false) return "raw";
+    return "all";
+  };
 
   // Apply current filters
   const handleApplyFilters = () => {
@@ -144,10 +154,7 @@ export function FilterPanel({
           {hasActiveFilters && (
             <Text size="sm" c="dimmed">
               {t("filters.active", {
-                count:
-                  (selectedAllergies.length || 0) +
-                  (hasSubIngredients !== null ? 1 : 0) +
-                  (selectedCategories.length || 0),
+                count: activeFiltersCount,
               })}
             </Text>
           )}
@@ -165,21 +172,13 @@ export function FilterPanel({
       </Group>
       <Collapse in={opened}>
         <Stack gap="md">
-          {/* Allergy filters */}
+          {/* Allergy filters - checkbox group */}
           <Box>
-            <Text size="sm" fw={500} mb="xs">
-              {t("filters.allergies.label")}
-            </Text>
-            <MultiSelect
-              placeholder={t("filters.allergies.placeholder")}
-              data={allergyOptions}
-              value={localSelectedAllergies}
+            <AllergyCheckboxGroup
+              selectedAllergies={localSelectedAllergies}
               onChange={setLocalSelectedAllergies}
-              searchable
-              clearable
               disabled={disabled}
             />
-
             <Box mt="xs">
               <Text size="sm" mb="xs">
                 {t("filters.allergyMode.label")}
@@ -203,21 +202,13 @@ export function FilterPanel({
             </Box>
           </Box>
 
-          {/* Category filters */}
+          {/* Category filters - checkbox group */}
           <Box>
-            <Text size="sm" fw={500} mb="xs">
-              {t("filters.categories.label")}
-            </Text>
-            <MultiSelect
-              placeholder={t("filters.categories.placeholder")}
-              data={categoryOptions}
-              value={localSelectedCategories}
+            <CategoryCheckboxGroup
+              selectedCategories={localSelectedCategories}
               onChange={setLocalSelectedCategories}
-              searchable
-              clearable
               disabled={disabled}
             />
-
             <Box mt="xs">
               <Text size="sm" mb="xs">
                 {t("filters.categoryMode.label")}
@@ -247,16 +238,28 @@ export function FilterPanel({
             </Box>
           </Box>
 
-          {/* Sub-ingredients filter */}
-          <Switch
-            label={t("filters.hasSubIngredients.label")}
-            checked={localHasSubIngredients === true}
-            onChange={(event) => {
-              const checked = event.currentTarget.checked;
-              setLocalHasSubIngredients(checked ? true : false);
-            }}
-            disabled={disabled}
-          />
+          {/* Sub-ingredients dropdown selector */}
+          <Box>
+            <Text size="sm" fw={500} mb="xs">
+              {t("filters.hasSubIngredients.label")}
+            </Text>
+            <Select
+              data={[
+                { value: "all", label: t("filters.subIngredientsType.all") },
+                { value: "raw", label: t("filters.subIngredientsType.raw") },
+                {
+                  value: "compound",
+                  label: t("filters.subIngredientsType.compound"),
+                },
+              ]}
+              value={getSubIngredientTypeValue()}
+              onChange={handleSubIngredientTypeChange}
+              disabled={disabled}
+            />
+            <Text size="xs" c="dimmed" mt="xs">
+              {t("filters.subIngredientsType.hint")}
+            </Text>
+          </Box>
 
           <Group>
             <Button
@@ -272,8 +275,8 @@ export function FilterPanel({
               disabled={
                 disabled ||
                 (!hasActiveFilters &&
-                  !localSelectedAllergies.length &&
-                  !localSelectedCategories.length &&
+                  localSelectedAllergies.length === 0 &&
+                  localSelectedCategories.length === 0 &&
                   localHasSubIngredients === null)
               }
               size="compact-sm"

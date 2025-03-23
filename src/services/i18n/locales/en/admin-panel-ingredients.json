@@ -88,6 +88,12 @@
     },
     "hasSubIngredients": {
       "label": "Has Sub-ingredients"
+    },
+    "subIngredientsType": {
+      "all": "All ingredients",
+      "raw": "Raw ingredients only",
+      "compound": "Compound ingredients only",
+      "hint": "Filter by ingredient composition type"
     }
   },
   "pagination": {
