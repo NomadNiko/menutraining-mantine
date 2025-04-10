@@ -18,6 +18,7 @@
   "unauthorized": "You are not authorized to access this resource",
   "noRestaurantSelected": "No restaurant selected",
   "create": "Create Ingredient",
+  "loadMore": "Show More",
   "table": {
     "image": "Image",
     "name": "Name",
@@ -104,7 +105,7 @@
     "loading": "Loading ingredients...",
     "noIngredients": "No ingredients found",
     "noMatchingIngredients": "No ingredients match your filters",
-    "showing": "Showing {{start}}-{{end}} of {{total}} ingredients",
+    "showing": "Showing {{displayed}} of {{total}} ingredients",
     "filtered": "(filtered)",
     "search": "Search",
     "excludes": "Excludes",

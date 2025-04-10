@@ -1,6 +1,6 @@
 // src/hooks/useIngredientsWithClientSideSort.ts
 "use client";
-import { useState, useMemo, useCallback } from "react";
+import { useState, useMemo, useCallback, useEffect } from "react";
 import {
   useIngredientsQuery,
   IngredientsQueryParams,
@@ -16,6 +16,9 @@ export interface SortParams {
 export function useIngredientsWithClientSideSort(
   queryParams: IngredientsQueryParams
 ) {
+  // State for client-side display pagination
+  const [displayCount, setDisplayCount] = useState(10);
+
   // We'll handle sorting client-side, so we don't pass sort parameters to the API
   const queryParamsWithoutSort = {
     ...queryParams,
@@ -31,7 +34,6 @@ export function useIngredientsWithClientSideSort(
     isLoading,
     isError,
     totalCount,
-    totalPages,
     refetch,
   } = useIngredientsQuery(queryParamsWithoutSort);
 
@@ -57,6 +59,8 @@ export function useIngredientsWithClientSideSort(
         direction: "asc",
       };
     });
+    // Reset display count when sorting changes
+    setDisplayCount(10);
   }, []);
 
   // Apply client-side sorting to ingredients
@@ -110,22 +114,50 @@ export function useIngredientsWithClientSideSort(
       // Handle numeric comparison, ensuring we're working with numbers
       const numA = Number(aValue);
       const numB = Number(bValue);
-
       return sortParams.direction === "asc" ? numA - numB : numB - numA;
     });
   }, [rawIngredients, sortParams]);
 
+  // Get displayed ingredients limited by displayCount
+  const displayedIngredients = useMemo(() => {
+    return sortedIngredients.slice(0, displayCount);
+  }, [sortedIngredients, displayCount]);
+
+  // Check if there are more ingredients to show
+  const hasMore = useMemo(() => {
+    return displayCount < sortedIngredients.length;
+  }, [displayCount, sortedIngredients.length]);
+
+  // Function to load more ingredients (increase display count)
+  const loadMore = useCallback(() => {
+    setDisplayCount((prev) => prev + 10);
+  }, []);
+
+  // Reset display count when query parameters change (except sort)
+  useEffect(() => {
+    setDisplayCount(10);
+  }, [
+    queryParams.restaurantId,
+    queryParams.searchQuery,
+    queryParams.allergyIds,
+    queryParams.allergyExcludeMode,
+    queryParams.categoryIds,
+    queryParams.categoryExcludeMode,
+    queryParams.hasSubIngredients,
+  ]);
+
   return {
-    ingredients: sortedIngredients,
+    ingredients: displayedIngredients,
     allergiesMap,
     subIngredientNames,
     isLoading,
     isError,
     totalCount,
-    totalPages,
     refetch,
     sortField: sortParams.field,
     sortDirection: sortParams.direction,
     handleSort,
+    hasMore,
+    loadMore,
   };
 }

@@ -1,5 +1,4 @@
 // src/components/ingredients/IngredientTable.tsx
-
 "use client";
 import {
   Table,
@@ -13,6 +12,8 @@ import {
   Box,
   UnstyledButton,
   Flex,
+  useMantineTheme,
+  useMantineColorScheme,
 } from "@mantine/core";
 import {
   IconEdit,
@@ -37,41 +38,55 @@ interface IngredientTableProps {
   onSort?: (field: string) => void;
 }
 
+// Define fixed column widths as constants
+const COLUMN_WIDTHS = {
+  image: 80,
+  name: 200,
+  categories: 180,
+  allergies: 180,
+  subIngredients: 180,
+  actions: 200,
+};
+
 function SortableTableHeader({
   label,
   field,
   currentSortField,
   currentSortDirection,
   onSort,
+  width,
 }: {
   label: string;
   field: string;
   currentSortField?: string;
   currentSortDirection?: "asc" | "desc";
   onSort?: (field: string) => void;
+  width: number;
 }) {
   const isActive = currentSortField === field;
   return (
-    <UnstyledButton
-      onClick={() => onSort && onSort(field)}
-      style={{
-        display: "flex",
-        alignItems: "center",
-        cursor: onSort ? "pointer" : "default",
-        width: "100%",
-      }}
-      data-testid={`sort-${field}`}
-    >
-      <Flex align="center" justify="space-between">
-        <Text fw={500}>{label}</Text>
-        {isActive &&
-          (currentSortDirection === "asc" ? (
-            <IconSortAscending size={14} />
-          ) : (
-            <IconSortDescending size={14} />
-          ))}
-      </Flex>
-    </UnstyledButton>
+    <th style={{ width, padding: "10px" }}>
+      <UnstyledButton
+        onClick={() => onSort && onSort(field)}
+        style={{
+          display: "flex",
+          alignItems: "center",
+          cursor: onSort ? "pointer" : "default",
+          width: "100%",
+        }}
+        data-testid={`sort-${field}`}
+      >
+        <Flex align="center" justify="space-between">
+          <Text fw={500}>{label}</Text>
+          {isActive &&
+            (currentSortDirection === "asc" ? (
+              <IconSortAscending size={14} />
+            ) : (
+              <IconSortDescending size={14} />
+            ))}
+        </Flex>
+      </UnstyledButton>
+    </th>
   );
 }
 
@@ -87,6 +102,14 @@ function IngredientTableComponent({
 }: IngredientTableProps) {
   const { t } = useTranslation("admin-panel-ingredients");
   const pathname = usePathname();
+  const theme = useMantineTheme();
+  const { colorScheme } = useMantineColorScheme();
+
+  // Get the appropriate row colors based on the current theme
+  const rowColors = theme.other.tableRowColors?.[colorScheme] || {
+    even: colorScheme === "dark" ? "#25262b" : "#ffffff",
+    odd: colorScheme === "dark" ? "#2c2e33" : "#f8f9fa",
+  };
 
   // Determine if we're in the restaurant or admin panel context
   const isRestaurantRoute = pathname.includes("/restaurant/");
@@ -115,53 +138,64 @@ function IngredientTableComponent({
   }
 
   return (
-    <Table striped highlightOnHover>
+    <Table>
       <thead>
         <tr>
-          <th style={{ width: 80 }}>{t("table.image")}</th>
-          <th>
-            <SortableTableHeader
-              label={t("table.name")}
-              field="ingredientName"
-              currentSortField={sortField}
-              currentSortDirection={sortDirection}
-              onSort={onSort}
-            />
+          <th style={{ width: COLUMN_WIDTHS.image, padding: "10px" }}>
+            {t("table.image")}
           </th>
-          <th>
-            <SortableTableHeader
-              label={t("table.categories")}
-              field="categories"
-              currentSortField={sortField}
-              currentSortDirection={sortDirection}
-              onSort={onSort}
-            />
+          <SortableTableHeader
+            label={t("table.name")}
+            field="ingredientName"
+            currentSortField={sortField}
+            currentSortDirection={sortDirection}
+            onSort={onSort}
+            width={COLUMN_WIDTHS.name}
+          />
+          <SortableTableHeader
+            label={t("table.categories")}
+            field="categories"
+            currentSortField={sortField}
+            currentSortDirection={sortDirection}
+            onSort={onSort}
+            width={COLUMN_WIDTHS.categories}
+          />
+          <SortableTableHeader
+            label={t("table.allergies")}
+            field="allergies"
+            currentSortField={sortField}
+            currentSortDirection={sortDirection}
+            onSort={onSort}
+            width={COLUMN_WIDTHS.allergies}
+          />
+          <SortableTableHeader
+            label={t("table.subIngredients")}
+            field="subIngredients"
+            currentSortField={sortField}
+            currentSortDirection={sortDirection}
+            onSort={onSort}
+            width={COLUMN_WIDTHS.subIngredients}
+          />
+          <th
+            style={{
+              width: COLUMN_WIDTHS.actions,
+              textAlign: "right",
+              padding: "10px",
+            }}
+          >
+            {t("table.actions")}
           </th>
-          <th>
-            <SortableTableHeader
-              label={t("table.allergies")}
-              field="allergies"
-              currentSortField={sortField}
-              currentSortDirection={sortDirection}
-              onSort={onSort}
-            />
-          </th>
-          <th>
-            <SortableTableHeader
-              label={t("table.subIngredients")}
-              field="subIngredients"
-              currentSortField={sortField}
-              currentSortDirection={sortDirection}
-              onSort={onSort}
-            />
-          </th>
-          <th style={{ textAlign: "right" }}>{t("table.actions")}</th>
         </tr>
       </thead>
       <tbody>
-        {ingredients.map((ingredient) => (
-          <tr key={ingredient.id}>
-            <td style={{ width: 80 }}>
+        {ingredients.map((ingredient, index) => (
+          <tr
+            key={ingredient.id}
+            style={{
+              backgroundColor: index % 2 === 0 ? rowColors.even : rowColors.odd,
+            }}
+          >
+            <td style={{ width: COLUMN_WIDTHS.image, padding: "10px" }}>
               {ingredient.ingredientImageUrl ? (
                 <Box w={60} h={60}>
                   <Image
@@ -179,10 +213,10 @@ function IngredientTableComponent({
                 </Text>
               )}
             </td>
-            <td>
+            <td style={{ width: COLUMN_WIDTHS.name, padding: "10px" }}>
               <Text>{ingredient.ingredientName}</Text>
             </td>
-            <td>
+            <td style={{ width: COLUMN_WIDTHS.categories, padding: "10px" }}>
               <Group>
                 {ingredient.categories && ingredient.categories.length > 0 ? (
                   ingredient.categories.map((categoryKey: string) => (
@@ -197,7 +231,7 @@ function IngredientTableComponent({
                 )}
               </Group>
             </td>
-            <td>
+            <td style={{ width: COLUMN_WIDTHS.allergies, padding: "10px" }}>
               <Group>
                 {/* Direct allergies */}
                 {ingredient.ingredientAllergies &&
@@ -238,7 +272,9 @@ function IngredientTableComponent({
                   )}
               </Group>
             </td>
-            <td>
+            <td
+              style={{ width: COLUMN_WIDTHS.subIngredients, padding: "10px" }}
+            >
               <Group>
                 {ingredient.subIngredients &&
                 ingredient.subIngredients.length > 0 ? (
@@ -254,7 +290,13 @@ function IngredientTableComponent({
                 )}
               </Group>
             </td>
-            <td style={{ textAlign: "right" }}>
+            <td
+              style={{
+                width: COLUMN_WIDTHS.actions,
+                textAlign: "right",
+                padding: "10px",
+              }}
+            >
               <Group gap="xs" justify="flex-end">
                 <Button
                   component={Link}

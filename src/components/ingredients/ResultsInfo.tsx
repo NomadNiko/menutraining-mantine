@@ -1,13 +1,11 @@
 // src/components/ingredients/ResultsInfo.tsx
-
 "use client";
 import { Box, Text, Badge, Group } from "@mantine/core";
 import { useTranslation } from "@/services/i18n/client";
 
 interface ResultsInfoProps {
   totalCount: number;
-  currentPage: number;
-  pageSize: number;
+  displayedCount: number;
   searchQuery?: string;
   selectedAllergies: string[];
   allergiesMap: Record<string, string>;
@@ -20,8 +18,7 @@ interface ResultsInfoProps {
 
 export function ResultsInfo({
   totalCount,
-  currentPage,
-  pageSize,
+  displayedCount,
   searchQuery,
   selectedAllergies,
   allergiesMap,
@@ -32,10 +29,6 @@ export function ResultsInfo({
   isLoading = false,
 }: ResultsInfoProps) {
   const { t } = useTranslation("admin-panel-ingredients");
-
-  // Calculate range of items being displayed
-  const startItem = totalCount === 0 ? 0 : (currentPage - 1) * pageSize + 1;
-  const endItem = Math.min(currentPage * pageSize, totalCount);
 
   // Determine if any filters are active
   const hasFilters =
@@ -56,10 +49,10 @@ export function ResultsInfo({
     }
   } else {
     resultsMessage = t("results.showing", {
-      start: startItem,
-      end: endItem,
+      displayed: displayedCount,
       total: totalCount,
     });
+
     if (hasFilters) {
       resultsMessage += ` ${t("results.filtered")}`;
     }
@@ -77,7 +70,6 @@ export function ResultsInfo({
               {t("results.search")}: {searchQuery}
             </Badge>
           )}
-
           {selectedAllergies.map((allergyId) => (
             <Badge key={allergyId} size="sm" color="red">
               {allergyExcludeMode
@@ -86,7 +78,6 @@ export function ResultsInfo({
               {allergiesMap[allergyId] || allergyId}
             </Badge>
           ))}
-
           {selectedCategories.map((categoryKey) => (
             <Badge key={categoryKey} size="sm" color="green">
               {categoryExcludeMode
@@ -95,7 +86,6 @@ export function ResultsInfo({
               {t(`categories.${categoryKey}`)}
             </Badge>
           ))}
-
           {hasSubIngredients !== null && (
             <Badge size="sm" color="indigo">
               {hasSubIngredients

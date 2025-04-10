@@ -8,8 +8,6 @@ import { Allergy } from "@/services/api/types/allergy";
 
 export interface IngredientsQueryParams {
   restaurantId: string;
-  page: number;
-  pageSize: number;
   searchQuery?: string;
   allergyIds?: string[];
   allergyExcludeMode?: boolean;
@@ -23,7 +21,6 @@ export interface IngredientsQueryParams {
 // Define an interface for API query parameters
 interface ApiQueryParams {
   restaurantId: string;
-  page: number;
   limit: number;
   name?: string;
   allergyId?: string;
@@ -39,14 +36,13 @@ export interface IngredientsQueryResult {
   isError: boolean;
   error: unknown;
   totalCount: number;
-  totalPages: number;
+  hasMore: boolean;
+  loadMore: () => void;
   refetch: () => void;
 }
 
 export const useIngredientsQuery = ({
   restaurantId,
-  page,
-  pageSize,
   searchQuery,
   allergyIds,
   allergyExcludeMode = true, // Default to exclude mode
@@ -85,8 +81,6 @@ export const useIngredientsQuery = ({
     queryKey: [
       "ingredients",
       restaurantId,
-      page,
-      pageSize,
       searchQuery,
       allergyIds,
       allergyExcludeMode,
@@ -99,8 +93,7 @@ export const useIngredientsQuery = ({
     queryFn: async () => {
       const queryParams: ApiQueryParams = {
         restaurantId,
-        page,
-        limit: pageSize,
+        limit: 1000, // Request a large number to get all ingredients at once
       };
 
       // Add filters to query
@@ -203,33 +196,19 @@ export const useIngredientsQuery = ({
             ingredient.ingredientName;
         });
 
-        // Calculate total pages based on current page size and response
-        const hasNextPage = data.hasNextPage || false;
-        const estimatedTotalCount = filteredIngredients.length;
-        const estimatedTotalPages = Math.max(
-          Math.ceil(estimatedTotalCount / pageSize),
-          page // Ensure we have at least the current page
-        );
-
+        // Return all filtered ingredients
         return {
-          ingredients: filteredIngredients.slice(
-            (page - 1) * pageSize,
-            page * pageSize
-          ),
+          ingredients: filteredIngredients,
           subIngredientNames: subIngredientNamesMap,
-          // Estimated count and pages based on available info
-          estimatedTotalCount,
-          estimatedTotalPages,
-          hasNextPage,
+          totalCount: filteredIngredients.length,
+          // We don't need hasNextPage as we loaded all data
         };
       }
 
       return {
         ingredients: [],
         subIngredientNames: {},
-        estimatedTotalCount: 0,
-        estimatedTotalPages: 0,
-        hasNextPage: false,
+        totalCount: 0,
       };
     },
     enabled: !!restaurantId,
@@ -242,8 +221,9 @@ export const useIngredientsQuery = ({
     isLoading: ingredientsQuery.isLoading || allergiesQuery.isLoading,
     isError: ingredientsQuery.isError || allergiesQuery.isError,
     error: ingredientsQuery.error || allergiesQuery.error,
-    totalCount: ingredientsQuery.data?.estimatedTotalCount || 0,
-    totalPages: ingredientsQuery.data?.estimatedTotalPages || 0,
+    totalCount: ingredientsQuery.data?.totalCount || 0,
+    hasMore: false, // We're loading all at once, so there's no "more" to load
+    loadMore: () => {}, // Empty function as we're loading all at once
     refetch: ingredientsQuery.refetch,
   };
 };

@@ -1,3 +1,4 @@
+// src/components/theme/mantine-provider.tsx
 import { MantineProvider, createTheme, ColorSchemeScript } from "@mantine/core";
 import { oxanium } from "@/config/fonts";
 import "@mantine/core/styles.css";
@@ -23,6 +24,25 @@ const theme = createTheme({
     Button: {
       defaultProps: {
         size: "md",
+      },
+    },
+    Table: {
+      defaultProps: {
+        withBorder: true,
+        withColumnBorders: true,
+      },
+    },
+  },
+  other: {
+    // Custom theme values for alternating row colors
+    tableRowColors: {
+      light: {
+        even: "#ffffff",
+        odd: "#f8f9fa",
+      },
+      dark: {
+        even: "#25262b",
+        odd: "#2c2e33",
       },
     },
   },

@@ -24,7 +24,7 @@ import useSelectedRestaurant from "@/services/restaurant/use-selected-restaurant
 // Import components
 import { SearchBar } from "@/components/ingredients/SearchBar";
 import { FilterPanel } from "@/components/ingredients/FilterPanel";
-import { PaginationControls } from "@/components/ingredients/PaginationControls";
+import { LoadMoreButton } from "@/components/ingredients/LoadMoreButton";
 import { ResultsInfo } from "@/components/ingredients/ResultsInfo";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useIngredientsWithClientSideSort } from "@/hooks/useIngredientsWithClientSideSort";
@@ -41,8 +41,6 @@ function RestaurantIngredientsPage() {
   const router = useRouter();
 
   // Get URL parameters or use defaults
-  const initialPage = Number(searchParams.get("page") || "1");
-  const initialPageSize = Number(searchParams.get("limit") || "10");
   const initialSearch = searchParams.get("search") || "";
   const initialAllergies = searchParams.get("allergies")?.split(",") || [];
   const initialHasSubIngredients = searchParams.get("hasSubIngredients")
@@ -58,9 +56,7 @@ function RestaurantIngredientsPage() {
   const initialCategoryExcludeMode =
     searchParams.get("categoryExcludeMode") !== "false"; // Default to true if not explicitly set to false
 
-  // State for filtering, pagination, and sorting
-  const [page, setPage] = useState(initialPage);
-  const [pageSize, setPageSize] = useState(initialPageSize);
+  // State for filtering and searching
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [selectedAllergies, setSelectedAllergies] =
     useState<string[]>(initialAllergies);
@@ -76,7 +72,7 @@ function RestaurantIngredientsPage() {
     initialCategoryExcludeMode
   );
 
-  // Use the new client-side sorting hook
+  // Use the client-side sorting and pagination hook
   const {
     ingredients,
     allergiesMap,
@@ -84,15 +80,14 @@ function RestaurantIngredientsPage() {
     isLoading,
     isError,
     totalCount,
-    totalPages,
     refetch,
     sortField,
     sortDirection,
     handleSort,
+    hasMore,
+    loadMore,
   } = useIngredientsWithClientSideSort({
     restaurantId: selectedRestaurant?.restaurantId || "",
-    page,
-    pageSize,
     searchQuery,
     allergyIds: selectedAllergies,
     allergyExcludeMode,
@@ -108,8 +103,6 @@ function RestaurantIngredientsPage() {
     if (!selectedRestaurant) return;
 
     const params = new URLSearchParams();
-    params.set("page", page.toString());
-    params.set("limit", pageSize.toString());
     if (searchQuery) params.set("search", searchQuery);
     if (selectedAllergies.length > 0)
       params.set("allergies", selectedAllergies.join(","));
@@ -125,8 +118,6 @@ function RestaurantIngredientsPage() {
     // Use router.replace to update URL without full page reload
     router.replace(`?${params.toString()}`, { scroll: false });
   }, [
-    page,
-    pageSize,
     searchQuery,
     selectedAllergies,
     selectedCategories,
@@ -139,21 +130,9 @@ function RestaurantIngredientsPage() {
     router,
   ]);
 
-  // Handle page change
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-  };
-
-  // Handle page size change
-  const handlePageSizeChange = (newPageSize: number) => {
-    setPageSize(newPageSize);
-    setPage(1); // Reset to first page when changing page size
-  };
-
   // Handle search
   const handleSearch = (query: string) => {
     setSearchQuery(query);
-    setPage(1); // Reset to first page when searching
   };
 
   // Handle filter change
@@ -169,7 +148,6 @@ function RestaurantIngredientsPage() {
     setAllergyExcludeMode(newAllergyExcludeMode);
     setSelectedCategories(categories);
     setCategoryExcludeMode(newCategoryExcludeMode);
-    setPage(1); // Reset to first page when filtering
   };
 
   // Handle filter reset
@@ -179,7 +157,6 @@ function RestaurantIngredientsPage() {
     setAllergyExcludeMode(true); // Default to exclude mode
     setSelectedCategories([]);
     setCategoryExcludeMode(true); // Default to exclude mode
-    setPage(1); // Reset to first page when clearing filters
   };
 
   // Handle ingredient deletion
@@ -229,7 +206,6 @@ function RestaurantIngredientsPage() {
           {t("create")}
         </Button>
       </Group>
-
       <Stack gap="md">
         {/* Search and Filters */}
         <Group align="flex-start" grow>
@@ -240,7 +216,6 @@ function RestaurantIngredientsPage() {
             disabled={isLoading}
           />
         </Group>
-
         <FilterPanel
           allergies={allergiesMap}
           selectedAllergies={selectedAllergies}
@@ -252,12 +227,10 @@ function RestaurantIngredientsPage() {
           onFilterReset={handleFilterReset}
           disabled={isLoading}
         />
-
         {/* Results Information */}
         <ResultsInfo
           totalCount={totalCount}
-          currentPage={page}
-          pageSize={pageSize}
+          displayedCount={ingredients.length}
           searchQuery={searchQuery}
           selectedAllergies={selectedAllergies}
           allergiesMap={allergiesMap}
@@ -267,7 +240,6 @@ function RestaurantIngredientsPage() {
           categoryExcludeMode={categoryExcludeMode}
           isLoading={isLoading}
         />
-
         {/* Ingredients Table/Cards */}
         <Paper p="md" withBorder>
           {isError ? (
@@ -295,15 +267,11 @@ function RestaurantIngredientsPage() {
             />
           )}
         </Paper>
-
-        {/* Pagination Controls */}
-        <PaginationControls
-          currentPage={page}
-          totalPages={totalPages}
-          pageSize={pageSize}
-          onPageChange={handlePageChange}
-          onPageSizeChange={handlePageSizeChange}
-          disabled={isLoading || totalCount === 0}
+        {/* Load More Button */}
+        <LoadMoreButton
+          onClick={loadMore}
+          hasMore={hasMore}
+          isLoading={isLoading}
         />
       </Stack>
     </Container>
