@@ -32,7 +32,6 @@ interface ApiQueryParams {
 export interface IngredientsQueryResult {
   ingredients: Ingredient[];
   allergiesMap: Record<string, string>;
-  subIngredientNames: Record<string, string>;
   isLoading: boolean;
   isError: boolean;
   error: unknown;
@@ -75,33 +74,6 @@ export const useIngredientsQuery = ({
       return {};
     },
     staleTime: 5 * 60 * 1000, // 5 minutes cache
-  });
-
-  // Separate query to get ALL ingredients for the restaurant
-  // to ensure we have complete sub-ingredient names
-  const allIngredientsQuery = useQuery({
-    queryKey: ["all-ingredients", restaurantId],
-    queryFn: async () => {
-      const { status, data } = await getIngredientsService(undefined, {
-        restaurantId,
-        limit: 1000, // Get all ingredients for this restaurant
-      });
-
-      if (status === HTTP_CODES_ENUM.OK) {
-        const allIngredients = Array.isArray(data) ? data : data?.data || [];
-        const nameMap: Record<string, string> = {};
-
-        allIngredients.forEach((ingredient: Ingredient) => {
-          nameMap[ingredient.ingredientId] = ingredient.ingredientName;
-        });
-
-        return nameMap;
-      }
-
-      return {};
-    },
-    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
-    enabled: !!restaurantId,
   });
 
   // Main query for ingredients with filters
@@ -152,7 +124,6 @@ export const useIngredientsQuery = ({
 
       if (status === HTTP_CODES_ENUM.OK) {
         const ingredientsData = Array.isArray(data) ? data : data?.data || [];
-
         let filteredIngredients = [...ingredientsData];
 
         if (allergyIds && allergyIds.length > 0) {
@@ -201,6 +172,7 @@ export const useIngredientsQuery = ({
           totalCount: filteredIngredients.length,
         };
       }
+
       return {
         ingredients: [],
         totalCount: 0,
@@ -212,20 +184,9 @@ export const useIngredientsQuery = ({
   return {
     ingredients: ingredientsQuery.data?.ingredients || [],
     allergiesMap: allergiesQuery.data || {},
-    // Use the COMPLETE ingredient names map from the separate query
-    subIngredientNames: allIngredientsQuery.data || {},
-    isLoading:
-      ingredientsQuery.isLoading ||
-      allergiesQuery.isLoading ||
-      allIngredientsQuery.isLoading,
-    isError:
-      ingredientsQuery.isError ||
-      allergiesQuery.isError ||
-      allIngredientsQuery.isError,
-    error:
-      ingredientsQuery.error ||
-      allergiesQuery.error ||
-      allIngredientsQuery.error,
+    isLoading: ingredientsQuery.isLoading || allergiesQuery.isLoading,
+    isError: ingredientsQuery.isError || allergiesQuery.isError,
+    error: ingredientsQuery.error || allergiesQuery.error,
     totalCount: ingredientsQuery.data?.totalCount || 0,
     hasMore: false,
     loadMore: () => {},

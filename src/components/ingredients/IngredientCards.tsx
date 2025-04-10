@@ -1,3 +1,4 @@
+// src/components/ingredients/IngredientCards.tsx
 "use client";
 import { Stack, Center, Loader, Text, SimpleGrid } from "@mantine/core";
 import { IngredientCard } from "./IngredientCard";
@@ -8,7 +9,6 @@ import { memo } from "react";
 interface IngredientCardsProps {
   ingredients: Ingredient[];
   allergies: { [key: string]: string };
-  subIngredientNames: { [key: string]: string };
   loading?: boolean;
   onDelete: (id: string, name: string) => void;
 }
@@ -16,7 +16,6 @@ interface IngredientCardsProps {
 function IngredientCardsComponent({
   ingredients,
   allergies,
-  subIngredientNames,
   loading = false,
   onDelete,
 }: IngredientCardsProps) {
@@ -46,12 +45,10 @@ function IngredientCardsComponent({
             key={ingredient.id}
             ingredient={ingredient}
             allergies={allergies}
-            subIngredientNames={subIngredientNames}
             onDelete={onDelete}
           />
         ))}
       </SimpleGrid>
-
       {loading && (
         <Center p="md">
           <Loader size="sm" />

@@ -1,3 +1,4 @@
+// src/components/ingredients/IngredientCard.tsx
 "use client";
 import {
   Card,
@@ -23,16 +24,15 @@ interface IngredientCardProps {
     subIngredients: string[];
     derivedAllergies?: string[];
     categories: string[];
+    subIngredientDetails?: Array<{ id: string; name: string }>;
   };
   allergies: { [key: string]: string };
-  subIngredientNames: { [key: string]: string };
   onDelete: (id: string, name: string) => void;
 }
 
 export function IngredientCard({
   ingredient,
   allergies,
-  subIngredientNames,
   onDelete,
 }: IngredientCardProps) {
   const { t } = useTranslation("admin-panel-ingredients");
@@ -59,7 +59,6 @@ export function IngredientCard({
             </Text>
           </Box>
         </Group>
-
         {/* Categories */}
         <Stack gap="xs">
           <Text size="sm" fw={500} c="dimmed">
@@ -79,7 +78,6 @@ export function IngredientCard({
             )}
           </Group>
         </Stack>
-
         {/* Direct allergies */}
         {ingredient.ingredientAllergies &&
           ingredient.ingredientAllergies.length > 0 && (
@@ -96,7 +94,6 @@ export function IngredientCard({
               </Group>
             </Stack>
           )}
-
         {/* Derived allergies */}
         {ingredient.derivedAllergies &&
           ingredient.derivedAllergies.length > 0 && (
@@ -118,28 +115,27 @@ export function IngredientCard({
               </Group>
             </Stack>
           )}
-
         {/* Sub-ingredients */}
-        {ingredient.subIngredients && ingredient.subIngredients.length > 0 && (
-          <Stack gap="xs">
-            <Text size="sm" fw={500} c="dimmed">
-              {t("table.subIngredients")}:
-            </Text>
-            <Group gap="xs">
-              {ingredient.subIngredients.map((ingredientId) => (
-                <Badge key={ingredientId} size="sm" color="blue">
-                  {subIngredientNames[ingredientId] || ingredientId}
-                </Badge>
-              ))}
-            </Group>
-          </Stack>
-        )}
+        {ingredient.subIngredientDetails &&
+          ingredient.subIngredientDetails.length > 0 && (
+            <Stack gap="xs">
+              <Text size="sm" fw={500} c="dimmed">
+                {t("table.subIngredients")}:
+              </Text>
+              <Group gap="xs">
+                {ingredient.subIngredientDetails.map((subIngredient) => (
+                  <Badge key={subIngredient.id} size="sm" color="blue">
+                    {subIngredient.name}
+                  </Badge>
+                ))}
+              </Group>
+            </Stack>
+          )}
       </Stack>
-
       <Group justify="flex-end" mt="md">
         <Button
           component={Link}
-          href={`/admin-panel/ingredients/edit/${ingredient.id}`}
+          href={`/restaurant/ingredients/edit/${ingredient.id}`}
           size="compact-xs"
           variant="light"
           leftSection={<IconEdit size={14} />}

@@ -24,13 +24,12 @@ import {
 import Link from "@/components/link";
 import { useTranslation } from "@/services/i18n/client";
 import { Ingredient } from "@/services/api/types/ingredient";
-import { memo } from "react";
+import { memo, useMemo, useCallback } from "react";
 import { usePathname } from "next/navigation";
 
 interface IngredientTableProps {
   ingredients: Ingredient[];
   allergies: { [key: string]: string };
-  subIngredientNames: { [key: string]: string };
   loading?: boolean;
   onDelete: (id: string, name: string) => void;
   sortField?: string;
@@ -48,7 +47,8 @@ const COLUMN_WIDTHS = {
   actions: 200,
 };
 
-function SortableTableHeader({
+// Memoize the header component
+const SortableTableHeader = memo(function SortableTableHeader({
   label,
   field,
   currentSortField,
@@ -88,12 +88,174 @@ function SortableTableHeader({
       </UnstyledButton>
     </th>
   );
-}
+});
+
+// Memoize the row component for better performance
+const IngredientRow = memo(function IngredientRow({
+  ingredient,
+  allergies,
+  onDelete,
+  rowColor,
+  editUrl,
+  t,
+}: {
+  ingredient: Ingredient;
+  allergies: { [key: string]: string };
+  onDelete: (id: string, name: string) => void;
+  rowColor: string;
+  editUrl: string;
+  t: (key: string) => string;
+}) {
+  return (
+    <tr style={{ backgroundColor: rowColor }}>
+      <td style={{ width: COLUMN_WIDTHS.image, padding: "10px" }}>
+        {ingredient.ingredientImageUrl ? (
+          <Box w={60} h={60}>
+            <Image
+              src={ingredient.ingredientImageUrl}
+              alt={ingredient.ingredientName}
+              height={60}
+              width={60}
+              fit="contain"
+              radius="md"
+            />
+          </Box>
+        ) : (
+          <Text size="sm" c="dimmed">
+            -
+          </Text>
+        )}
+      </td>
+      <td style={{ width: COLUMN_WIDTHS.name, padding: "10px" }}>
+        <Text>{ingredient.ingredientName}</Text>
+      </td>
+      <td style={{ width: COLUMN_WIDTHS.categories, padding: "10px" }}>
+        <Group>
+          {ingredient.categories && ingredient.categories.length > 0 ? (
+            ingredient.categories.map((categoryKey: string) => (
+              <Badge key={categoryKey} size="sm" color="green">
+                {t(`categories.${categoryKey}`)}
+              </Badge>
+            ))
+          ) : (
+            <Badge size="sm" color="green">
+              {t("categories.basic")}
+            </Badge>
+          )}
+        </Group>
+      </td>
+      <td style={{ width: COLUMN_WIDTHS.allergies, padding: "10px" }}>
+        <Group>
+          {/* Direct allergies */}
+          {ingredient.ingredientAllergies &&
+          ingredient.ingredientAllergies.length > 0
+            ? ingredient.ingredientAllergies.map((allergyId: string) => (
+                <Badge key={allergyId} size="sm" color="red" variant="filled">
+                  {allergies[allergyId] || allergyId}
+                </Badge>
+              ))
+            : null}
+          {/* Derived allergies */}
+          {ingredient.derivedAllergies && ingredient.derivedAllergies.length > 0
+            ? ingredient.derivedAllergies.map((allergyId: string) => (
+                <Badge
+                  key={`derived-${allergyId}`}
+                  size="sm"
+                  color="red"
+                  variant="outline"
+                >
+                  {allergies[allergyId] || allergyId}
+                </Badge>
+              ))
+            : null}
+          {/* Show message if no allergies at all */}
+          {(!ingredient.ingredientAllergies ||
+            ingredient.ingredientAllergies.length === 0) &&
+            (!ingredient.derivedAllergies ||
+              ingredient.derivedAllergies.length === 0) && (
+              <Text size="sm" c="dimmed">
+                -
+              </Text>
+            )}
+        </Group>
+      </td>
+      <td style={{ width: COLUMN_WIDTHS.subIngredients, padding: "10px" }}>
+        <Group>
+          {ingredient.subIngredientDetails &&
+          ingredient.subIngredientDetails.length > 0 ? (
+            ingredient.subIngredientDetails.map((subIngredient) => (
+              <Badge key={subIngredient.id} size="sm" color="blue">
+                {subIngredient.name}
+              </Badge>
+            ))
+          ) : (
+            <Text size="sm" c="dimmed">
+              -
+            </Text>
+          )}
+        </Group>
+      </td>
+      <td
+        style={{
+          width: COLUMN_WIDTHS.actions,
+          textAlign: "right",
+          padding: "10px",
+        }}
+      >
+        <Group gap="xs" justify="flex-end">
+          <Button
+            component={Link}
+            href={editUrl}
+            size="xs"
+            variant="light"
+            leftSection={<IconEdit size={14} />}
+            style={{
+              width: "88px",
+              height: "24px",
+              padding: "0 6px",
+            }}
+            styles={{
+              inner: {
+                fontSize: "12px",
+                height: "100%",
+              },
+            }}
+          >
+            <Text size="xs" truncate>
+              {t("actions.edit")}
+            </Text>
+          </Button>
+          <Button
+            size="xs"
+            variant="light"
+            color="red"
+            leftSection={<IconTrash size={14} />}
+            onClick={() => onDelete(ingredient.id, ingredient.ingredientName)}
+            style={{
+              width: "88px",
+              height: "24px",
+              padding: "0 6px",
+            }}
+            styles={{
+              inner: {
+                fontSize: "12px",
+                height: "100%",
+              },
+            }}
+          >
+            <Text size="xs" truncate>
+              {t("actions.delete")}
+            </Text>
+          </Button>
+        </Group>
+      </td>
+    </tr>
+  );
+});
 
 function IngredientTableComponent({
   ingredients,
   allergies,
-  subIngredientNames,
   loading = false,
   onDelete,
   sortField,
@@ -106,20 +268,22 @@ function IngredientTableComponent({
   const { colorScheme } = useMantineColorScheme();
 
   // Get the appropriate row colors based on the current theme
-  const rowColors = theme.other.tableRowColors?.[colorScheme] || {
-    even: colorScheme === "dark" ? "#25262b" : "#ffffff",
-    odd: colorScheme === "dark" ? "#2c2e33" : "#f8f9fa",
-  };
+  const rowColors = useMemo(() => {
+    return theme.other.tableRowColors[colorScheme];
+  }, [theme.other.tableRowColors, colorScheme]);
 
   // Determine if we're in the restaurant or admin panel context
   const isRestaurantRoute = pathname.includes("/restaurant/");
 
-  // Build the correct edit URL based on the current context
-  const getEditUrl = (ingredientId: string) => {
-    return isRestaurantRoute
-      ? `/restaurant/ingredients/edit/${ingredientId}`
-      : `/admin-panel/ingredients/edit/${ingredientId}`;
-  };
+  // Memoize the edit URL function to prevent recalculation
+  const getEditUrl = useCallback(
+    (ingredientId: string) => {
+      return isRestaurantRoute
+        ? `/restaurant/ingredients/edit/${ingredientId}`
+        : `/admin-panel/ingredients/edit/${ingredientId}`;
+    },
+    [isRestaurantRoute]
+  );
 
   if (ingredients.length === 0 && loading) {
     return (
@@ -189,170 +353,21 @@ function IngredientTableComponent({
       </thead>
       <tbody>
         {ingredients.map((ingredient, index) => (
-          <tr
+          <IngredientRow
             key={ingredient.id}
-            style={{
-              backgroundColor: index % 2 === 0 ? rowColors.even : rowColors.odd,
-            }}
-          >
-            <td style={{ width: COLUMN_WIDTHS.image, padding: "10px" }}>
-              {ingredient.ingredientImageUrl ? (
-                <Box w={60} h={60}>
-                  <Image
-                    src={ingredient.ingredientImageUrl}
-                    alt={ingredient.ingredientName}
-                    height={60}
-                    width={60}
-                    fit="contain"
-                    radius="md"
-                  />
-                </Box>
-              ) : (
-                <Text size="sm" c="dimmed">
-                  -
-                </Text>
-              )}
-            </td>
-            <td style={{ width: COLUMN_WIDTHS.name, padding: "10px" }}>
-              <Text>{ingredient.ingredientName}</Text>
-            </td>
-            <td style={{ width: COLUMN_WIDTHS.categories, padding: "10px" }}>
-              <Group>
-                {ingredient.categories && ingredient.categories.length > 0 ? (
-                  ingredient.categories.map((categoryKey: string) => (
-                    <Badge key={categoryKey} size="sm" color="green">
-                      {t(`categories.${categoryKey}`)}
-                    </Badge>
-                  ))
-                ) : (
-                  <Badge size="sm" color="green">
-                    {t("categories.basic")}
-                  </Badge>
-                )}
-              </Group>
-            </td>
-            <td style={{ width: COLUMN_WIDTHS.allergies, padding: "10px" }}>
-              <Group>
-                {/* Direct allergies */}
-                {ingredient.ingredientAllergies &&
-                ingredient.ingredientAllergies.length > 0
-                  ? ingredient.ingredientAllergies.map((allergyId: string) => (
-                      <Badge
-                        key={allergyId}
-                        size="sm"
-                        color="red"
-                        variant="filled"
-                      >
-                        {allergies[allergyId] || allergyId}
-                      </Badge>
-                    ))
-                  : null}
-                {/* Derived allergies */}
-                {ingredient.derivedAllergies &&
-                ingredient.derivedAllergies.length > 0
-                  ? ingredient.derivedAllergies.map((allergyId: string) => (
-                      <Badge
-                        key={`derived-${allergyId}`}
-                        size="sm"
-                        color="red"
-                        variant="outline"
-                      >
-                        {allergies[allergyId] || allergyId}
-                      </Badge>
-                    ))
-                  : null}
-                {/* Show message if no allergies at all */}
-                {(!ingredient.ingredientAllergies ||
-                  ingredient.ingredientAllergies.length === 0) &&
-                  (!ingredient.derivedAllergies ||
-                    ingredient.derivedAllergies.length === 0) && (
-                    <Text size="sm" c="dimmed">
-                      -
-                    </Text>
-                  )}
-              </Group>
-            </td>
-            <td
-              style={{ width: COLUMN_WIDTHS.subIngredients, padding: "10px" }}
-            >
-              <Group>
-                {ingredient.subIngredients &&
-                ingredient.subIngredients.length > 0 ? (
-                  ingredient.subIngredients.map((ingredientId: string) => (
-                    <Badge key={ingredientId} size="sm" color="blue">
-                      {subIngredientNames[ingredientId] || ingredientId}
-                    </Badge>
-                  ))
-                ) : (
-                  <Text size="sm" c="dimmed">
-                    -
-                  </Text>
-                )}
-              </Group>
-            </td>
-            <td
-              style={{
-                width: COLUMN_WIDTHS.actions,
-                textAlign: "right",
-                padding: "10px",
-              }}
-            >
-              <Group gap="xs" justify="flex-end">
-                <Button
-                  component={Link}
-                  href={getEditUrl(ingredient.id)}
-                  size="xs"
-                  variant="light"
-                  leftSection={<IconEdit size={14} />}
-                  style={{
-                    width: "88px",
-                    height: "24px",
-                    padding: "0 6px",
-                  }}
-                  styles={{
-                    inner: {
-                      fontSize: "12px",
-                      height: "100%",
-                    },
-                  }}
-                >
-                  <Text size="xs" truncate>
-                    {t("actions.edit")}
-                  </Text>
-                </Button>
-                <Button
-                  size="xs"
-                  variant="light"
-                  color="red"
-                  leftSection={<IconTrash size={14} />}
-                  onClick={() =>
-                    onDelete(ingredient.id, ingredient.ingredientName)
-                  }
-                  style={{
-                    width: "88px",
-                    height: "24px",
-                    padding: "0 6px",
-                  }}
-                  styles={{
-                    inner: {
-                      fontSize: "12px",
-                      height: "100%",
-                    },
-                  }}
-                >
-                  <Text size="xs" truncate>
-                    {t("actions.delete")}
-                  </Text>
-                </Button>
-              </Group>
-            </td>
-          </tr>
+            ingredient={ingredient}
+            allergies={allergies}
+            onDelete={onDelete}
+            rowColor={index % 2 === 0 ? rowColors.even : rowColors.odd}
+            editUrl={getEditUrl(ingredient.id)}
+            t={t}
+          />
         ))}
       </tbody>
     </Table>
   );
 }
 
-// Memoize the component to prevent unnecessary re-renders
+// Use React.memo to prevent unnecessary re-renders
 const IngredientTable = memo(IngredientTableComponent);
 export default IngredientTable;

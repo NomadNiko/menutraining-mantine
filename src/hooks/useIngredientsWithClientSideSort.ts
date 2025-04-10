@@ -19,10 +19,18 @@ export function useIngredientsWithClientSideSort(
   // State for client-side display pagination
   const [displayCount, setDisplayCount] = useState(10);
 
-  // We'll handle sorting client-side, so we don't pass sort parameters to the API
-  const queryParamsWithoutSort = {
+  // Local sorting state - This needs to be initialized from query params
+  // but then managed independently to allow immediate UI updates
+  const [sortParams, setSortParams] = useState<SortParams>({
+    field: queryParams.sortField || "ingredientName",
+    direction: queryParams.sortDirection || "asc",
+  });
+
+  // We're now always using client-side sorting for responsive UI
+  // This ensures clicking sort headers has immediate effect
+  const optimizedQueryParams = {
     ...queryParams,
-    sortField: undefined,
+    sortField: undefined, // We'll handle sorting client-side
     sortDirection: undefined,
   };
 
@@ -30,18 +38,11 @@ export function useIngredientsWithClientSideSort(
   const {
     ingredients: rawIngredients,
     allergiesMap,
-    subIngredientNames,
     isLoading,
     isError,
     totalCount,
     refetch,
-  } = useIngredientsQuery(queryParamsWithoutSort);
-
-  // Local sorting state
-  const [sortParams, setSortParams] = useState<SortParams>({
-    field: queryParams.sortField || "ingredientName",
-    direction: queryParams.sortDirection || "asc",
-  });
+  } = useIngredientsQuery(optimizedQueryParams);
 
   // Handle sorting changes
   const handleSort = useCallback((field: string) => {
@@ -95,8 +96,8 @@ export function useIngredientsWithClientSideSort(
           break;
         case "subIngredients":
           // Sort based on sub-ingredient count - convert to numbers
-          aValue = a.subIngredients?.length || 0;
-          bValue = b.subIngredients?.length || 0;
+          aValue = a.subIngredientDetails?.length || 0;
+          bValue = b.subIngredientDetails?.length || 0;
           break;
         default:
           // Default to name if unknown field
@@ -146,10 +147,19 @@ export function useIngredientsWithClientSideSort(
     queryParams.hasSubIngredients,
   ]);
 
+  // Update sort params if URL params change
+  useEffect(() => {
+    if (queryParams.sortField && queryParams.sortDirection) {
+      setSortParams({
+        field: queryParams.sortField,
+        direction: queryParams.sortDirection,
+      });
+    }
+  }, [queryParams.sortField, queryParams.sortDirection]);
+
   return {
     ingredients: displayedIngredients,
     allergiesMap,
-    subIngredientNames,
     isLoading,
     isError,
     totalCount,

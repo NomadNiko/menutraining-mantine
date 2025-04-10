@@ -1,5 +1,6 @@
+// src/app/[language]/restaurant/ingredients/page-content.tsx
 "use client";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Container,
   Title,
@@ -21,6 +22,7 @@ import useConfirmDialog from "@/components/confirm-dialog/use-confirm-dialog";
 import { useSnackbar } from "@/components/mantine/feedback/notification-service";
 import { useDeleteIngredientService } from "@/services/api/services/ingredients";
 import useSelectedRestaurant from "@/services/restaurant/use-selected-restaurant";
+
 // Import components
 import { SearchBar } from "@/components/ingredients/SearchBar";
 import { FilterPanel } from "@/components/ingredients/FilterPanel";
@@ -72,11 +74,36 @@ function RestaurantIngredientsPage() {
     initialCategoryExcludeMode
   );
 
+  // Memoize query parameters to avoid unnecessary hook re-executions
+  const queryParams = useMemo(
+    () => ({
+      restaurantId: selectedRestaurant?.restaurantId || "",
+      searchQuery,
+      allergyIds: selectedAllergies,
+      allergyExcludeMode,
+      categoryIds: selectedCategories,
+      categoryExcludeMode,
+      hasSubIngredients,
+      sortField: initialSortField,
+      sortDirection: initialSortDirection,
+    }),
+    [
+      selectedRestaurant?.restaurantId,
+      searchQuery,
+      selectedAllergies,
+      allergyExcludeMode,
+      selectedCategories,
+      categoryExcludeMode,
+      hasSubIngredients,
+      initialSortField,
+      initialSortDirection,
+    ]
+  );
+
   // Use the client-side sorting and pagination hook
   const {
     ingredients,
     allergiesMap,
-    subIngredientNames,
     isLoading,
     isError,
     totalCount,
@@ -86,37 +113,33 @@ function RestaurantIngredientsPage() {
     handleSort,
     hasMore,
     loadMore,
-  } = useIngredientsWithClientSideSort({
-    restaurantId: selectedRestaurant?.restaurantId || "",
-    searchQuery,
-    allergyIds: selectedAllergies,
-    allergyExcludeMode,
-    categoryIds: selectedCategories,
-    categoryExcludeMode,
-    hasSubIngredients,
-    sortField: initialSortField,
-    sortDirection: initialSortDirection,
-  });
+  } = useIngredientsWithClientSideSort(queryParams);
 
-  // Update URL when filters change
+  // Update URL when filters change - debounced to reduce state updates
   useEffect(() => {
     if (!selectedRestaurant) return;
 
-    const params = new URLSearchParams();
-    if (searchQuery) params.set("search", searchQuery);
-    if (selectedAllergies.length > 0)
-      params.set("allergies", selectedAllergies.join(","));
-    if (selectedCategories.length > 0)
-      params.set("categories", selectedCategories.join(","));
-    if (hasSubIngredients !== null)
-      params.set("hasSubIngredients", hasSubIngredients.toString());
-    params.set("allergyExcludeMode", allergyExcludeMode.toString());
-    params.set("categoryExcludeMode", categoryExcludeMode.toString());
-    params.set("sortField", sortField);
-    params.set("sortDirection", sortDirection);
+    const updateUrlParams = () => {
+      const params = new URLSearchParams();
+      if (searchQuery) params.set("search", searchQuery);
+      if (selectedAllergies.length > 0)
+        params.set("allergies", selectedAllergies.join(","));
+      if (selectedCategories.length > 0)
+        params.set("categories", selectedCategories.join(","));
+      if (hasSubIngredients !== null)
+        params.set("hasSubIngredients", hasSubIngredients.toString());
+      params.set("allergyExcludeMode", allergyExcludeMode.toString());
+      params.set("categoryExcludeMode", categoryExcludeMode.toString());
+      params.set("sortField", sortField);
+      params.set("sortDirection", sortDirection);
 
-    // Use router.replace to update URL without full page reload
-    router.replace(`?${params.toString()}`, { scroll: false });
+      // Use router.replace to update URL without full page reload
+      router.replace(`?${params.toString()}`, { scroll: false });
+    };
+
+    // Use a timeout to debounce the URL updates
+    const timeoutId = setTimeout(updateUrlParams, 300);
+    return () => clearTimeout(timeoutId);
   }, [
     searchQuery,
     selectedAllergies,
@@ -130,58 +153,71 @@ function RestaurantIngredientsPage() {
     router,
   ]);
 
-  // Handle search
-  const handleSearch = (query: string) => {
+  // Handle search with debouncing
+  const handleSearch = useCallback((query: string) => {
     setSearchQuery(query);
-  };
+  }, []);
 
   // Handle filter change
-  const handleFilterChange = (
-    allergies: string[],
-    subIngredients: boolean | null,
-    newAllergyExcludeMode: boolean,
-    categories: string[],
-    newCategoryExcludeMode: boolean
-  ) => {
-    setSelectedAllergies(allergies);
-    setHasSubIngredients(subIngredients);
-    setAllergyExcludeMode(newAllergyExcludeMode);
-    setSelectedCategories(categories);
-    setCategoryExcludeMode(newCategoryExcludeMode);
-  };
+  const handleFilterChange = useCallback(
+    (
+      allergies: string[],
+      subIngredients: boolean | null,
+      newAllergyExcludeMode: boolean,
+      categories: string[],
+      newCategoryExcludeMode: boolean
+    ) => {
+      setSelectedAllergies(allergies);
+      setHasSubIngredients(subIngredients);
+      setAllergyExcludeMode(newAllergyExcludeMode);
+      setSelectedCategories(categories);
+      setCategoryExcludeMode(newCategoryExcludeMode);
+    },
+    []
+  );
 
   // Handle filter reset
-  const handleFilterReset = () => {
+  const handleFilterReset = useCallback(() => {
     setSelectedAllergies([]);
     setHasSubIngredients(null);
     setAllergyExcludeMode(true); // Default to exclude mode
     setSelectedCategories([]);
     setCategoryExcludeMode(true); // Default to exclude mode
-  };
+  }, []);
 
   // Handle ingredient deletion
-  const handleDeleteIngredient = async (id: string, name: string) => {
-    const confirmed = await confirmDialog({
-      title: t("deleteConfirmTitle"),
-      message: t("deleteConfirmMessage", { name }),
-    });
+  const handleDeleteIngredient = useCallback(
+    async (id: string, name: string) => {
+      const confirmed = await confirmDialog({
+        title: t("deleteConfirmTitle"),
+        message: t("deleteConfirmMessage", { name }),
+      });
 
-    if (confirmed) {
-      setLoading(true);
-      try {
-        const { status } = await deleteIngredientService({ id });
-        if (status === HTTP_CODES_ENUM.NO_CONTENT) {
-          enqueueSnackbar(t("deleteSuccess"), { variant: "success" });
-          refetch(); // Refresh the data after delete
+      if (confirmed) {
+        setLoading(true);
+        try {
+          const { status } = await deleteIngredientService({ id });
+          if (status === HTTP_CODES_ENUM.NO_CONTENT) {
+            enqueueSnackbar(t("deleteSuccess"), { variant: "success" });
+            refetch(); // Refresh the data after delete
+          }
+        } catch (error) {
+          console.error("Error deleting ingredient:", error);
+          enqueueSnackbar(t("deleteError"), { variant: "error" });
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        console.error("Error deleting ingredient:", error);
-        enqueueSnackbar(t("deleteError"), { variant: "error" });
-      } finally {
-        setLoading(false);
       }
-    }
-  };
+    },
+    [
+      confirmDialog,
+      t,
+      setLoading,
+      deleteIngredientService,
+      enqueueSnackbar,
+      refetch,
+    ]
+  );
 
   if (!selectedRestaurant) {
     return (
@@ -250,7 +286,6 @@ function RestaurantIngredientsPage() {
             <IngredientCards
               ingredients={ingredients}
               allergies={allergiesMap}
-              subIngredientNames={subIngredientNames}
               onDelete={handleDeleteIngredient}
               loading={isLoading}
             />
@@ -258,7 +293,6 @@ function RestaurantIngredientsPage() {
             <IngredientTable
               ingredients={ingredients}
               allergies={allergiesMap}
-              subIngredientNames={subIngredientNames}
               onDelete={handleDeleteIngredient}
               loading={isLoading}
               sortField={sortField}

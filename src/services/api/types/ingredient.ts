@@ -8,6 +8,7 @@ export type Ingredient = {
   restaurantId: string;
   derivedAllergies?: string[];
   categories: string[];
+  subIngredientDetails?: Array<{ id: string; name: string }>;
 };
 
 export type CreateIngredientDto = {
