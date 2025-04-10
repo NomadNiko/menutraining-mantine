@@ -1,3 +1,4 @@
+// src/hooks/useIngredientsQuery.ts
 "use client";
 import { useQuery } from "@tanstack/react-query";
 import { useGetIngredientsService } from "@/services/api/services/ingredients";
@@ -45,9 +46,9 @@ export const useIngredientsQuery = ({
   restaurantId,
   searchQuery,
   allergyIds,
-  allergyExcludeMode = true, // Default to exclude mode
+  allergyExcludeMode = true,
   categoryIds,
-  categoryExcludeMode = true, // Default to exclude mode
+  categoryExcludeMode = true,
   hasSubIngredients,
   sortField = "ingredientName",
   sortDirection = "asc",
@@ -61,7 +62,7 @@ export const useIngredientsQuery = ({
     queryFn: async () => {
       const { status, data } = await getAllergiesService(undefined, {
         page: 1,
-        limit: 100, // Assuming reasonable number of allergies
+        limit: 100,
       });
       if (status === HTTP_CODES_ENUM.OK) {
         const allergiesArray = Array.isArray(data) ? data : data?.data || [];
@@ -76,10 +77,37 @@ export const useIngredientsQuery = ({
     staleTime: 5 * 60 * 1000, // 5 minutes cache
   });
 
-  // Query for ingredients with filters
+  // Separate query to get ALL ingredients for the restaurant
+  // to ensure we have complete sub-ingredient names
+  const allIngredientsQuery = useQuery({
+    queryKey: ["all-ingredients", restaurantId],
+    queryFn: async () => {
+      const { status, data } = await getIngredientsService(undefined, {
+        restaurantId,
+        limit: 1000, // Get all ingredients for this restaurant
+      });
+
+      if (status === HTTP_CODES_ENUM.OK) {
+        const allIngredients = Array.isArray(data) ? data : data?.data || [];
+        const nameMap: Record<string, string> = {};
+
+        allIngredients.forEach((ingredient: Ingredient) => {
+          nameMap[ingredient.ingredientId] = ingredient.ingredientName;
+        });
+
+        return nameMap;
+      }
+
+      return {};
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+    enabled: !!restaurantId,
+  });
+
+  // Main query for ingredients with filters
   const ingredientsQuery = useQuery({
     queryKey: [
-      "ingredients",
+      "filtered-ingredients",
       restaurantId,
       searchQuery,
       allergyIds,
@@ -93,35 +121,26 @@ export const useIngredientsQuery = ({
     queryFn: async () => {
       const queryParams: ApiQueryParams = {
         restaurantId,
-        limit: 1000, // Request a large number to get all ingredients at once
+        limit: 1000,
       };
 
-      // Add filters to query
       if (searchQuery) {
         queryParams.name = searchQuery;
       }
 
-      // We need client-side filtering for:
-      // 1. Exclusion filtering (allergyExcludeMode = true)
-      // 2. Multiple allergy IDs
-      // 3. Category filtering
-      // 4. Sub-ingredients filtering
       const useClientSideFiltering =
         (allergyExcludeMode && allergyIds && allergyIds.length > 0) ||
         (!allergyExcludeMode && allergyIds && allergyIds.length > 0) ||
         (categoryIds && categoryIds.length > 0);
 
-      // If we're not doing client-side filtering, we can use the API's filtering
       if (!useClientSideFiltering && allergyIds && allergyIds.length > 0) {
-        queryParams.allergyId = allergyIds[0]; // Currently API supports filtering by one allergyId
+        queryParams.allergyId = allergyIds[0];
       }
 
-      // Add category filter if present and not doing client-side filtering
       if (!useClientSideFiltering && categoryIds && categoryIds.length === 1) {
         queryParams.category = categoryIds[0];
       }
 
-      // Sort is currently not supported by the API, but we prepare the params for future implementation
       if (sortField && sortDirection) {
         queryParams.sort = `${sortField}:${sortDirection}`;
       }
@@ -134,25 +153,19 @@ export const useIngredientsQuery = ({
       if (status === HTTP_CODES_ENUM.OK) {
         const ingredientsData = Array.isArray(data) ? data : data?.data || [];
 
-        // Filter ingredients based on exclusion/inclusion of allergies and categories
         let filteredIngredients = [...ingredientsData];
 
-        // Filter by allergies if needed
         if (allergyIds && allergyIds.length > 0) {
           filteredIngredients = filteredIngredients.filter((ingredient) => {
-            // Get all allergies for this ingredient (both direct and derived)
             const allAllergies = [
               ...(ingredient.ingredientAllergies || []),
               ...(ingredient.derivedAllergies || []),
             ];
-
             if (allergyExcludeMode) {
-              // In exclude mode, we want ingredients that do NOT have ANY of the selected allergies
               return !allergyIds.some((allergyId) =>
                 allAllergies.includes(allergyId)
               );
             } else {
-              // In include mode, we want ingredients that HAVE ANY of the selected allergies
               return allergyIds.some((allergyId) =>
                 allAllergies.includes(allergyId)
               );
@@ -160,19 +173,14 @@ export const useIngredientsQuery = ({
           });
         }
 
-        // Filter by categories if needed
         if (categoryIds && categoryIds.length > 0) {
           filteredIngredients = filteredIngredients.filter((ingredient) => {
-            // Ensure ingredient.categories is an array
             const categories = ingredient.categories || [];
-
             if (categoryExcludeMode) {
-              // In exclude mode, we want ingredients that do NOT have ANY of the selected categories
               return !categoryIds.some((categoryId) =>
                 categories.includes(categoryId)
               );
             } else {
-              // In include mode, we want ingredients that HAVE ANY of the selected categories
               return categoryIds.some((categoryId) =>
                 categories.includes(categoryId)
               );
@@ -180,7 +188,6 @@ export const useIngredientsQuery = ({
           });
         }
 
-        // Client-side filtering for hasSubIngredients if needed
         if (hasSubIngredients !== null) {
           filteredIngredients = filteredIngredients.filter((ing) =>
             hasSubIngredients
@@ -189,25 +196,13 @@ export const useIngredientsQuery = ({
           );
         }
 
-        // Build sub-ingredient names map
-        const subIngredientNamesMap: Record<string, string> = {};
-        ingredientsData.forEach((ingredient: Ingredient) => {
-          subIngredientNamesMap[ingredient.ingredientId] =
-            ingredient.ingredientName;
-        });
-
-        // Return all filtered ingredients
         return {
           ingredients: filteredIngredients,
-          subIngredientNames: subIngredientNamesMap,
           totalCount: filteredIngredients.length,
-          // We don't need hasNextPage as we loaded all data
         };
       }
-
       return {
         ingredients: [],
-        subIngredientNames: {},
         totalCount: 0,
       };
     },
@@ -217,13 +212,23 @@ export const useIngredientsQuery = ({
   return {
     ingredients: ingredientsQuery.data?.ingredients || [],
     allergiesMap: allergiesQuery.data || {},
-    subIngredientNames: ingredientsQuery.data?.subIngredientNames || {},
-    isLoading: ingredientsQuery.isLoading || allergiesQuery.isLoading,
-    isError: ingredientsQuery.isError || allergiesQuery.isError,
-    error: ingredientsQuery.error || allergiesQuery.error,
+    // Use the COMPLETE ingredient names map from the separate query
+    subIngredientNames: allIngredientsQuery.data || {},
+    isLoading:
+      ingredientsQuery.isLoading ||
+      allergiesQuery.isLoading ||
+      allIngredientsQuery.isLoading,
+    isError:
+      ingredientsQuery.isError ||
+      allergiesQuery.isError ||
+      allIngredientsQuery.isError,
+    error:
+      ingredientsQuery.error ||
+      allergiesQuery.error ||
+      allIngredientsQuery.error,
     totalCount: ingredientsQuery.data?.totalCount || 0,
-    hasMore: false, // We're loading all at once, so there's no "more" to load
-    loadMore: () => {}, // Empty function as we're loading all at once
+    hasMore: false,
+    loadMore: () => {},
     refetch: ingredientsQuery.refetch,
   };
 };
