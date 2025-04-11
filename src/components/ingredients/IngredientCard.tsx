@@ -9,11 +9,11 @@ import {
   Badge,
   Image,
   Box,
+  Flex,
 } from "@mantine/core";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import Link from "@/components/link";
 import { useTranslation } from "@/services/i18n/client";
-
 interface IngredientCardProps {
   ingredient: {
     id: string;
@@ -29,20 +29,18 @@ interface IngredientCardProps {
   allergies: { [key: string]: string };
   onDelete: (id: string, name: string) => void;
 }
-
 export function IngredientCard({
   ingredient,
   allergies,
   onDelete,
 }: IngredientCardProps) {
   const { t } = useTranslation("admin-panel-ingredients");
-
   return (
     <Card shadow="sm" p="md" radius="md" withBorder mb="sm">
       <Stack gap="xs">
-        <Group align="flex-start">
+        <Flex align="flex-start">
           {ingredient.ingredientImageUrl && (
-            <Box w={80}>
+            <Box mr="md" w={80} miw={80}>
               <Image
                 src={ingredient.ingredientImageUrl}
                 alt={ingredient.ingredientName}
@@ -53,12 +51,12 @@ export function IngredientCard({
               />
             </Box>
           )}
-          <Box>
+          <Box style={{ flex: 1 }}>
             <Text size="lg" fw={500}>
               {ingredient.ingredientName}
             </Text>
           </Box>
-        </Group>
+        </Flex>
         {/* Categories */}
         <Stack gap="xs">
           <Text size="sm" fw={500} c="dimmed">

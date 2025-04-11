@@ -9,19 +9,18 @@ import {
   Badge,
   Image,
   Box,
+  Flex,
 } from "@mantine/core";
 import { IconEdit, IconTrash } from "@tabler/icons-react";
 import Link from "@/components/link";
 import { useTranslation } from "@/services/i18n/client";
 import { MenuItem } from "@/services/api/types/menu-item";
 import { usePathname } from "next/navigation";
-
 interface MenuItemCardProps {
   menuItem: MenuItem;
   allergiesMap: { [key: string]: string };
   onDelete: (id: string, name: string) => void;
 }
-
 export function MenuItemCard({ menuItem, onDelete }: MenuItemCardProps) {
   const { t } = useTranslation("admin-panel-menu-items");
   const pathname = usePathname();
@@ -29,13 +28,12 @@ export function MenuItemCard({ menuItem, onDelete }: MenuItemCardProps) {
   const editUrl = isRestaurantRoute
     ? `/restaurant/menu-items/edit/${menuItem.id}`
     : `/admin-panel/menu-items/edit/${menuItem.id}`;
-
   return (
     <Card shadow="sm" p="md" radius="md" withBorder mb="sm">
       <Stack gap="xs">
-        <Group align="flex-start">
+        <Flex align="flex-start">
           {menuItem.menuItemUrl && (
-            <Box w={80}>
+            <Box mr="md" w={80} miw={80}>
               <Image
                 src={menuItem.menuItemUrl}
                 alt={menuItem.menuItemName}
@@ -46,12 +44,12 @@ export function MenuItemCard({ menuItem, onDelete }: MenuItemCardProps) {
               />
             </Box>
           )}
-          <Box>
+          <Box style={{ flex: 1 }}>
             <Text size="lg" fw={500}>
               {menuItem.menuItemName}
             </Text>
           </Box>
-        </Group>
+        </Flex>
         {menuItem.menuItemDescription && (
           <Text size="sm" lineClamp={3}>
             {menuItem.menuItemDescription}
