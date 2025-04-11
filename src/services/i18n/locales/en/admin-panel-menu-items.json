@@ -5,7 +5,11 @@
   "forRestaurant": "for {{restaurantName}}",
   "create": "Create Menu Item",
   "noMenuItems": "No menu items found",
-  "noRestaurants": "No restaurants found",
+  "noRestaurants": "No restaurants available",
+  "noRestaurantsFound": "No restaurants found matching your search.",
+  "selectRestaurantInstruction": "Select a restaurant to manage its menu items. You'll be redirected to the menu items page for the selected restaurant.",
+  "searchRestaurants": "Search restaurants...",
+  "manageMenuItems": "Manage Menu Items",
   "restaurantNotFound": "Restaurant not found",
   "menuItemNotFound": "Menu item not found",
   "fetchError": "Error loading data",
@@ -21,7 +25,6 @@
   "noRestaurantSelected": "No restaurant selected",
   "errorLoading": "Error loading menu items",
   "loadMore": "Show More",
-
   "form": {
     "name": "Name",
     "description": "Description",
@@ -39,7 +42,6 @@
       "ingredientsRequired": "At least one ingredient is required"
     }
   },
-
   "table": {
     "image": "Image",
     "name": "Name",
@@ -48,18 +50,15 @@
     "allergies": "Allergies",
     "actions": "Actions"
   },
-
   "actions": {
     "edit": "Edit",
     "delete": "Delete",
     "view": "View"
   },
-
   "search": {
     "placeholder": "Search menu items...",
     "ariaLabel": "Search menu items"
   },
-
   "filters": {
     "title": "Filter Menu Items",
     "active": "{{count}} active filters",
@@ -75,7 +74,6 @@
       "includeHint": "Show menu items WITH these allergies"
     }
   },
-
   "results": {
     "loading": "Loading menu items...",
     "noMenuItems": "No menu items found",
