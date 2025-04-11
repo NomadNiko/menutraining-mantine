@@ -1,5 +1,5 @@
 {
-  "title": "Menu Items Management",
+  "title": "Menu Items",
   "createTitle": "Create Menu Item",
   "editTitle": "Edit Menu Item",
   "forRestaurant": "for {{restaurantName}}",
@@ -17,24 +17,26 @@
   "deleteError": "Error deleting menu item",
   "deleteConfirmTitle": "Delete Menu Item",
   "deleteConfirmMessage": "Are you sure you want to delete '{{name}}'?",
+  "unauthorized": "You do not have access to this menu item",
+  "noRestaurantSelected": "No restaurant selected",
+  "errorLoading": "Error loading menu items",
+  "loadMore": "Show More",
 
   "form": {
     "name": "Name",
     "description": "Description",
     "ingredients": "Ingredients",
-    "currentLogo": "Current Logo",
-    "currentImage": "Current Logo",
+    "currentImage": "Current Image",
     "imageAlt": "Menu Item Image",
     "searchIngredients": "Search Ingredients",
     "searchIngredientsPlaceholder": "Start typing to search for ingredients...",
     "selectedIngredients": "Selected Ingredients",
     "submit": "Create Menu Item",
-    "derivedAllergies": "Derived Allergies",
     "update": "Update Menu Item",
     "cancel": "Cancel",
-
     "validation": {
-      "nameRequired": "Name is required"
+      "nameRequired": "Name is required",
+      "ingredientsRequired": "At least one ingredient is required"
     }
   },
 
@@ -51,5 +53,38 @@
     "edit": "Edit",
     "delete": "Delete",
     "view": "View"
+  },
+
+  "search": {
+    "placeholder": "Search menu items...",
+    "ariaLabel": "Search menu items"
+  },
+
+  "filters": {
+    "title": "Filter Menu Items",
+    "active": "{{count}} active filters",
+    "show": "Show Filters",
+    "hide": "Hide Filters",
+    "apply": "Apply Filters",
+    "reset": "Reset Filters",
+    "allergyMode": {
+      "label": "Allergy Filter Mode",
+      "exclude": "Exclude",
+      "include": "Include",
+      "excludeHint": "Show menu items WITHOUT these allergies",
+      "includeHint": "Show menu items WITH these allergies"
+    }
+  },
+
+  "results": {
+    "loading": "Loading menu items...",
+    "noMenuItems": "No menu items found",
+    "noMatchingMenuItems": "No menu items match your filters",
+    "showing": "Showing {{displayed}} of {{total}} menu items",
+    "filtered": "(filtered)",
+    "search": "Search",
+    "excludes": "Excludes",
+    "includes": "Includes",
+    "ingredient": "Ingredient"
   }
 }

@@ -13,13 +13,11 @@ import { IconSearch } from "@tabler/icons-react";
 import { useGetIngredientsService } from "@/services/api/services/ingredients";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { useTranslation } from "@/services/i18n/client";
-
 interface SubIngredientOption {
   value: string;
   label: string;
   ingredientId: string;
 }
-
 interface SubIngredientSelectorProps {
   restaurantId: string;
   selectedIngredients: string[];
@@ -27,7 +25,6 @@ interface SubIngredientSelectorProps {
   excludeIngredientId?: string; // To exclude current ingredient when editing
   disabled?: boolean;
 }
-
 export function SubIngredientSelector({
   restaurantId,
   selectedIngredients,
@@ -43,7 +40,6 @@ export function SubIngredientSelector({
     []
   );
   const getIngredientsService = useGetIngredientsService();
-
   // Load selected ingredients details
   useEffect(() => {
     const loadSelectedIngredients = async () => {
@@ -78,7 +74,6 @@ export function SubIngredientSelector({
     };
     loadSelectedIngredients();
   }, [restaurantId, selectedIngredients, getIngredientsService]);
-
   // Search ingredients as user types
   useEffect(() => {
     const searchIngredients = async () => {
@@ -120,7 +115,6 @@ export function SubIngredientSelector({
     selectedIngredients,
     getIngredientsService,
   ]);
-
   const handleSelect = (value: string) => {
     const selectedOption = searchOptions.find(
       (option) => option.value === value
@@ -130,14 +124,12 @@ export function SubIngredientSelector({
       !selectedIngredients.includes(selectedOption.ingredientId)
     ) {
       onChange([...selectedIngredients, selectedOption.ingredientId]);
-      setSearchQuery("");
+      setSearchQuery(""); // Clear search query after selection
     }
   };
-
   const handleRemove = (ingredientId: string) => {
     onChange(selectedIngredients.filter((id) => id !== ingredientId));
   };
-
   return (
     <Stack>
       <Autocomplete
@@ -152,6 +144,7 @@ export function SubIngredientSelector({
         }
         onOptionSubmit={(value) => {
           handleSelect(value);
+          setSearchQuery(""); // Explicitly clear search query here
         }}
       />
       {selectedOptions.length > 0 && (

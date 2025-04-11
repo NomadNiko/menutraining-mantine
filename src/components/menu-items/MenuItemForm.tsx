@@ -1,3 +1,4 @@
+// src/components/menu-items/MenuItemForm.tsx
 "use client";
 import { useForm, Controller, FormProvider } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -24,6 +25,7 @@ import {
 } from "@/services/api/types/menu-item";
 import FormAvatarInput from "@/components/form/avatar-input/form-avatar-input";
 import { FileEntity } from "@/services/api/types/file-entity";
+import { usePathname } from "next/navigation";
 
 interface MenuItemFormProps {
   restaurantId: string;
@@ -55,6 +57,17 @@ export function MenuItemForm({
   const [currentImageUrl] = useState<string | null>(
     initialData.menuItemUrl || null
   );
+  const pathname = usePathname();
+
+  // Determine if we're in the restaurant or admin panel context
+  const isRestaurantRoute = pathname.includes("/restaurant/");
+
+  // Get the correct cancel URL based on the current context
+  const getCancelUrl = () => {
+    return isRestaurantRoute
+      ? "/restaurant/menu-items"
+      : "/admin-panel/menu-items";
+  };
 
   // Validation schema
   const validationSchema = yup.object().shape({
@@ -77,15 +90,22 @@ export function MenuItemForm({
     formState: { errors },
     watch,
   } = methods;
+
   const photo = watch("photo");
 
   const submitHandler = async (formData: MenuItemFormData) => {
+    // Require at least one ingredient
+    if (menuItemIngredients.length === 0) {
+      return; // Could show an error message here
+    }
+
     // Combine form data with ingredients
     const submitData = {
       menuItemName: formData.menuItemName,
       menuItemDescription: formData.menuItemDescription,
       menuItemIngredients,
       restaurantId,
+      // Use uploaded photo path if available, otherwise keep existing URL
       menuItemUrl: formData.photo?.path || currentImageUrl,
     };
 
@@ -163,17 +183,27 @@ export function MenuItemForm({
               onChange={setMenuItemIngredients}
               disabled={isLoading}
             />
+            {menuItemIngredients.length === 0 && (
+              <Text color="red" size="sm" mt="xs">
+                {t("form.validation.ingredientsRequired")}
+              </Text>
+            )}
           </Box>
 
           <Group mt="xl">
-            <Button type="submit" loading={isLoading} size="compact-sm">
+            <Button
+              type="submit"
+              loading={isLoading}
+              size="compact-sm"
+              disabled={menuItemIngredients.length === 0}
+            >
               {isEdit ? t("form.update") : t("form.submit")}
             </Button>
             <Button
               variant="light"
               color="red"
               component={Link}
-              href="/admin-panel/menu-items"
+              href={getCancelUrl()}
               disabled={isLoading}
               size="compact-sm"
             >

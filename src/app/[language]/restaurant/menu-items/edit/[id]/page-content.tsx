@@ -1,3 +1,4 @@
+// src/app/[language]/restaurant/menu-items/edit/[id]/page-content.tsx
 "use client";
 import { useEffect, useState } from "react";
 import { Container, Paper } from "@mantine/core";
@@ -11,12 +12,9 @@ import { MenuItemForm } from "@/components/menu-items/MenuItemForm";
 import useGlobalLoading from "@/services/loading/use-global-loading";
 import { useSnackbar } from "@/components/mantine/feedback/notification-service";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
-import {
-  MenuItem,
-  UpdateMenuItemDto,
-  CreateMenuItemDto,
-} from "@/services/api/types/menu-item";
+import { MenuItem, UpdateMenuItemDto } from "@/services/api/types/menu-item";
 import useSelectedRestaurant from "@/services/restaurant/use-selected-restaurant";
+import { useResponsive } from "@/services/responsive/use-responsive";
 
 function EditMenuItem() {
   const params = useParams<{ id: string }>();
@@ -26,11 +24,14 @@ function EditMenuItem() {
   const { setLoading } = useGlobalLoading();
   const { enqueueSnackbar } = useSnackbar();
   const { selectedRestaurant } = useSelectedRestaurant();
+  const { isMobile, isTablet } = useResponsive();
+
+  // Determine container size based on screen size
+  const containerSize = isMobile || isTablet ? "xs" : "sm";
 
   const [menuItem, setMenuItem] = useState<MenuItem | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState(false);
-
   const getMenuItemService = useGetMenuItemService();
   const updateMenuItemService = useUpdateMenuItemService();
 
@@ -42,6 +43,7 @@ function EditMenuItem() {
       setLoading(true);
       try {
         const { status, data } = await getMenuItemService({ id });
+
         if (status === HTTP_CODES_ENUM.OK) {
           const menuItemData = data;
           setMenuItem(menuItemData);
@@ -78,23 +80,23 @@ function EditMenuItem() {
     enqueueSnackbar,
   ]);
 
-  const handleSubmit = async (
-    formData: CreateMenuItemDto | UpdateMenuItemDto
-  ) => {
+  const handleSubmit = async (formData: UpdateMenuItemDto) => {
     if (!selectedRestaurant || !isAuthorized) return;
 
     setIsSubmitting(true);
     setLoading(true);
+
     try {
       // Ensure restaurant ID is set to the selected restaurant
       const dataWithRestaurant = {
         ...formData,
         restaurantId: selectedRestaurant.restaurantId,
-      } as UpdateMenuItemDto;
+      };
 
       const { status } = await updateMenuItemService(dataWithRestaurant, {
         id,
       });
+
       if (status === HTTP_CODES_ENUM.OK) {
         enqueueSnackbar(t("updateSuccess"), { variant: "success" });
         router.push("/restaurant/menu-items");
@@ -111,7 +113,7 @@ function EditMenuItem() {
   };
 
   return (
-    <Container size="xs">
+    <Container size={containerSize}>
       <Paper p="md" withBorder>
         {menuItem && isAuthorized && selectedRestaurant && (
           <MenuItemForm

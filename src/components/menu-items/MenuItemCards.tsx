@@ -1,47 +1,25 @@
+// src/components/menu-items/MenuItemCards.tsx
 "use client";
-import { useEffect, useRef } from "react";
-import { Stack, Center, Loader, Text } from "@mantine/core";
+import { Stack, Center, Loader, Text, SimpleGrid } from "@mantine/core";
 import { MenuItemCard } from "./MenuItemCard";
 import { useTranslation } from "@/services/i18n/client";
 import { MenuItem } from "@/services/api/types/menu-item";
+import { memo } from "react";
 
 interface MenuItemCardsProps {
   menuItems: MenuItem[];
-  handleLoadMore?: () => void;
-  hasMore?: boolean;
+  allergiesMap: { [key: string]: string };
   loading?: boolean;
   onDelete: (id: string, name: string) => void;
 }
 
-export function MenuItemCards({
+function MenuItemCardsComponent({
   menuItems,
-  handleLoadMore,
-  hasMore = false,
+  allergiesMap,
   loading = false,
   onDelete,
 }: MenuItemCardsProps) {
   const { t } = useTranslation("admin-panel-menu-items");
-  const observerTarget = useRef<HTMLDivElement>(null);
-
-  // Set up intersection observer for infinite scrolling
-  useEffect(() => {
-    const currentTarget = observerTarget.current;
-    if (!currentTarget || !hasMore || loading || !handleLoadMore) return;
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting) {
-          handleLoadMore();
-        }
-      },
-      { threshold: 0.1 }
-    );
-    observer.observe(currentTarget);
-    return () => {
-      if (currentTarget) {
-        observer.unobserve(currentTarget);
-      }
-    };
-  }, [handleLoadMore, hasMore, loading]);
 
   if (menuItems.length === 0 && loading) {
     return (
@@ -61,19 +39,24 @@ export function MenuItemCards({
 
   return (
     <Stack gap="md">
-      {menuItems.map((menuItem) => (
-        <MenuItemCard
-          key={menuItem.id}
-          menuItem={menuItem}
-          onDelete={onDelete}
-        />
-      ))}
-      {loading && hasMore && (
+      <SimpleGrid cols={1}>
+        {menuItems.map((menuItem) => (
+          <MenuItemCard
+            key={menuItem.id}
+            menuItem={menuItem}
+            allergiesMap={allergiesMap}
+            onDelete={onDelete}
+          />
+        ))}
+      </SimpleGrid>
+      {loading && (
         <Center p="md">
           <Loader size="sm" />
         </Center>
       )}
-      <div ref={observerTarget} style={{ height: 10 }}></div>
     </Stack>
   );
 }
+
+// Memoize the component to prevent unnecessary re-renders
+export const MenuItemCards = memo(MenuItemCardsComponent);

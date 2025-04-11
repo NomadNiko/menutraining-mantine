@@ -1,3 +1,4 @@
+// src/components/menu-items/MenuItemCard.tsx
 "use client";
 import {
   Card,
@@ -13,14 +14,22 @@ import { IconEdit, IconTrash } from "@tabler/icons-react";
 import Link from "@/components/link";
 import { useTranslation } from "@/services/i18n/client";
 import { MenuItem } from "@/services/api/types/menu-item";
+import { usePathname } from "next/navigation";
 
 interface MenuItemCardProps {
   menuItem: MenuItem;
+  allergiesMap: { [key: string]: string };
   onDelete: (id: string, name: string) => void;
 }
 
 export function MenuItemCard({ menuItem, onDelete }: MenuItemCardProps) {
   const { t } = useTranslation("admin-panel-menu-items");
+  const pathname = usePathname();
+  const isRestaurantRoute = pathname.includes("/restaurant/");
+
+  const editUrl = isRestaurantRoute
+    ? `/restaurant/menu-items/edit/${menuItem.id}`
+    : `/admin-panel/menu-items/edit/${menuItem.id}`;
 
   return (
     <Card shadow="sm" p="md" radius="md" withBorder mb="sm">
@@ -44,11 +53,13 @@ export function MenuItemCard({ menuItem, onDelete }: MenuItemCardProps) {
             </Text>
           </Box>
         </Group>
+
         {menuItem.menuItemDescription && (
           <Text size="sm" lineClamp={3}>
             {menuItem.menuItemDescription}
           </Text>
         )}
+
         {menuItem.ingredientNames?.length > 0 && (
           <Stack gap="xs">
             <Text size="sm" fw={500} c="dimmed">
@@ -63,6 +74,7 @@ export function MenuItemCard({ menuItem, onDelete }: MenuItemCardProps) {
             </Group>
           </Stack>
         )}
+
         {menuItem.allergies?.length > 0 && (
           <Stack gap="xs">
             <Text size="sm" fw={500} c="dimmed">
@@ -78,10 +90,11 @@ export function MenuItemCard({ menuItem, onDelete }: MenuItemCardProps) {
           </Stack>
         )}
       </Stack>
+
       <Group justify="flex-end" mt="md">
         <Button
           component={Link}
-          href={`/admin-panel/menu-items/edit/${menuItem.id}`}
+          href={editUrl}
           size="compact-xs"
           variant="light"
           leftSection={<IconEdit size={14} />}

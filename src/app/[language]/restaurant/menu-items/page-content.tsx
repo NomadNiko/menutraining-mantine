@@ -1,5 +1,6 @@
+// src/app/[language]/restaurant/menu-items/page-content.tsx
 "use client";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import {
   Container,
   Title,
@@ -7,10 +8,9 @@ import {
   Button,
   Text,
   Group,
-  Loader,
+  Stack,
   Center,
 } from "@mantine/core";
-import { useGetMenuItemsService } from "@/services/api/services/menu-items";
 import { useResponsive } from "@/services/responsive/use-responsive";
 import { useTranslation } from "@/services/i18n/client";
 import Link from "@/components/link";
@@ -21,8 +21,13 @@ import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import useConfirmDialog from "@/components/confirm-dialog/use-confirm-dialog";
 import { useSnackbar } from "@/components/mantine/feedback/notification-service";
 import { useDeleteMenuItemService } from "@/services/api/services/menu-items";
-import { MenuItem } from "@/services/api/types/menu-item";
 import useSelectedRestaurant from "@/services/restaurant/use-selected-restaurant";
+import { SearchBar } from "@/components/menu-items/SearchBar";
+import { FilterPanel } from "@/components/menu-items/FilterPanel";
+import { LoadMoreButton } from "@/components/menu-items/LoadMoreButton";
+import { ResultsInfo } from "@/components/menu-items/ResultsInfo";
+import { useSearchParams, useRouter } from "next/navigation";
+import { useMenuItemsWithClientSideSort } from "@/hooks/useMenuItemsWithClientSideSort";
 
 function RestaurantMenuItemsPage() {
   const { t } = useTranslation("admin-panel-menu-items");
@@ -31,89 +36,160 @@ function RestaurantMenuItemsPage() {
   const { confirmDialog } = useConfirmDialog();
   const { enqueueSnackbar } = useSnackbar();
   const { selectedRestaurant } = useSelectedRestaurant();
-
-  const [menuItems, setMenuItems] = useState<MenuItem[]>([]);
-  const [loading, setLocalLoading] = useState(true);
-  const [page, setPage] = useState(1);
-  const [hasMore, setHasMore] = useState(false);
-
-  const getMenuItemsService = useGetMenuItemsService();
   const deleteMenuItemService = useDeleteMenuItemService();
+  const searchParams = useSearchParams();
+  const router = useRouter();
 
-  // Fetch menu items for the selected restaurant
-  const fetchMenuItems = useCallback(async () => {
+  // Get URL parameters or use defaults
+  const initialSearch = searchParams.get("search") || "";
+  const initialAllergies = searchParams.get("allergies")?.split(",") || [];
+  const initialIngredients = searchParams.get("ingredients")?.split(",") || [];
+  const initialSortField = searchParams.get("sortField") || "menuItemName";
+  const initialSortDirection = (searchParams.get("sortDirection") || "asc") as
+    | "asc"
+    | "desc";
+  const initialAllergyExcludeMode =
+    searchParams.get("allergyExcludeMode") !== "false"; // Default to true if not explicitly set to false
+
+  // State for filtering and searching
+  const [searchQuery, setSearchQuery] = useState(initialSearch);
+  const [selectedAllergies, setSelectedAllergies] =
+    useState<string[]>(initialAllergies);
+  const [selectedIngredients, setSelectedIngredients] =
+    useState<string[]>(initialIngredients);
+  const [allergyExcludeMode, setAllergyExcludeMode] = useState<boolean>(
+    initialAllergyExcludeMode
+  );
+
+  // Memoize query parameters to avoid unnecessary hook re-executions
+  const queryParams = useMemo(
+    () => ({
+      restaurantId: selectedRestaurant?.restaurantId || "",
+      searchQuery,
+      allergyIds: selectedAllergies,
+      ingredientIds: selectedIngredients,
+      allergyExcludeMode,
+      sortField: initialSortField,
+      sortDirection: initialSortDirection,
+    }),
+    [
+      selectedRestaurant?.restaurantId,
+      searchQuery,
+      selectedAllergies,
+      selectedIngredients,
+      allergyExcludeMode,
+      initialSortField,
+      initialSortDirection,
+    ]
+  );
+
+  // Use the client-side sorting and pagination hook
+  const {
+    menuItems,
+    allergiesMap,
+    isLoading,
+    isError,
+    totalCount,
+    refetch,
+    sortField,
+    sortDirection,
+    handleSort,
+    hasMore,
+    loadMore,
+  } = useMenuItemsWithClientSideSort(queryParams);
+
+  // Update URL when filters change - debounced to reduce state updates
+  useEffect(() => {
     if (!selectedRestaurant) return;
 
-    setLocalLoading(true);
-    setLoading(true);
-    try {
-      const { status, data } = await getMenuItemsService(undefined, {
-        restaurantId: selectedRestaurant.restaurantId,
-        page,
-        limit: 10,
-      });
+    const updateUrlParams = () => {
+      const params = new URLSearchParams();
+      if (searchQuery) params.set("search", searchQuery);
+      if (selectedAllergies.length > 0)
+        params.set("allergies", selectedAllergies.join(","));
+      if (selectedIngredients.length > 0)
+        params.set("ingredients", selectedIngredients.join(","));
+      params.set("allergyExcludeMode", allergyExcludeMode.toString());
+      params.set("sortField", sortField);
+      params.set("sortDirection", sortDirection);
 
-      if (status === HTTP_CODES_ENUM.OK) {
-        const menuItemsArray = Array.isArray(data) ? data : data?.data || [];
-        setMenuItems((prevMenuItems) =>
-          page === 1 ? menuItemsArray : [...prevMenuItems, ...menuItemsArray]
-        );
-        setHasMore(menuItemsArray.length === 10);
-      }
-    } catch (error) {
-      console.error("Error fetching menu items:", error);
-      enqueueSnackbar(t("fetchError"), { variant: "error" });
-    } finally {
-      setLocalLoading(false);
-      setLoading(false);
-    }
+      // Use router.replace to update URL without full page reload
+      router.replace(`?${params.toString()}`, { scroll: false });
+    };
+
+    // Use a timeout to debounce the URL updates
+    const timeoutId = setTimeout(updateUrlParams, 300);
+    return () => clearTimeout(timeoutId);
   }, [
+    searchQuery,
+    selectedAllergies,
+    selectedIngredients,
+    allergyExcludeMode,
+    sortField,
+    sortDirection,
     selectedRestaurant,
-    page,
-    getMenuItemsService,
-    setLoading,
-    t,
-    enqueueSnackbar,
+    router,
   ]);
 
-  // Load data when restaurant changes or page changes
-  useEffect(() => {
-    if (selectedRestaurant) {
-      fetchMenuItems();
-    }
-  }, [fetchMenuItems, selectedRestaurant]);
+  // Handle search with debouncing
+  const handleSearch = useCallback((query: string) => {
+    setSearchQuery(query);
+  }, []);
 
-  const handleLoadMore = () => {
-    if (hasMore && !loading) {
-      setPage((prevPage) => prevPage + 1);
-    }
-  };
+  // Handle filter change
+  const handleFilterChange = useCallback(
+    (
+      allergies: string[],
+      ingredients: string[],
+      newAllergyExcludeMode: boolean
+    ) => {
+      setSelectedAllergies(allergies);
+      setSelectedIngredients(ingredients);
+      setAllergyExcludeMode(newAllergyExcludeMode);
+    },
+    []
+  );
+
+  // Handle filter reset
+  const handleFilterReset = useCallback(() => {
+    setSelectedAllergies([]);
+    setSelectedIngredients([]);
+    setAllergyExcludeMode(true); // Default to exclude mode
+  }, []);
 
   // Handle menu item deletion
-  const handleDeleteMenuItem = async (id: string, name: string) => {
-    const confirmed = await confirmDialog({
-      title: t("deleteConfirmTitle"),
-      message: t("deleteConfirmMessage", { name }),
-    });
+  const handleDeleteMenuItem = useCallback(
+    async (id: string, name: string) => {
+      const confirmed = await confirmDialog({
+        title: t("deleteConfirmTitle"),
+        message: t("deleteConfirmMessage", { name }),
+      });
 
-    if (confirmed) {
-      setLoading(true);
-      try {
-        const { status } = await deleteMenuItemService({ id });
-        if (status === HTTP_CODES_ENUM.NO_CONTENT) {
-          setMenuItems((prevMenuItems) =>
-            prevMenuItems.filter((menuItem) => menuItem.id !== id)
-          );
-          enqueueSnackbar(t("deleteSuccess"), { variant: "success" });
+      if (confirmed) {
+        setLoading(true);
+        try {
+          const { status } = await deleteMenuItemService({ id });
+          if (status === HTTP_CODES_ENUM.NO_CONTENT) {
+            enqueueSnackbar(t("deleteSuccess"), { variant: "success" });
+            refetch(); // Refresh the data after delete
+          }
+        } catch (error) {
+          console.error("Error deleting menu item:", error);
+          enqueueSnackbar(t("deleteError"), { variant: "error" });
+        } finally {
+          setLoading(false);
         }
-      } catch (error) {
-        console.error("Error deleting menu item:", error);
-        enqueueSnackbar(t("deleteError"), { variant: "error" });
-      } finally {
-        setLoading(false);
       }
-    }
-  };
+    },
+    [
+      confirmDialog,
+      t,
+      setLoading,
+      deleteMenuItemService,
+      enqueueSnackbar,
+      refetch,
+    ]
+  );
 
   if (!selectedRestaurant) {
     return (
@@ -139,39 +215,72 @@ function RestaurantMenuItemsPage() {
         </Button>
       </Group>
 
-      <Paper p="md" withBorder>
-        {loading && menuItems.length === 0 ? (
-          <Center p="xl">
-            <Loader size="md" />
-          </Center>
-        ) : isMobile ? (
-          <MenuItemCards
-            menuItems={menuItems}
-            onDelete={handleDeleteMenuItem}
-            handleLoadMore={handleLoadMore}
-            hasMore={hasMore}
-            loading={loading}
+      <Stack gap="md">
+        {/* Search and Filters */}
+        <Group align="flex-start" grow>
+          <SearchBar
+            initialValue={searchQuery}
+            onSearch={handleSearch}
+            placeholder={t("search.placeholder")}
+            disabled={isLoading}
           />
-        ) : (
-          <>
+        </Group>
+
+        <FilterPanel
+          allergies={allergiesMap}
+          selectedAllergies={selectedAllergies}
+          selectedIngredients={selectedIngredients}
+          allergyExcludeMode={allergyExcludeMode}
+          onFilterChange={handleFilterChange}
+          onFilterReset={handleFilterReset}
+          disabled={isLoading}
+        />
+
+        {/* Results Information */}
+        <ResultsInfo
+          totalCount={totalCount}
+          displayedCount={menuItems.length}
+          searchQuery={searchQuery}
+          selectedAllergies={selectedAllergies}
+          allergiesMap={allergiesMap}
+          selectedIngredients={selectedIngredients}
+          allergyExcludeMode={allergyExcludeMode}
+          isLoading={isLoading}
+        />
+
+        {/* Menu Items Table/Cards */}
+        <Paper p="md" withBorder>
+          {isError ? (
+            <Center p="xl">
+              <Text color="red">{t("errorLoading")}</Text>
+            </Center>
+          ) : isMobile ? (
+            <MenuItemCards
+              menuItems={menuItems}
+              allergiesMap={allergiesMap}
+              onDelete={handleDeleteMenuItem}
+              loading={isLoading}
+            />
+          ) : (
             <MenuItemTable
               menuItems={menuItems}
+              allergiesMap={allergiesMap}
               onDelete={handleDeleteMenuItem}
+              loading={isLoading}
+              sortField={sortField}
+              sortDirection={sortDirection}
+              onSort={handleSort}
             />
-            {hasMore && (
-              <Group justify="center" mt="md">
-                <Button
-                  onClick={handleLoadMore}
-                  disabled={loading}
-                  size="compact-sm"
-                >
-                  {t("loadMore")}
-                </Button>
-              </Group>
-            )}
-          </>
-        )}
-      </Paper>
+          )}
+        </Paper>
+
+        {/* Load More Button */}
+        <LoadMoreButton
+          onClick={loadMore}
+          hasMore={hasMore}
+          isLoading={isLoading}
+        />
+      </Stack>
     </Container>
   );
 }

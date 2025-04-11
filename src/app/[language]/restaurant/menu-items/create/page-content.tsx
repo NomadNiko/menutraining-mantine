@@ -7,12 +7,10 @@ import { MenuItemForm } from "@/components/menu-items/MenuItemForm";
 import useGlobalLoading from "@/services/loading/use-global-loading";
 import { useSnackbar } from "@/components/mantine/feedback/notification-service";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
-import {
-  CreateMenuItemDto,
-  UpdateMenuItemDto,
-} from "@/services/api/types/menu-item";
+import { CreateMenuItemDto } from "@/services/api/types/menu-item";
 import useSelectedRestaurant from "@/services/restaurant/use-selected-restaurant";
 import { useState } from "react";
+import { useResponsive } from "@/services/responsive/use-responsive";
 
 function CreateMenuItem() {
   const { t } = useTranslation("admin-panel-menu-items");
@@ -22,15 +20,19 @@ function CreateMenuItem() {
   const { selectedRestaurant } = useSelectedRestaurant();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const createMenuItemService = useCreateMenuItemService();
+  const { isMobile, isTablet } = useResponsive();
 
+  // Determine container size based on screen size
+  const containerSize = isMobile || isTablet ? "xs" : "sm";
+
+  // Modified function signature to accept Partial<CreateMenuItemDto>
   const handleSubmit = async (
-    formData: CreateMenuItemDto | UpdateMenuItemDto
+    formData: CreateMenuItemDto | Partial<CreateMenuItemDto>
   ) => {
     if (!selectedRestaurant) {
       enqueueSnackbar(t("noRestaurantSelected"), { variant: "error" });
       return;
     }
-
     setIsSubmitting(true);
     setLoading(true);
     try {
@@ -38,12 +40,11 @@ function CreateMenuItem() {
       const dataWithRestaurant = {
         ...formData,
         restaurantId: selectedRestaurant.restaurantId,
-      } as CreateMenuItemDto;
-
+      } as CreateMenuItemDto; // Cast to ensure it meets the requirements
       const { status } = await createMenuItemService(dataWithRestaurant);
       if (status === HTTP_CODES_ENUM.CREATED) {
         enqueueSnackbar(t("createSuccess"), { variant: "success" });
-        router.push("/restaurant/menu-items");
+        router.push("/restaurant/menu-items"); // Added navigation to redirect after success
       } else if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
         enqueueSnackbar(t("createError"), { variant: "error" });
       }
@@ -61,7 +62,7 @@ function CreateMenuItem() {
   }
 
   return (
-    <Container size="xs">
+    <Container size={containerSize}>
       <Paper p="md" withBorder>
         <MenuItemForm
           restaurantId={selectedRestaurant.restaurantId}

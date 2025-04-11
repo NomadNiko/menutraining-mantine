@@ -1,3 +1,4 @@
+// src/components/menu-items/IngredientSelector.tsx
 "use client";
 import { useEffect, useState } from "react";
 import {
@@ -116,7 +117,7 @@ export function IngredientSelector({
       !selectedIngredients.includes(selectedOption.ingredientId)
     ) {
       onChange([...selectedIngredients, selectedOption.ingredientId]);
-      setSearchQuery("");
+      setSearchQuery(""); // Clear search query after selection
     }
   };
 
@@ -136,9 +137,11 @@ export function IngredientSelector({
         rightSection={
           isSearching ? <Loader size="xs" /> : <IconSearch size={14} />
         }
-        onOptionSubmit={handleSelect}
+        onOptionSubmit={(value) => {
+          handleSelect(value);
+          setSearchQuery(""); // Explicitly clear search query here
+        }}
       />
-
       {selectedOptions.length > 0 && (
         <Box>
           <Text size="sm" fw={500} mb="xs">

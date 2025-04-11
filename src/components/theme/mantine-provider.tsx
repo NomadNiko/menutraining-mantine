@@ -42,7 +42,7 @@ const theme = createTheme({
       },
       dark: {
         even: "#25262b",
-        odd: "#2c2e33",
+        odd: "#242424",
       },
     },
   },
