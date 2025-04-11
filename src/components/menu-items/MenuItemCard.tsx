@@ -26,7 +26,6 @@ export function MenuItemCard({ menuItem, onDelete }: MenuItemCardProps) {
   const { t } = useTranslation("admin-panel-menu-items");
   const pathname = usePathname();
   const isRestaurantRoute = pathname.includes("/restaurant/");
-
   const editUrl = isRestaurantRoute
     ? `/restaurant/menu-items/edit/${menuItem.id}`
     : `/admin-panel/menu-items/edit/${menuItem.id}`;
@@ -53,36 +52,59 @@ export function MenuItemCard({ menuItem, onDelete }: MenuItemCardProps) {
             </Text>
           </Box>
         </Group>
-
         {menuItem.menuItemDescription && (
           <Text size="sm" lineClamp={3}>
             {menuItem.menuItemDescription}
           </Text>
         )}
-
         {menuItem.ingredientNames?.length > 0 && (
           <Stack gap="xs">
             <Text size="sm" fw={500} c="dimmed">
               {t("table.ingredients")}:
             </Text>
-            <Group gap="xs">
+            <Group gap="xs" wrap="wrap">
               {menuItem.ingredientNames.map((name, index) => (
-                <Badge key={index} size="sm">
+                <Badge
+                  key={index}
+                  size="sm"
+                  styles={{
+                    root: {
+                      maxWidth: "100%",
+                      whiteSpace: "normal",
+                      wordBreak: "break-word",
+                      lineHeight: 1.2,
+                      height: "auto",
+                      padding: "3px 8px",
+                    },
+                  }}
+                >
                   {name}
                 </Badge>
               ))}
             </Group>
           </Stack>
         )}
-
         {menuItem.allergies?.length > 0 && (
           <Stack gap="xs">
             <Text size="sm" fw={500} c="dimmed">
               {t("table.allergies")}:
             </Text>
-            <Group gap="xs">
+            <Group gap="xs" wrap="wrap">
               {menuItem.allergies.map((allergy) => (
-                <Badge key={allergy.id} size="sm" color="red">
+                <Badge
+                  key={allergy.id}
+                  size="sm"
+                  color="red"
+                  styles={{
+                    root: {
+                      whiteSpace: "normal",
+                      wordBreak: "break-word",
+                      lineHeight: 1.2,
+                      height: "auto",
+                      padding: "3px 8px",
+                    },
+                  }}
+                >
                   {allergy.name}
                 </Badge>
               ))}
@@ -90,7 +112,6 @@ export function MenuItemCard({ menuItem, onDelete }: MenuItemCardProps) {
           </Stack>
         )}
       </Stack>
-
       <Group justify="flex-end" mt="md">
         <Button
           component={Link}

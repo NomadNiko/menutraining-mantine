@@ -42,8 +42,8 @@ const COLUMN_WIDTHS = {
   image: 80,
   name: 180,
   description: 200,
-  ingredients: 180,
-  allergies: 180,
+  ingredients: 220, // Increased from 180 to 220
+  allergies: 140, // Decreased from 180 to 140
   actions: 160,
 };
 
@@ -138,10 +138,24 @@ const MenuItemRow = memo(function MenuItemRow({
         </Text>
       </td>
       <td style={{ width: COLUMN_WIDTHS.ingredients, padding: "10px" }}>
-        <Group>
+        <Group wrap="wrap" gap="xs">
           {menuItem.ingredientNames?.length > 0 ? (
             menuItem.ingredientNames.map((name, index) => (
-              <Badge key={index} size="sm">
+              <Badge
+                key={index}
+                size="sm"
+                styles={{
+                  root: {
+                    maxWidth: "100%",
+                    whiteSpace: "normal",
+                    wordBreak: "break-word",
+                    lineHeight: 1.2,
+                    textAlign: "left",
+                    height: "auto",
+                    padding: "3px 8px",
+                  },
+                }}
+              >
                 {name}
               </Badge>
             ))
@@ -153,10 +167,23 @@ const MenuItemRow = memo(function MenuItemRow({
         </Group>
       </td>
       <td style={{ width: COLUMN_WIDTHS.allergies, padding: "10px" }}>
-        <Group>
+        <Group wrap="wrap" gap="xs">
           {menuItem.allergies?.length > 0 ? (
             menuItem.allergies.map((allergy) => (
-              <Badge key={allergy.id} size="sm" color="red">
+              <Badge
+                key={allergy.id}
+                size="sm"
+                color="red"
+                styles={{
+                  root: {
+                    whiteSpace: "normal",
+                    wordBreak: "break-word",
+                    lineHeight: 1.2,
+                    height: "auto",
+                    padding: "3px 8px",
+                  },
+                }}
+              >
                 {allergy.name}
               </Badge>
             ))
