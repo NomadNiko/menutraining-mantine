@@ -1,31 +1,49 @@
+// logo.tsx
 "use client";
-import { Anchor, Text } from "@mantine/core";
-import { useTranslation } from "@/services/i18n/client";
-import { oxanium } from "@/config/fonts";
+import { Anchor, Image, useMantineColorScheme, Box } from "@mantine/core";
+
 interface LogoProps {
   isMobile?: boolean;
 }
+
 const Logo = ({ isMobile = false }: LogoProps) => {
-  const { t } = useTranslation("common");
+  const { colorScheme } = useMantineColorScheme();
+  const isDark = colorScheme === "dark";
+
+  // Select logo based on theme
+  const logoSrc = isDark
+    ? "/MenuTrainingFullTransWhite4.png"
+    : "/MenuTrainingFullTransBlack4.png";
+
+  // Set different display for mobile vs desktop
   const display = isMobile
     ? { base: "flex", md: "none" }
     : { base: "none", md: "flex" };
-  // Use Anchor directly instead of Box with component prop
+
+  // Height based on mobile or desktop
+  const logoHeight = isMobile ? 12 : 24;
+
   return (
     <Anchor
       href="/"
       underline="never"
       display={display}
       style={{
-        flexGrow: isMobile ? 1 : 0,
-        fontFamily: `${oxanium.style.fontFamily}, system-ui, sans-serif`,
+        flexGrow: isMobile ? 0 : 0,
         textDecoration: "none",
       }}
     >
-      <Text size="lg" fw={600}>
-        {t("common:app-name")}
-      </Text>
+      <Box style={{ overflow: "hidden" }}>
+        <Image
+          src={logoSrc}
+          alt="MenuTraining.com Logo"
+          height={logoHeight}
+          width="auto"
+          fit="contain"
+        />
+      </Box>
     </Anchor>
   );
 };
+
 export default Logo;

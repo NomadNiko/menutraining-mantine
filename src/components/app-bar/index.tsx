@@ -1,5 +1,6 @@
+// index.tsx
 "use client";
-import { AppShell, Burger, Group, Container } from "@mantine/core";
+import { AppShell, Burger, Group, Container, Box, Flex } from "@mantine/core";
 import { useState } from "react";
 import { SwitchThemeButton } from "@/components/theme/SwitchThemeButton";
 import Logo from "./logo";
@@ -30,25 +31,38 @@ const ResponsiveAppBar = ({ children }: { children: React.ReactNode }) => {
     >
       <AppShell.Header>
         <Container size="xl" py="md">
-          <Group justify="space-between">
-            {/* Left side: Burger (mobile), Logo, Navigation Links */}
-            <Group>
-              {/* Mobile Burger */}
-              <Burger
-                opened={opened}
-                onClick={() => setOpened((o) => !o)}
-                hiddenFrom="md"
-                size="sm"
-              />
-              {/* Desktop Logo */}
-              <Logo />
-              {/* Desktop Navigation - moved next to Logo */}
-              <DesktopNavigation onCloseMenu={() => setOpened(false)} />
-            </Group>
-            {/* Mobile Logo - centered */}
-            <Logo isMobile />
-            {/* Right side: Restaurant Selector, Theme Switch and Auth Section */}
-            <Group>
+          <Flex justify="space-between" align="center" wrap="nowrap">
+            {/* Left section */}
+            <Box>
+              <Group align="center" wrap="nowrap">
+                {/* Mobile Burger */}
+                <Burger
+                  opened={opened}
+                  onClick={() => setOpened((o) => !o)}
+                  hiddenFrom="md"
+                  size="sm"
+                />
+                {/* Desktop Logo */}
+                <Logo />
+                {/* Desktop Navigation - moved next to Logo */}
+                <DesktopNavigation onCloseMenu={() => setOpened(false)} />
+              </Group>
+            </Box>
+
+            {/* Mobile Logo - centered with overflow handling */}
+            <Box
+              style={{
+                flex: "1 1 auto",
+                display: "flex",
+                justifyContent: "center",
+                overflow: "hidden",
+              }}
+            >
+              <Logo isMobile />
+            </Box>
+
+            {/* Right section with fixed width and nowrap */}
+            <Group gap="xs" align="center" wrap="nowrap">
               {/* Restaurant Selector - only for regular users */}
               {isRegularUser && <RestaurantSelector />}
               {/* Theme Switch Button */}
@@ -56,7 +70,7 @@ const ResponsiveAppBar = ({ children }: { children: React.ReactNode }) => {
               {/* Authentication Section */}
               <AuthSection />
             </Group>
-          </Group>
+          </Flex>
         </Container>
       </AppShell.Header>
       <AppShell.Navbar p="md">
