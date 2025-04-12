@@ -23,8 +23,8 @@ const ResponsiveAppBar = ({ children }: { children: React.ReactNode }) => {
     <AppShell
       header={{ height: 60 }}
       navbar={{
-        width: { base: 240, sm: 300 },
-        breakpoint: "sm",
+        width: { base: 240, md: 300 },
+        breakpoint: "md",
         collapsed: { desktop: true, mobile: !opened },
       }}
       padding="md"
