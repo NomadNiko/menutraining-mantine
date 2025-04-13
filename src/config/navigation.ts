@@ -31,6 +31,11 @@ const createNavigationConfig = (): NavigationItem[] => [
     roles: [RoleEnum.ADMIN],
   },
   {
+    label: "common:navigation.equipment",
+    path: "/admin-panel/equipment",
+    roles: [RoleEnum.ADMIN],
+  },
+  {
     label: "common:navigation.ingredients",
     path: "/admin-panel/ingredients",
     roles: [RoleEnum.ADMIN],

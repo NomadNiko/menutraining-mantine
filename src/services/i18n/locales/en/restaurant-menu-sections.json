@@ -47,7 +47,10 @@
       "nameRequired": "Name is required",
       "priceRequired": "Price is required",
       "pricePositive": "Price must be a positive number"
-    }
+    },
+    "currentImage": "Current Image",
+    "imageAlt": "Section Item Image",
+    "loadingSections": "Loading menu sections..."
   },
   "search": {
     "placeholder": "Search menu sections...",
@@ -59,11 +62,32 @@
     "description": "Description",
     "timeRange": "Time Range",
     "itemCount": "Items",
-    "actions": "Actions"
+    "items": "Items",
+    "actions": "Actions",
+    "more": "more"
   },
   "actions": {
     "edit": "Edit",
     "delete": "Delete",
     "view": "View"
-  }
+  },
+  "viewSection": {
+    "title": "Section Details",
+    "restaurant": "Restaurant",
+    "timeRange": "Time Range",
+    "noItems": "This section has no items",
+    "items": "Items",
+    "allergies": "Allergens",
+    "ingredients": "Ingredients",
+    "selectSection": "Select a section to view details"
+  },
+  "errors": {
+    "sectionNotFound": "Section not found",
+    "loadingFailed": "Failed to load section details"
+  },
+  "selectRestaurantInstruction": "Select a restaurant to manage its menu sections. You'll be redirected to the menu sections page for the selected restaurant.",
+  "searchRestaurants": "Search restaurants...",
+  "noRestaurantsFound": "No restaurants found matching your search.",
+  "noRestaurants": "No restaurants available.",
+  "manageMenuSections": "Manage Menu Sections"
 }

@@ -1,0 +1,36 @@
+{
+  "title": "Equipment",
+  "createTitle": "Create Equipment",
+  "editTitle": "Edit Equipment",
+  "create": "Add Equipment",
+  "createSuccess": "Equipment created successfully",
+  "updateSuccess": "Equipment updated successfully",
+  "deleteSuccess": "Equipment deleted successfully",
+  "noEquipment": "No equipment found",
+  "table": {
+    "name": "Name",
+    "image": "Image",
+    "actions": "Actions"
+  },
+  "actions": {
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+  "form": {
+    "name": "Equipment Name",
+    "currentImage": "Current Image",
+    "imageAlt": "Equipment image",
+    "submit": "Create",
+    "update": "Update",
+    "cancel": "Cancel",
+    "validation": {
+      "nameRequired": "Equipment name is required",
+      "server": {
+        "equipmentName": "Equipment name is invalid"
+      }
+    }
+  },
+  "deleteConfirmTitle": "Delete Equipment",
+  "deleteConfirmMessage": "Are you sure you want to delete equipment: {{name}}?",
+  "loadMore": "Load More"
+}

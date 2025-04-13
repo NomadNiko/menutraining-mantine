@@ -33,6 +33,7 @@
     "submit": "Create Menu",
     "update": "Update Menu",
     "cancel": "Cancel",
+    "loadingSections": "Loading menu sections...",
     "validation": {
       "nameRequired": "Menu name is required",
       "activeDaysRequired": "At least one active day is required",
@@ -51,7 +52,8 @@
     "days": "Days",
     "timeRange": "Time Range",
     "sections": "Sections",
-    "actions": "Actions"
+    "actions": "Actions",
+    "more": "more"
   },
   "actions": {
     "edit": "Edit",
@@ -93,5 +95,10 @@
   "errors": {
     "menuNotFound": "Menu not found",
     "loadingFailed": "Failed to load menu details"
-  }
+  },
+  "selectRestaurantInstruction": "Select a restaurant to manage its menus. You'll be redirected to the menus page for the selected restaurant.",
+  "searchRestaurants": "Search restaurants...",
+  "noRestaurantsFound": "No restaurants found matching your search.",
+  "noRestaurants": "No restaurants available.",
+  "manageMenus": "Manage Menus"
 }
