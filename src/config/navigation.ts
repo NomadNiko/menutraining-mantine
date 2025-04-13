@@ -51,6 +51,16 @@ const createNavigationConfig = (): NavigationItem[] => [
     path: "/restaurant/menu-items",
     roles: [RoleEnum.USER],
   },
+  {
+    label: "common:navigation.menuSections",
+    path: "/restaurant/menu-sections",
+    roles: [RoleEnum.USER],
+  },
+  {
+    label: "common:navigation.menus",
+    path: "/restaurant/menus",
+    roles: [RoleEnum.USER],
+  },
 ];
 
 // Return navigation config with authentication items

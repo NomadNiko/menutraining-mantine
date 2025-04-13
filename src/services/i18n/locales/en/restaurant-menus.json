@@ -1,0 +1,97 @@
+{
+  "title": "Menus",
+  "createTitle": "Create Menu",
+  "editTitle": "Edit Menu",
+  "forRestaurant": "for {{restaurantName}}",
+  "noMenus": "No menus found",
+  "createSuccess": "Menu created successfully",
+  "createError": "Error creating menu",
+  "updateSuccess": "Menu updated successfully",
+  "updateError": "Error updating menu",
+  "deleteSuccess": "Menu deleted successfully",
+  "deleteError": "Error deleting menu",
+  "deleteConfirmTitle": "Delete Menu",
+  "deleteConfirmMessage": "Are you sure you want to delete '{{name}}'?",
+  "menuNotFound": "Menu not found",
+  "fetchError": "Error loading data",
+  "unauthorized": "You do not have access to this menu",
+  "noRestaurantSelected": "No restaurant selected",
+  "create": "Create Menu",
+  "loading": "Loading...",
+  "showingResults": "Showing {{count}} menus",
+  "sections": "Sections",
+  "form": {
+    "name": "Menu Name",
+    "description": "Description",
+    "activeDays": "Active Days",
+    "selectDays": "Select active days",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "sections": "Menu Sections",
+    "selectSections": "Select menu sections",
+    "sectionOrder": "Section Order",
+    "submit": "Create Menu",
+    "update": "Update Menu",
+    "cancel": "Cancel",
+    "validation": {
+      "nameRequired": "Menu name is required",
+      "activeDaysRequired": "At least one active day is required",
+      "sectionsRequired": "At least one menu section is required",
+      "timeFormat": "Time must be in format HH:MM"
+    }
+  },
+  "search": {
+    "placeholder": "Search menus...",
+    "button": "Search",
+    "ariaLabel": "Search menus"
+  },
+  "table": {
+    "name": "Name",
+    "description": "Description",
+    "days": "Days",
+    "timeRange": "Time Range",
+    "sections": "Sections",
+    "actions": "Actions"
+  },
+  "actions": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "view": "View"
+  },
+  "days": {
+    "monday": "Monday",
+    "tuesday": "Tuesday",
+    "wednesday": "Wednesday",
+    "thursday": "Thursday",
+    "friday": "Friday",
+    "saturday": "Saturday",
+    "sunday": "Sunday",
+    "everyday": "Everyday",
+    "weekdays": "Weekdays",
+    "weekend": "Weekend",
+    "available": "Available",
+    "short": {
+      "monday": "Mon",
+      "tuesday": "Tue",
+      "wednesday": "Wed",
+      "thursday": "Thu",
+      "friday": "Fri",
+      "saturday": "Sat",
+      "sunday": "Sun"
+    }
+  },
+  "viewMenu": {
+    "title": "Menu Details",
+    "restaurant": "Restaurant",
+    "available": "Available",
+    "timeRange": "Time",
+    "noSections": "This menu has no sections",
+    "allergies": "Allergens",
+    "ingredients": "Ingredients",
+    "selectMenu": "Select a menu to view details"
+  },
+  "errors": {
+    "menuNotFound": "Menu not found",
+    "loadingFailed": "Failed to load menu details"
+  }
+}

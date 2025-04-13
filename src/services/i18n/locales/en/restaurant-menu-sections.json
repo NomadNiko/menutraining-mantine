@@ -1,0 +1,69 @@
+{
+  "title": "Menu Sections",
+  "createTitle": "Create Menu Section",
+  "editTitle": "Edit Menu Section",
+  "forRestaurant": "for {{restaurantName}}",
+  "noMenuSections": "No menu sections found",
+  "createSuccess": "Menu section created successfully",
+  "createError": "Error creating menu section",
+  "updateSuccess": "Menu section updated successfully",
+  "updateError": "Error updating menu section",
+  "deleteSuccess": "Menu section deleted successfully",
+  "deleteError": "Error deleting menu section",
+  "deleteConfirmTitle": "Delete Menu Section",
+  "deleteConfirmMessage": "Are you sure you want to delete '{{title}}'?",
+  "menuSectionNotFound": "Menu section not found",
+  "fetchError": "Error loading data",
+  "unauthorized": "You do not have access to this menu section",
+  "noRestaurantSelected": "No restaurant selected",
+  "create": "Create Section",
+  "loading": "Loading...",
+  "showingResults": "Showing {{count}} menu sections",
+  "timeRange": "Time Range",
+  "items": "Items",
+  "form": {
+    "title": "Section Title",
+    "description": "Description",
+    "startTime": "Start Time",
+    "endTime": "End Time",
+    "items": "Menu Items",
+    "noItems": "No items added yet. Click 'Add Item' to begin.",
+    "addItem": "Add Item",
+    "item": "Item",
+    "menuItem": "Menu Item",
+    "searchMenuItems": "Search for menu items...",
+    "itemName": "Item Name",
+    "itemDescription": "Item Description",
+    "itemPrice": "Price",
+    "itemImage": "Item Image",
+    "submit": "Create Section",
+    "update": "Update Section",
+    "cancel": "Cancel",
+    "sectionOrder": "Section Order",
+    "validation": {
+      "titleRequired": "Section title is required",
+      "timeFormat": "Time must be in format HH:MM",
+      "menuItemRequired": "Menu item is required",
+      "nameRequired": "Name is required",
+      "priceRequired": "Price is required",
+      "pricePositive": "Price must be a positive number"
+    }
+  },
+  "search": {
+    "placeholder": "Search menu sections...",
+    "button": "Search",
+    "ariaLabel": "Search menu sections"
+  },
+  "table": {
+    "title": "Title",
+    "description": "Description",
+    "timeRange": "Time Range",
+    "itemCount": "Items",
+    "actions": "Actions"
+  },
+  "actions": {
+    "edit": "Edit",
+    "delete": "Delete",
+    "view": "View"
+  }
+}

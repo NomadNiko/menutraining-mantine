@@ -11,7 +11,9 @@
     "restaurants": "Restaurants",
     "allergies": "Allergies",
     "ingredients": "Ingredients",
-    "menuItems": "Menu Items"
+    "menuItems": "Menu Items",
+    "menuSections": "Menu Sections",
+    "menus": "Menus"
   },
   "formInputs": {
     "avatarInput": {
