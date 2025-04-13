@@ -18,6 +18,7 @@ import { useTranslation } from "@/services/i18n/client";
 import Link from "@/components/link";
 import { MenuSectionTable } from "@/components/menu-sections/MenuSectionTable";
 import { MenuSectionCards } from "@/components/menu-sections/MenuSectionCards";
+import { MenuSectionViewModal } from "@/components/menu-sections/MenuSectionViewModal";
 import useGlobalLoading from "@/services/loading/use-global-loading";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import useConfirmDialog from "@/components/confirm-dialog/use-confirm-dialog";
@@ -31,6 +32,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { IconSearch } from "@tabler/icons-react";
 import { MenuSection } from "@/services/api/types/menu-section";
 import { useEffect } from "react";
+import { MenuSectionDataPreloader } from "@/components/menu-sections/MenuSectionDataPreloader";
 
 function MenuSectionsPage() {
   const { t } = useTranslation("restaurant-menu-sections");
@@ -57,6 +59,10 @@ function MenuSectionsPage() {
   const [searchQuery, setSearchQuery] = useState(initialSearch);
   const [sortField, setSortField] = useState(initialSortField);
   const [sortDirection, setSortDirection] = useState(initialSortDirection);
+
+  // State for the view modal
+  const [viewSectionId, setViewSectionId] = useState<string | null>(null);
+  const [viewModalOpen, setViewModalOpen] = useState(false);
 
   // Fetch menu sections
   const fetchMenuSections = useCallback(async () => {
@@ -140,14 +146,25 @@ function MenuSectionsPage() {
     [sortField]
   );
 
-  // Handle search
-  const handleSearch = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      fetchMenuSections();
+  // Handle search input change (debounced)
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchQuery(e.currentTarget.value);
     },
-    [fetchMenuSections]
+    []
   );
+
+  // Handle view section
+  const handleViewSection = useCallback((id: string) => {
+    setViewSectionId(id);
+    setViewModalOpen(true);
+  }, []);
+
+  // Handle close view modal
+  const handleCloseViewModal = useCallback(() => {
+    setViewModalOpen(false);
+    setViewSectionId(null);
+  }, []);
 
   // Handle delete
   const handleDeleteMenuSection = useCallback(
@@ -192,6 +209,9 @@ function MenuSectionsPage() {
 
   return (
     <Container size={isMobile ? "100%" : "lg"}>
+      {/* Add the preloader component */}
+      <MenuSectionDataPreloader menuSections={menuSections} />
+
       <Group justify="space-between" mb="xl">
         <Title order={2}>
           {t("title")}: {selectedRestaurant.name}
@@ -205,21 +225,16 @@ function MenuSectionsPage() {
           {t("create")}
         </Button>
       </Group>
+
       <Stack gap="md">
-        {/* Search */}
-        <form onSubmit={handleSearch}>
-          <TextInput
-            placeholder={t("search.placeholder")}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.currentTarget.value)}
-            leftSection={<IconSearch size={16} />}
-            rightSection={
-              <Button type="submit" size="xs" disabled={loading}>
-                {t("search.button")}
-              </Button>
-            }
-          />
-        </form>
+        {/* Search - removed the button */}
+        <TextInput
+          placeholder={t("search.placeholder")}
+          value={searchQuery}
+          onChange={handleSearchChange}
+          leftSection={<IconSearch size={16} />}
+        />
+
         {/* Results info */}
         <Group>
           <Text size="sm">
@@ -228,6 +243,7 @@ function MenuSectionsPage() {
               : t("showingResults", { count: sortedMenuSections.length })}
           </Text>
         </Group>
+
         {/* Menu Sections Table/Cards */}
         <Paper p="md" withBorder>
           {loading && menuSections.length === 0 ? (
@@ -238,12 +254,14 @@ function MenuSectionsPage() {
             <MenuSectionCards
               menuSections={sortedMenuSections}
               onDelete={handleDeleteMenuSection}
+              onView={handleViewSection}
               loading={loading}
             />
           ) : (
             <MenuSectionTable
               menuSections={sortedMenuSections}
               onDelete={handleDeleteMenuSection}
+              onView={handleViewSection}
               loading={loading}
               sortField={sortField}
               sortDirection={sortDirection}
@@ -252,6 +270,14 @@ function MenuSectionsPage() {
           )}
         </Paper>
       </Stack>
+
+      {/* Menu Section View Modal */}
+      <MenuSectionViewModal
+        sectionId={viewSectionId}
+        restaurantName={selectedRestaurant.name}
+        opened={viewModalOpen}
+        onClose={handleCloseViewModal}
+      />
     </Container>
   );
 }

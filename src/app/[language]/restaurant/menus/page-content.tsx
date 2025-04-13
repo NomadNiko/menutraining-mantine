@@ -1,4 +1,4 @@
-// src/app/[language]/restaurant/menus/page-content.tsx (fixed)
+// src/app/[language]/restaurant/menus/page-content.tsx
 "use client";
 import { useState, useCallback, useMemo } from "react";
 import {
@@ -32,6 +32,7 @@ import { useSearchParams, useRouter } from "next/navigation";
 import { IconSearch } from "@tabler/icons-react";
 import { useEffect } from "react";
 import { Menu } from "@/services/api/types/menu";
+import { MenuDataPreloader } from "@/components/menus/MenuDataPreloader";
 
 function MenusPage() {
   const { t } = useTranslation("restaurant-menus");
@@ -52,7 +53,7 @@ function MenusPage() {
     | "asc"
     | "desc";
 
-  // State for filtering and sorting - properly typed now
+  // State for filtering and sorting
   const [menus, setMenus] = useState<Menu[]>([]);
   const [loading, setLocalLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState(initialSearch);
@@ -127,14 +128,14 @@ function MenusPage() {
           : bValue.localeCompare(aValue);
       }
 
-      // Handle numeric comparison - convert to numbers for comparison
+      // Handle numeric comparison
       return sortDirection === "asc"
         ? Number(aValue || 0) - Number(bValue || 0)
         : Number(bValue || 0) - Number(aValue || 0);
     });
   }, [menus, sortField, sortDirection]);
 
-  // Handle sort - add type
+  // Handle sort
   const handleSort = useCallback(
     (field: string) => {
       setSortField(field);
@@ -145,16 +146,15 @@ function MenusPage() {
     [sortField]
   );
 
-  // Handle search - add type
-  const handleSearch = useCallback(
-    (e: React.FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      fetchMenus();
+  // Handle search input change (debounced)
+  const handleSearchChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchQuery(e.currentTarget.value);
     },
-    [fetchMenus]
+    []
   );
 
-  // Handle view menu - add type
+  // Handle view menu
   const handleViewMenu = useCallback((id: string) => {
     setViewMenuId(id);
     setViewModalOpen(true);
@@ -166,7 +166,7 @@ function MenusPage() {
     setViewMenuId(null);
   }, []);
 
-  // Handle delete - add types
+  // Handle delete
   const handleDeleteMenu = useCallback(
     async (id: string, name: string) => {
       const confirmed = await confirmDialog({
@@ -209,6 +209,9 @@ function MenusPage() {
 
   return (
     <Container size={isMobile ? "100%" : "lg"}>
+      {/* Add the preloader component */}
+      <MenuDataPreloader menus={menus} />
+
       <Group justify="space-between" mb="xl">
         <Title order={2}>
           {t("title")}: {selectedRestaurant.name}
@@ -222,21 +225,16 @@ function MenusPage() {
           {t("create")}
         </Button>
       </Group>
+
       <Stack gap="md">
-        {/* Search */}
-        <form onSubmit={handleSearch}>
-          <TextInput
-            placeholder={t("search.placeholder")}
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.currentTarget.value)}
-            leftSection={<IconSearch size={16} />}
-            rightSection={
-              <Button type="submit" size="xs" disabled={loading}>
-                {t("search.button")}
-              </Button>
-            }
-          />
-        </form>
+        {/* Search - removed the button */}
+        <TextInput
+          placeholder={t("search.placeholder")}
+          value={searchQuery}
+          onChange={handleSearchChange}
+          leftSection={<IconSearch size={16} />}
+        />
+
         {/* Results info */}
         <Group>
           <Text size="sm">
@@ -245,6 +243,7 @@ function MenusPage() {
               : t("showingResults", { count: sortedMenus.length })}
           </Text>
         </Group>
+
         {/* Menus Table/Cards */}
         <Paper p="md" withBorder>
           {loading && menus.length === 0 ? (

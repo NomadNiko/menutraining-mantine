@@ -25,26 +25,22 @@ export function MenuSectionCard({
         <Text size="lg" fw={500}>
           {menuSection.title}
         </Text>
-
         {menuSection.description && (
           <Text size="sm" lineClamp={3}>
             {menuSection.description}
           </Text>
         )}
-
         <Group gap="md">
           {menuSection.startTime && menuSection.endTime && (
             <Badge color="gray">
               {t("timeRange")}: {menuSection.startTime} - {menuSection.endTime}
             </Badge>
           )}
-
           <Badge color="blue">
             {t("items")}: {menuSection.items?.length || 0}
           </Badge>
         </Group>
       </Stack>
-
       <Group justify="flex-end" mt="md">
         {onView && (
           <Button
@@ -57,7 +53,6 @@ export function MenuSectionCard({
             {t("actions.view")}
           </Button>
         )}
-
         <Button
           component={Link}
           href={`/restaurant/menu-sections/edit/${menuSection.id}`}
@@ -67,7 +62,6 @@ export function MenuSectionCard({
         >
           {t("actions.edit")}
         </Button>
-
         <Button
           size="compact-xs"
           variant="light"

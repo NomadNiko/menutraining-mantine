@@ -1,4 +1,4 @@
-// src/components/menus/MenuCard.tsx (updated)
+// src/components/menus/MenuCard.tsx
 "use client";
 import { Card, Text, Group, Stack, Button, Badge } from "@mantine/core";
 import { IconEdit, IconTrash, IconEye } from "@tabler/icons-react";

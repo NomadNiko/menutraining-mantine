@@ -10,7 +10,6 @@ import {
   UnstyledButton,
   Flex,
   Badge,
-  ActionIcon,
 } from "@mantine/core";
 import {
   IconEdit,
@@ -23,6 +22,11 @@ import Link from "@/components/link";
 import { useTranslation } from "@/services/i18n/client";
 import { Menu, DayOfWeek } from "@/services/api/types/menu";
 import { memo } from "react";
+import { useGetMenuSectionService } from "@/services/api/services/menu-sections";
+import { useState, useEffect } from "react";
+import { MenuSection } from "@/services/api/types/menu-section";
+import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
+import { useMenuCache } from "./MenuDataPreloader";
 
 interface MenuTableProps {
   menus: Menu[];
@@ -44,6 +48,58 @@ function MenuTableComponent({
   onSort,
 }: MenuTableProps) {
   const { t } = useTranslation("restaurant-menus");
+  const getMenuSectionService = useGetMenuSectionService();
+  const [sectionMap, setSectionMap] = useState<Record<string, MenuSection>>({});
+  const cache = useMenuCache();
+
+  // Fetch and cache section data for all menus
+  useEffect(() => {
+    if (!menus.length) return;
+
+    const fetchSections = async () => {
+      const newSectionMap: Record<string, MenuSection> = { ...sectionMap };
+      let hasChanges = false;
+
+      // Get all unique section IDs from all menus
+      const sectionIds = new Set<string>();
+      menus.forEach((menu) => {
+        if (menu.menuSections) {
+          menu.menuSections.forEach((id) => sectionIds.add(id));
+        }
+      });
+
+      // Fetch missing sections
+      for (const sectionId of Array.from(sectionIds)) {
+        // Check if we already have this section
+        if (newSectionMap[sectionId] || cache.sections[sectionId]) {
+          if (cache.sections[sectionId] && !newSectionMap[sectionId]) {
+            newSectionMap[sectionId] = cache.sections[sectionId];
+            hasChanges = true;
+          }
+          continue;
+        }
+
+        try {
+          // Corrected: Use getMenuSectionService with proper parameter format
+          const response = await getMenuSectionService({ id: sectionId });
+          if (response.status === HTTP_CODES_ENUM.OK) {
+            newSectionMap[sectionId] = response.data;
+            cache.sections[sectionId] = response.data;
+            hasChanges = true;
+          }
+        } catch (error) {
+          console.error(`Error fetching section ${sectionId}:`, error);
+        }
+      }
+
+      if (hasChanges) {
+        setSectionMap(newSectionMap);
+      }
+    };
+
+    fetchSections();
+  }, [menus, getMenuSectionService, sectionMap, cache.sections]);
+
   if (menus.length === 0 && loading) {
     return (
       <Center p="xl">
@@ -51,6 +107,7 @@ function MenuTableComponent({
       </Center>
     );
   }
+
   if (menus.length === 0) {
     return (
       <Center p="xl">
@@ -119,20 +176,50 @@ function MenuTableComponent({
     return days.map((day) => t(`days.short.${day}`)).join(", ");
   };
 
+  // Helper function to generate section name list
+  const getSectionsDisplay = (menu: Menu) => {
+    if (!menu.menuSections || menu.menuSections.length === 0) {
+      return (
+        <Text size="sm" c="dimmed">
+          -
+        </Text>
+      );
+    }
+
+    // Show only first 3 section names with a "+X more" if there are more than 3
+    const sectionsToShow = menu.menuSections.slice(0, 3);
+    const hasMoreSections = menu.menuSections.length > 3;
+
+    return (
+      <Group wrap="wrap" gap="xs">
+        {sectionsToShow.map((sectionId) => {
+          const section = sectionMap[sectionId];
+          return (
+            <Badge key={sectionId} size="sm" color="green">
+              {section ? section.title : "..."}
+            </Badge>
+          );
+        })}
+        {hasMoreSections && (
+          <Badge size="sm" color="gray">
+            +{menu.menuSections.length - 3} {t("table.more")}
+          </Badge>
+        )}
+      </Group>
+    );
+  };
+
   return (
     <Table>
       <thead>
         <tr>
-          <SortableHeader label={t("table.name")} field="name" width={200} />
-          <th style={{ width: 200, padding: "10px" }}>
-            {t("table.description")}
-          </th>
+          <SortableHeader label={t("table.name")} field="name" width={250} />
           <th style={{ width: 150, padding: "10px" }}>{t("table.days")}</th>
           <th style={{ width: 150, padding: "10px" }}>
             {t("table.timeRange")}
           </th>
-          <th style={{ width: 100, padding: "10px" }}>{t("table.sections")}</th>
-          <th style={{ width: 200, textAlign: "right", padding: "10px" }}>
+          <th style={{ width: 300, padding: "10px" }}>{t("table.sections")}</th>
+          <th style={{ width: 250, textAlign: "right", padding: "10px" }}>
             {t("table.actions")}
           </th>
         </tr>
@@ -140,17 +227,8 @@ function MenuTableComponent({
       <tbody>
         {menus.map((menu) => (
           <tr key={menu.id}>
-            <td style={{ width: 200, padding: "10px" }}>
+            <td style={{ width: 250, padding: "10px" }}>
               <Text fw={500}>{menu.name}</Text>
-            </td>
-            <td style={{ width: 200, padding: "10px" }}>
-              <Text lineClamp={2}>
-                {menu.description || (
-                  <Text size="sm" c="dimmed">
-                    -
-                  </Text>
-                )}
-              </Text>
             </td>
             <td style={{ width: 150, padding: "10px" }}>
               <Badge>{formatDays(menu.activeDays)}</Badge>
@@ -166,26 +244,26 @@ function MenuTableComponent({
                 </Text>
               )}
             </td>
-            <td style={{ width: 100, padding: "10px" }}>
-              <Badge color="green">{menu.menuSections?.length || 0}</Badge>
+            <td style={{ width: 300, padding: "10px" }}>
+              {getSectionsDisplay(menu)}
             </td>
             <td
               style={{
-                width: 200,
+                width: 250,
                 textAlign: "right",
                 padding: "10px",
               }}
             >
               <Group gap="xs" justify="flex-end">
-                <ActionIcon
+                <Button
                   onClick={() => onView(menu.id)}
-                  size="sm"
+                  size="xs"
                   variant="light"
                   color="blue"
-                  title={t("actions.view")}
+                  leftSection={<IconEye size={14} />}
                 >
-                  <IconEye size={16} />
-                </ActionIcon>
+                  {t("actions.view")}
+                </Button>
                 <Button
                   component={Link}
                   href={`/restaurant/menus/edit/${menu.id}`}

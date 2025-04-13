@@ -10,7 +10,6 @@ import {
   UnstyledButton,
   Flex,
   Badge,
-  ActionIcon,
 } from "@mantine/core";
 import {
   IconEdit,
@@ -71,7 +70,6 @@ function MenuSectionTableComponent({
     width: number;
   }) => {
     const isActive = sortField === field;
-
     return (
       <th style={{ width, padding: "10px" }}>
         <UnstyledButton
@@ -97,21 +95,46 @@ function MenuSectionTableComponent({
     );
   };
 
+  // Helper function to generate item name list
+  const getItemsDisplay = (section: MenuSection) => {
+    if (!section.items || section.items.length === 0) {
+      return (
+        <Text size="sm" c="dimmed">
+          -
+        </Text>
+      );
+    }
+
+    // Show only first 3 item names with a "+X more" if there are more than 3
+    const itemsToShow = section.items.slice(0, 3);
+    const hasMoreItems = section.items.length > 3;
+
+    return (
+      <Group wrap="wrap" gap="xs">
+        {itemsToShow.map((item, index) => (
+          <Badge key={index} size="sm" color="blue">
+            {item.name}
+          </Badge>
+        ))}
+        {hasMoreItems && (
+          <Badge size="sm" color="gray">
+            +{section.items.length - 3} {t("table.more")}
+          </Badge>
+        )}
+      </Group>
+    );
+  };
+
   return (
     <Table>
       <thead>
         <tr>
-          <SortableHeader label={t("table.title")} field="title" width={200} />
-          <th style={{ width: 200, padding: "10px" }}>
-            {t("table.description")}
-          </th>
+          <SortableHeader label={t("table.title")} field="title" width={250} />
           <th style={{ width: 150, padding: "10px" }}>
             {t("table.timeRange")}
           </th>
-          <th style={{ width: 100, padding: "10px" }}>
-            {t("table.itemCount")}
-          </th>
-          <th style={{ width: 200, textAlign: "right", padding: "10px" }}>
+          <th style={{ width: 300, padding: "10px" }}>{t("table.items")}</th>
+          <th style={{ width: 250, textAlign: "right", padding: "10px" }}>
             {t("table.actions")}
           </th>
         </tr>
@@ -119,17 +142,8 @@ function MenuSectionTableComponent({
       <tbody>
         {menuSections.map((section) => (
           <tr key={section.id}>
-            <td style={{ width: 200, padding: "10px" }}>
+            <td style={{ width: 250, padding: "10px" }}>
               <Text fw={500}>{section.title}</Text>
-            </td>
-            <td style={{ width: 200, padding: "10px" }}>
-              <Text lineClamp={2}>
-                {section.description || (
-                  <Text size="sm" c="dimmed">
-                    -
-                  </Text>
-                )}
-              </Text>
             </td>
             <td style={{ width: 150, padding: "10px" }}>
               {section.startTime && section.endTime ? (
@@ -142,26 +156,27 @@ function MenuSectionTableComponent({
                 </Text>
               )}
             </td>
-            <td style={{ width: 100, padding: "10px" }}>
-              <Badge color="blue">{section.items?.length || 0}</Badge>
+            <td style={{ width: 300, padding: "10px" }}>
+              {getItemsDisplay(section)}
             </td>
             <td
               style={{
-                width: 200,
+                width: 250,
                 textAlign: "right",
                 padding: "10px",
               }}
             >
               <Group gap="xs" justify="flex-end">
                 {onView && (
-                  <ActionIcon
+                  <Button
                     onClick={() => onView(section.id)}
-                    size="sm"
+                    size="xs"
                     variant="light"
                     color="blue"
+                    leftSection={<IconEye size={14} />}
                   >
-                    <IconEye size={16} />
-                  </ActionIcon>
+                    {t("actions.view")}
+                  </Button>
                 )}
                 <Button
                   component={Link}
