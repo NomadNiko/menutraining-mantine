@@ -55,11 +55,9 @@ function MenuTableComponent({
   // Fetch and cache section data for all menus
   useEffect(() => {
     if (!menus.length) return;
-
     const fetchSections = async () => {
       const newSectionMap: Record<string, MenuSection> = { ...sectionMap };
       let hasChanges = false;
-
       // Get all unique section IDs from all menus
       const sectionIds = new Set<string>();
       menus.forEach((menu) => {
@@ -67,7 +65,6 @@ function MenuTableComponent({
           menu.menuSections.forEach((id) => sectionIds.add(id));
         }
       });
-
       // Fetch missing sections
       for (const sectionId of Array.from(sectionIds)) {
         // Check if we already have this section
@@ -78,7 +75,6 @@ function MenuTableComponent({
           }
           continue;
         }
-
         try {
           // Corrected: Use getMenuSectionService with proper parameter format
           const response = await getMenuSectionService({ id: sectionId });
@@ -91,12 +87,10 @@ function MenuTableComponent({
           console.error(`Error fetching section ${sectionId}:`, error);
         }
       }
-
       if (hasChanges) {
         setSectionMap(newSectionMap);
       }
     };
-
     fetchSections();
   }, [menus, getMenuSectionService, sectionMap, cache.sections]);
 
@@ -107,7 +101,6 @@ function MenuTableComponent({
       </Center>
     );
   }
-
   if (menus.length === 0) {
     return (
       <Center p="xl">
@@ -151,29 +144,25 @@ function MenuTableComponent({
     );
   };
 
-  // Format days of week display
-  const formatDays = (days: DayOfWeek[]) => {
-    if (!days || days.length === 0) return "-";
-    // If all days are selected
-    if (days.length === 7) return t("days.everyday");
-    // If weekdays
-    const weekdays = [
-      DayOfWeek.MONDAY,
-      DayOfWeek.TUESDAY,
-      DayOfWeek.WEDNESDAY,
-      DayOfWeek.THURSDAY,
-      DayOfWeek.FRIDAY,
-    ];
-    const isWeekdays =
-      weekdays.every((day) => days.includes(day)) && days.length === 5;
-    if (isWeekdays) return t("days.weekdays");
-    // If weekend
-    const weekend = [DayOfWeek.SATURDAY, DayOfWeek.SUNDAY];
-    const isWeekend =
-      weekend.every((day) => days.includes(day)) && days.length === 2;
-    if (isWeekend) return t("days.weekend");
-    // Otherwise, list the days
-    return days.map((day) => t(`days.short.${day}`)).join(", ");
+  // Format days of week display for full table view - show individual day badges
+  const formatDayBadges = (days: DayOfWeek[]) => {
+    if (!days || days.length === 0) {
+      return (
+        <Text size="sm" c="dimmed">
+          -
+        </Text>
+      );
+    }
+
+    return (
+      <Group wrap="wrap" gap="xs">
+        {days.map((day) => (
+          <Badge key={day} size="sm" color="blue">
+            {t(`days.short.${day}`)}
+          </Badge>
+        ))}
+      </Group>
+    );
   };
 
   // Helper function to generate section name list
@@ -185,11 +174,9 @@ function MenuTableComponent({
         </Text>
       );
     }
-
     // Show only first 3 section names with a "+X more" if there are more than 3
     const sectionsToShow = menu.menuSections.slice(0, 3);
     const hasMoreSections = menu.menuSections.length > 3;
-
     return (
       <Group wrap="wrap" gap="xs">
         {sectionsToShow.map((sectionId) => {
@@ -231,7 +218,7 @@ function MenuTableComponent({
               <Text fw={500}>{menu.name}</Text>
             </td>
             <td style={{ width: 150, padding: "10px" }}>
-              <Badge>{formatDays(menu.activeDays)}</Badge>
+              {formatDayBadges(menu.activeDays)}
             </td>
             <td style={{ width: 150, padding: "10px" }}>
               {menu.startTime && menu.endTime ? (

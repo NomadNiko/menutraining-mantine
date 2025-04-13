@@ -1,6 +1,6 @@
 // src/components/menu-sections/MenuSectionCard.tsx
 "use client";
-import { Card, Text, Group, Stack, Button, Badge } from "@mantine/core";
+import { Card, Text, Group, Stack, Button, Badge, Box } from "@mantine/core";
 import { IconEdit, IconTrash, IconEye } from "@tabler/icons-react";
 import Link from "@/components/link";
 import { useTranslation } from "@/services/i18n/client";
@@ -19,6 +19,34 @@ export function MenuSectionCard({
 }: MenuSectionCardProps) {
   const { t } = useTranslation("restaurant-menu-sections");
 
+  // Helper function to generate item name list
+  const getItemsDisplay = () => {
+    if (!menuSection.items || menuSection.items.length === 0) {
+      return (
+        <Text size="sm" c="dimmed">
+          {t("noItems")}
+        </Text>
+      );
+    }
+    // Show only first 3 item names with a "+X more" if there are more than 3
+    const itemsToShow = menuSection.items.slice(0, 3);
+    const hasMoreItems = menuSection.items.length > 3;
+    return (
+      <Group wrap="wrap" gap="xs">
+        {itemsToShow.map((item, index) => (
+          <Badge key={index} size="sm" color="blue">
+            {item.name}
+          </Badge>
+        ))}
+        {hasMoreItems && (
+          <Badge size="sm" color="gray">
+            +{menuSection.items.length - 3} {t("table.more")}
+          </Badge>
+        )}
+      </Group>
+    );
+  };
+
   return (
     <Card shadow="sm" p="md" radius="md" withBorder mb="sm">
       <Stack gap="xs">
@@ -36,10 +64,13 @@ export function MenuSectionCard({
               {t("timeRange")}: {menuSection.startTime} - {menuSection.endTime}
             </Badge>
           )}
-          <Badge color="blue">
-            {t("items")}: {menuSection.items?.length || 0}
-          </Badge>
         </Group>
+        <Box>
+          <Text size="sm" fw={500} mb="xs">
+            {t("items")}:
+          </Text>
+          {getItemsDisplay()}
+        </Box>
       </Stack>
       <Group justify="flex-end" mt="md">
         {onView && (
