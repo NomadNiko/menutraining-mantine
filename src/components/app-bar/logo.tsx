@@ -21,7 +21,7 @@ const Logo = ({ isMobile = false }: LogoProps) => {
     : { base: "none", md: "flex" };
 
   // Height based on mobile or desktop
-  const logoHeight = isMobile ? 12 : 24;
+  const logoHeight = isMobile ? 12 : 16;
 
   return (
     <Anchor
