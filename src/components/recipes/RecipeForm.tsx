@@ -40,12 +40,13 @@ import { Ingredient } from "@/services/api/types/ingredient";
 import { useGetIngredientsService } from "@/services/api/services/ingredients";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { useForm, FormProvider } from "react-hook-form";
+import { FileEntity } from "@/services/api/types/file-entity";
 
 // Define the form data type
 type RecipeFormData = {
   recipeName: string;
   recipeDescription?: string;
-  recipeImageUrl?: any;
+  recipeImageUrl?: FileEntity | null;
   recipeServings: number;
   recipePrepTime: number;
   recipeTotalTime: number;
@@ -81,14 +82,6 @@ export function RecipeForm({
       recipeTotalTime: initialData.recipeTotalTime || 0,
     },
   });
-
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-    setValue,
-    watch,
-  } = methods;
 
   // Form state
   const [recipeName, setRecipeName] = useState(initialData.recipeName || "");

@@ -19,7 +19,6 @@ import { useTranslation } from "@/services/i18n/client";
 import { useGetIngredientsService } from "@/services/api/services/ingredients";
 import { Ingredient } from "@/services/api/types/ingredient";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
-import { useFormContext } from "react-hook-form";
 
 export interface StepIngredientItem {
   ingredientId: string;
@@ -43,7 +42,6 @@ export function StepIngredientForm({
   isLoading = false,
 }: StepIngredientFormProps) {
   const { t } = useTranslation("restaurant-recipes");
-  const formContext = useFormContext(); // Access the form context
 
   const [ingredientsList, setIngredientsList] = useState<Ingredient[]>([]);
   const [loading, setLoading] = useState(false);
