@@ -30,7 +30,7 @@ import { Equipment } from "@/services/api/types/equipment";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { useResponsive } from "@/services/responsive/use-responsive";
 import { useRecipeCache } from "./RecipeDataPreloader";
-import { IconClock, IconToolsKitchen3, IconUsers } from "@tabler/icons-react";
+import { IconClock, IconToolsKitchen, IconUsers } from "@tabler/icons-react";
 
 interface RecipeViewModalProps {
   recipeId: string | null;
@@ -287,7 +287,7 @@ export function RecipeViewModal({
                           {step.equipment.map((eq) => (
                             <Badge
                               key={eq.id}
-                              leftSection={<IconToolsKitchen3 size={14} />}
+                              leftSection={<IconToolsKitchen size={14} />}
                             >
                               {eq.equipmentName}
                             </Badge>

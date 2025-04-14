@@ -19,6 +19,7 @@ import { useTranslation } from "@/services/i18n/client";
 import { useGetIngredientsService } from "@/services/api/services/ingredients";
 import { Ingredient } from "@/services/api/types/ingredient";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
+import { useFormContext } from "react-hook-form";
 
 export interface StepIngredientItem {
   ingredientId: string;
@@ -42,6 +43,8 @@ export function StepIngredientForm({
   isLoading = false,
 }: StepIngredientFormProps) {
   const { t } = useTranslation("restaurant-recipes");
+  const formContext = useFormContext(); // Access the form context
+
   const [ingredientsList, setIngredientsList] = useState<Ingredient[]>([]);
   const [loading, setLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
@@ -108,15 +111,12 @@ export function StepIngredientForm({
   // Add ingredient to the list
   const handleAddIngredient = () => {
     if (!selectedIngredientId) return;
-
     const newIngredient: StepIngredientItem = {
       ingredientId: selectedIngredientId,
       ingredientMeasure: ingredientMeasure,
       ingredientUnits: ingredientUnits,
     };
-
     onAddIngredient(newIngredient);
-
     // Reset form
     setSelectedIngredientId("");
     setIngredientMeasure("");
@@ -134,7 +134,6 @@ export function StepIngredientForm({
       <Text fw={500} mb="md">
         {t("form.ingredients")}
       </Text>
-
       {/* List of added ingredients */}
       {ingredients.length > 0 && (
         <Stack mb="xl">
@@ -158,7 +157,6 @@ export function StepIngredientForm({
           ))}
         </Stack>
       )}
-
       {/* Form to add new ingredients */}
       <Stack>
         <Text size="sm" fw={500}>

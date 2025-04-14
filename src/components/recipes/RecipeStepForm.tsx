@@ -22,7 +22,7 @@ import { FileEntity } from "@/services/api/types/file-entity";
 import { Equipment } from "@/services/api/types/equipment";
 import { useGetEquipmentService } from "@/services/api/services/equipment";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
-import { useForm, FormProvider } from "react-hook-form"; // Add this import
+import { useForm, FormProvider } from "react-hook-form";
 
 export interface RecipeStep {
   stepText: string;
@@ -123,7 +123,7 @@ export function RecipeStepForm({
       stepText,
       stepEquipment,
       stepIngredientItems: stepIngredients,
-      stepImageUrl: null, // Set to null as we're not tracking image state
+      stepImageUrl: methods.getValues("stepImageUrl"), // Use the form value for the image
     };
     onSave(step);
   };

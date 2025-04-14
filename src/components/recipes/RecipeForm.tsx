@@ -39,6 +39,17 @@ import { RecipeStep, RecipeStepForm } from "./RecipeStepForm";
 import { Ingredient } from "@/services/api/types/ingredient";
 import { useGetIngredientsService } from "@/services/api/services/ingredients";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
+import { useForm, FormProvider } from "react-hook-form";
+
+// Define the form data type
+type RecipeFormData = {
+  recipeName: string;
+  recipeDescription?: string;
+  recipeImageUrl?: any;
+  recipeServings: number;
+  recipePrepTime: number;
+  recipeTotalTime: number;
+};
 
 interface RecipeFormProps {
   restaurantId: string;
@@ -59,12 +70,31 @@ export function RecipeForm({
 }: RecipeFormProps) {
   const { t } = useTranslation("restaurant-recipes");
 
+  // Initialize form with React Hook Form
+  const methods = useForm<RecipeFormData>({
+    defaultValues: {
+      recipeName: initialData.recipeName || "",
+      recipeDescription: initialData.recipeDescription || "",
+      recipeImageUrl: null,
+      recipeServings: initialData.recipeServings || 1,
+      recipePrepTime: initialData.recipePrepTime || 0,
+      recipeTotalTime: initialData.recipeTotalTime || 0,
+    },
+  });
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+    setValue,
+    watch,
+  } = methods;
+
   // Form state
   const [recipeName, setRecipeName] = useState(initialData.recipeName || "");
   const [recipeDescription, setRecipeDescription] = useState(
     initialData.recipeDescription || ""
   );
-  // Removed recipeImage state since it's not being used
   const [recipeServings, setRecipeServings] = useState(
     initialData.recipeServings || 1
   );
@@ -100,7 +130,6 @@ export function RecipeForm({
           stepImageUrl: null, // We don't have initial image in the provided data
         })
       );
-
       // Sort by order if available
       initialSteps.sort((a, b) => {
         const orderA =
@@ -111,7 +140,6 @@ export function RecipeForm({
             ?.order || 0;
         return orderA - orderB;
       });
-
       setSteps(initialSteps);
     }
   }, [initialData.recipeSteps]);
@@ -134,7 +162,6 @@ export function RecipeForm({
         console.error("Error fetching ingredients:", error);
       }
     };
-
     fetchIngredients();
   }, [getIngredientsService, restaurantId]);
 
@@ -167,11 +194,9 @@ export function RecipeForm({
   // Handle drag and drop reordering
   const onDragEnd = (result: DropResult) => {
     if (!result.destination) return;
-
     const reorderedSteps = Array.from(steps);
     const [reorderedItem] = reorderedSteps.splice(result.source.index, 1);
     reorderedSteps.splice(result.destination.index, 0, reorderedItem);
-
     setSteps(reorderedSteps);
   };
 
@@ -182,7 +207,7 @@ export function RecipeForm({
   };
 
   // Final form submission
-  const handleSubmit = async () => {
+  const onFormSubmit = async () => {
     // Basic validation
     if (!recipeName.trim()) {
       setNameError(t("form.validation.nameRequired"));
@@ -190,7 +215,6 @@ export function RecipeForm({
     } else {
       setNameError("");
     }
-
     if (steps.length === 0) {
       return; // No submission without steps
     }
@@ -222,235 +246,223 @@ export function RecipeForm({
   };
 
   return (
-    <Stack gap="md">
-      <Title order={4}>
-        {isEdit ? t("editTitle") : t("createTitle")}{" "}
-        {t("forRestaurant", { restaurantName })}
-      </Title>
-
-      {/* Basic Recipe Info Section */}
-      <TextInput
-        label={t("form.name")}
-        value={recipeName}
-        onChange={(e) => setRecipeName(e.currentTarget.value)}
-        required
-        error={nameError}
-        disabled={isLoading}
-      />
-
-      <Textarea
-        label={t("form.description")}
-        value={recipeDescription}
-        onChange={(e) => setRecipeDescription(e.currentTarget.value)}
-        disabled={isLoading}
-      />
-
-      <Box>
-        <Text mb="xs">{t("form.recipeImage")}</Text>
-        <FormAvatarInput name="recipeImageUrl" testId="recipe-image" />
-      </Box>
-
-      <Group grow>
-        <NumberInput
-          label={t("form.servings")}
-          value={recipeServings}
-          onChange={(value) => setRecipeServings(Number(value))}
-          min={1}
+    <FormProvider {...methods}>
+      <Stack gap="md">
+        <Title order={4}>
+          {isEdit ? t("editTitle") : t("createTitle")}{" "}
+          {t("forRestaurant", { restaurantName })}
+        </Title>
+        {/* Basic Recipe Info Section */}
+        <TextInput
+          label={t("form.name")}
+          value={recipeName}
+          onChange={(e) => setRecipeName(e.currentTarget.value)}
           required
+          error={nameError}
           disabled={isLoading}
         />
-
-        <NumberInput
-          label={t("form.prepTime")}
-          value={recipePrepTime}
-          onChange={(value) => setRecipePrepTime(Number(value))}
-          min={0}
-          required
+        <Textarea
+          label={t("form.description")}
+          value={recipeDescription}
+          onChange={(e) => setRecipeDescription(e.currentTarget.value)}
           disabled={isLoading}
-          suffix=" min"
         />
-
-        <NumberInput
-          label={t("form.totalTime")}
-          value={recipeTotalTime}
-          onChange={(value) => setRecipeTotalTime(Number(value))}
-          min={0}
-          required
-          disabled={isLoading}
-          suffix=" min"
-        />
-      </Group>
-
-      {/* Steps Section */}
-      <Box>
-        <Group justify="space-between" mb="md">
-          <Text fw={500}>{t("form.steps")}</Text>
-          <Button
-            leftSection={<IconPlus size={16} />}
-            onClick={() => setIsAddingStep(true)}
-            disabled={isLoading || isAddingStep || editingStepIndex !== null}
-            variant="light"
-          >
-            {t("form.addStep")}
-          </Button>
+        <Box>
+          <Text mb="xs">{t("form.recipeImage")}</Text>
+          <FormAvatarInput name="recipeImageUrl" testId="recipe-image" />
+        </Box>
+        <Group grow>
+          <NumberInput
+            label={t("form.servings")}
+            value={recipeServings}
+            onChange={(value) => setRecipeServings(Number(value))}
+            min={1}
+            required
+            disabled={isLoading}
+          />
+          <NumberInput
+            label={t("form.prepTime")}
+            value={recipePrepTime}
+            onChange={(value) => setRecipePrepTime(Number(value))}
+            min={0}
+            required
+            disabled={isLoading}
+            suffix=" min"
+          />
+          <NumberInput
+            label={t("form.totalTime")}
+            value={recipeTotalTime}
+            onChange={(value) => setRecipeTotalTime(Number(value))}
+            min={0}
+            required
+            disabled={isLoading}
+            suffix=" min"
+          />
         </Group>
-
-        {/* Steps List */}
-        {steps.length === 0 ? (
-          <Text c="dimmed" ta="center" mb="md">
-            {t("form.noSteps")}
-          </Text>
-        ) : (
-          <DragDropContext onDragEnd={onDragEnd}>
-            <Droppable droppableId="steps">
-              {(provided) => (
-                <div {...provided.droppableProps} ref={provided.innerRef}>
-                  {steps.map((step, index) => (
-                    <Draggable
-                      key={`step-${index}`}
-                      draggableId={`step-${index}`}
-                      index={index}
-                      isDragDisabled={isLoading}
-                    >
-                      {(provided) => (
-                        <Card
-                          withBorder
-                          mb="md"
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                        >
-                          <Card.Section p="xs" bg="gray.1">
-                            <Group justify="space-between">
-                              <Group>
-                                <div {...provided.dragHandleProps}>
-                                  <IconGripVertical size={18} />
-                                </div>
-                                <Text fw={500}>
-                                  {t("form.step")} #{index + 1}
-                                </Text>
-                              </Group>
-                              <Group gap="xs">
-                                <ActionIcon
-                                  color="blue"
-                                  onClick={() => handleEditStep(index)}
-                                  disabled={
-                                    isLoading ||
-                                    editingStepIndex !== null ||
-                                    isAddingStep
-                                  }
-                                >
-                                  <IconEdit size={16} />
-                                </ActionIcon>
-                                <ActionIcon
-                                  color="red"
-                                  onClick={() => handleRemoveStep(index)}
-                                  disabled={isLoading}
-                                >
-                                  <IconTrash size={16} />
-                                </ActionIcon>
-                              </Group>
-                            </Group>
-                          </Card.Section>
-
-                          <Stack p="md" gap="sm">
-                            <Text>{step.stepText}</Text>
-
-                            {step.stepEquipment.length > 0 && (
-                              <Group>
-                                <Text fw={500} size="sm">
-                                  {t("form.equipment")}:
-                                </Text>
-                                <Text size="sm">
-                                  {step.stepEquipment.length}{" "}
-                                  {t("form.equipmentItems")}
-                                </Text>
-                              </Group>
-                            )}
-
-                            {step.stepIngredientItems.length > 0 && (
-                              <Group>
-                                <Text fw={500} size="sm">
-                                  {t("form.ingredients")}:
-                                </Text>
-                                {step.stepIngredientItems.map((ing, idx) => (
-                                  <Text key={idx} size="sm">
-                                    {ing.ingredientUnits}{" "}
-                                    {ing.ingredientMeasure}{" "}
-                                    {getIngredientName(ing.ingredientId)}
-                                    {idx < step.stepIngredientItems.length - 1
-                                      ? ", "
-                                      : ""}
+        {/* Steps Section */}
+        <Box>
+          <Group justify="space-between" mb="md">
+            <Text fw={500}>{t("form.steps")}</Text>
+            <Button
+              leftSection={<IconPlus size={16} />}
+              onClick={() => setIsAddingStep(true)}
+              disabled={isLoading || isAddingStep || editingStepIndex !== null}
+              variant="light"
+            >
+              {t("form.addStep")}
+            </Button>
+          </Group>
+          {/* Steps List */}
+          {steps.length === 0 ? (
+            <Text c="dimmed" ta="center" mb="md">
+              {t("form.noSteps")}
+            </Text>
+          ) : (
+            <DragDropContext onDragEnd={onDragEnd}>
+              <Droppable droppableId="steps">
+                {(provided) => (
+                  <div {...provided.droppableProps} ref={provided.innerRef}>
+                    {steps.map((step, index) => (
+                      <Draggable
+                        key={`step-${index}`}
+                        draggableId={`step-${index}`}
+                        index={index}
+                        isDragDisabled={isLoading}
+                      >
+                        {(provided) => (
+                          <Card
+                            withBorder
+                            mb="md"
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                          >
+                            <Card.Section p="xs" bg="gray.1">
+                              <Group justify="space-between">
+                                <Group>
+                                  <div {...provided.dragHandleProps}>
+                                    <IconGripVertical size={18} />
+                                  </div>
+                                  <Text fw={500}>
+                                    {t("form.step")} #{index + 1}
                                   </Text>
-                                ))}
+                                </Group>
+                                <Group gap="xs">
+                                  <ActionIcon
+                                    color="blue"
+                                    onClick={() => handleEditStep(index)}
+                                    disabled={
+                                      isLoading ||
+                                      editingStepIndex !== null ||
+                                      isAddingStep
+                                    }
+                                  >
+                                    <IconEdit size={16} />
+                                  </ActionIcon>
+                                  <ActionIcon
+                                    color="red"
+                                    onClick={() => handleRemoveStep(index)}
+                                    disabled={isLoading}
+                                  >
+                                    <IconTrash size={16} />
+                                  </ActionIcon>
+                                </Group>
                               </Group>
-                            )}
-                          </Stack>
-                        </Card>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </DragDropContext>
-        )}
-      </Box>
-
-      {/* Add Step Modal */}
-      <Modal
-        opened={isAddingStep}
-        onClose={() => setIsAddingStep(false)}
-        title={t("form.addStep")}
-        size="lg"
-      >
-        <RecipeStepForm
-          restaurantId={restaurantId}
-          onSave={handleAddStep}
-          onCancel={() => setIsAddingStep(false)}
-          isLoading={isLoading}
-        />
-      </Modal>
-
-      {/* Edit Step Modal */}
-      <Modal
-        opened={editingStepIndex !== null}
-        onClose={() => setEditingStepIndex(null)}
-        title={t("form.editStep")}
-        size="lg"
-      >
-        {editingStepIndex !== null && (
+                            </Card.Section>
+                            <Stack p="md" gap="sm">
+                              <Text>{step.stepText}</Text>
+                              {step.stepEquipment.length > 0 && (
+                                <Group>
+                                  <Text fw={500} size="sm">
+                                    {t("form.equipment")}:
+                                  </Text>
+                                  <Text size="sm">
+                                    {step.stepEquipment.length}{" "}
+                                    {t("form.equipmentItems")}
+                                  </Text>
+                                </Group>
+                              )}
+                              {step.stepIngredientItems.length > 0 && (
+                                <Group>
+                                  <Text fw={500} size="sm">
+                                    {t("form.ingredients")}:
+                                  </Text>
+                                  {step.stepIngredientItems.map((ing, idx) => (
+                                    <Text key={idx} size="sm">
+                                      {ing.ingredientUnits}{" "}
+                                      {ing.ingredientMeasure}{" "}
+                                      {getIngredientName(ing.ingredientId)}
+                                      {idx < step.stepIngredientItems.length - 1
+                                        ? ", "
+                                        : ""}
+                                    </Text>
+                                  ))}
+                                </Group>
+                              )}
+                            </Stack>
+                          </Card>
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
+          )}
+        </Box>
+        {/* Add Step Modal */}
+        <Modal
+          opened={isAddingStep}
+          onClose={() => setIsAddingStep(false)}
+          title={t("form.addStep")}
+          size="lg"
+        >
           <RecipeStepForm
             restaurantId={restaurantId}
-            initialStep={steps[editingStepIndex]}
-            onSave={handleUpdateStep}
-            onCancel={() => setEditingStepIndex(null)}
-            isEdit={true}
+            onSave={handleAddStep}
+            onCancel={() => setIsAddingStep(false)}
             isLoading={isLoading}
           />
-        )}
-      </Modal>
-
-      {/* Submit/Cancel Buttons */}
-      <Group mt="xl">
-        <Button
-          type="submit"
-          onClick={handleSubmit}
-          loading={isLoading}
-          disabled={steps.length === 0 || !recipeName.trim()}
+        </Modal>
+        {/* Edit Step Modal */}
+        <Modal
+          opened={editingStepIndex !== null}
+          onClose={() => setEditingStepIndex(null)}
+          title={t("form.editStep")}
+          size="lg"
         >
-          {isEdit ? t("form.update") : t("form.submit")}
-        </Button>
-        <Button
-          variant="light"
-          color="red"
-          component={Link}
-          href="/restaurant/recipes"
-          disabled={isLoading}
-        >
-          {t("form.cancel")}
-        </Button>
-      </Group>
-    </Stack>
+          {editingStepIndex !== null && (
+            <RecipeStepForm
+              restaurantId={restaurantId}
+              initialStep={steps[editingStepIndex]}
+              onSave={handleUpdateStep}
+              onCancel={() => setEditingStepIndex(null)}
+              isEdit={true}
+              isLoading={isLoading}
+            />
+          )}
+        </Modal>
+        {/* Submit/Cancel Buttons */}
+        <Group mt="xl">
+          <Button
+            type="submit"
+            onClick={onFormSubmit}
+            loading={isLoading}
+            disabled={steps.length === 0 || !recipeName.trim()}
+          >
+            {isEdit ? t("form.update") : t("form.submit")}
+          </Button>
+          <Button
+            variant="light"
+            color="red"
+            component={Link}
+            href="/restaurant/recipes"
+            disabled={isLoading}
+          >
+            {t("form.cancel")}
+          </Button>
+        </Group>
+      </Stack>
+    </FormProvider>
   );
 }
