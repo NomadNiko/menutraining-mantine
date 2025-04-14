@@ -11,7 +11,7 @@ import {
   Avatar,
 } from "@mantine/core";
 import { Button } from "@mantine/core";
-import React, { useCallback, useState } from "react";
+import React, { ReactNode, useCallback, useState } from "react";
 import { useDropzone } from "react-dropzone";
 import {
   Controller,
@@ -29,6 +29,7 @@ type AvatarInputProps = {
   value?: FileEntity;
   disabled?: boolean;
   testId?: string;
+  label?: ReactNode;
 };
 
 function AvatarInput(props: AvatarInputProps) {

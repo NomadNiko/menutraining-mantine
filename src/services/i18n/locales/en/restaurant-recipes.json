@@ -1,0 +1,120 @@
+{
+  "title": "Recipes",
+  "createTitle": "Create Recipe",
+  "editTitle": "Edit Recipe",
+  "forRestaurant": "for {{restaurantName}}",
+  "noRestaurantSelected": "No restaurant selected. Please select a restaurant first.",
+  "noRecipes": "No recipes found",
+  "create": "Create Recipe",
+  "loadMore": "Load More",
+  "loading": "Loading...",
+  "showingResults": "Showing {{count}} recipes",
+
+  "search": {
+    "placeholder": "Search recipes..."
+  },
+
+  "filters": {
+    "ingredients": "Filter by Ingredients",
+    "selectIngredients": "Select ingredients",
+    "equipment": "Filter by Equipment",
+    "selectEquipment": "Select equipment",
+    "maxPrepTime": "Maximum Preparation Time",
+    "reset": "Reset Filters"
+  },
+
+  "table": {
+    "name": "Name",
+    "servings": "Servings",
+    "prepTime": "Prep Time",
+    "totalTime": "Total Time",
+    "steps": "Steps",
+    "actions": "Actions",
+    "more": "more"
+  },
+
+  "actions": {
+    "view": "View",
+    "edit": "Edit",
+    "delete": "Delete"
+  },
+
+  "form": {
+    "name": "Recipe Name",
+    "description": "Description",
+    "recipeImage": "Recipe Image",
+    "servings": "Number of Servings",
+    "prepTime": "Preparation Time (minutes)",
+    "totalTime": "Total Time (minutes)",
+    "steps": "Recipe Steps",
+    "noSteps": "No steps added yet",
+    "step": "Step",
+    "stepText": "Step Instructions",
+    "stepImage": "Step Image (optional)",
+    "equipment": "Equipment",
+    "searchEquipment": "Search equipment",
+    "addEquipment": "Add Equipment",
+    "ingredients": "Ingredients",
+    "ingredientName": "Ingredient",
+    "searchIngredients": "Search ingredients",
+    "measureType": "Measure Type",
+    "measurePlaceholder": "e.g., grams, cups",
+    "quantity": "Quantity",
+    "addIngredient": "Add Ingredient",
+    "addStep": "Add Step",
+    "submit": "Create Recipe",
+    "update": "Update Recipe",
+    "cancel": "Cancel",
+
+    "validation": {
+      "nameRequired": "Recipe name is required",
+      "servingsRequired": "Number of servings is required",
+      "minServings": "Must have at least 1 serving",
+      "prepTimeRequired": "Preparation time is required",
+      "totalTimeRequired": "Total time is required",
+      "minTime": "Time cannot be negative",
+      "stepTextRequired": "Step instructions are required"
+    }
+  },
+
+  "prepTime": "Prep Time",
+  "totalTime": "Total Time",
+  "servings": "Servings",
+  "steps": "Steps",
+  "minutes": "minutes",
+  "min": "min",
+
+  "viewRecipe": {
+    "title": "Recipe Details",
+    "restaurant": "Restaurant",
+    "servings": "Servings",
+    "prepTime": "Prep Time",
+    "totalTime": "Total Time",
+    "steps": "Recipe Steps",
+    "step": "Step",
+    "ingredients": "Ingredients",
+    "equipment": "Equipment",
+    "previousStep": "Previous",
+    "nextStep": "Next",
+    "selectRecipe": "Select a recipe to view details"
+  },
+
+  "deleteConfirmTitle": "Delete Recipe",
+  "deleteConfirmMessage": "Are you sure you want to delete the recipe '{{name}}'? This action cannot be undone.",
+  "deleteSuccess": "Recipe deleted successfully",
+  "deleteError": "Error deleting recipe",
+  "createSuccess": "Recipe created successfully",
+  "createError": "Error creating recipe",
+  "updateSuccess": "Recipe updated successfully",
+  "updateError": "Error updating recipe",
+  "fetchError": "Error loading recipe data",
+  "unauthorized": "You don't have permission to access this recipe",
+  "recipeNotFound": "Recipe not found",
+
+  "errors": {
+    "recipeNotFound": "Recipe not found",
+    "loadingFailed": "Failed to load recipe data"
+  },
+
+  "filter": "Filters"
+}

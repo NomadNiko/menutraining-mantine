@@ -1,0 +1,8 @@
+{
+  "title": "Recipe Management",
+  "selectRestaurantInstruction": "Select a restaurant to manage its recipes. You'll be redirected to the recipes page for the selected restaurant.",
+  "searchRestaurants": "Search restaurants...",
+  "noRestaurantsFound": "No restaurants found matching your search.",
+  "noRestaurants": "No restaurants available.",
+  "manageRecipes": "Manage Recipes"
+}
