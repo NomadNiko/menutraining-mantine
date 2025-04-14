@@ -22,6 +22,7 @@ import { FileEntity } from "@/services/api/types/file-entity";
 import { Equipment } from "@/services/api/types/equipment";
 import { useGetEquipmentService } from "@/services/api/services/equipment";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
+import { useForm, FormProvider } from "react-hook-form"; // Add this import
 
 export interface RecipeStep {
   stepText: string;
@@ -49,6 +50,16 @@ export function RecipeStepForm({
 }: RecipeStepFormProps) {
   const { t } = useTranslation("restaurant-recipes");
 
+  // Initialize form with React Hook Form
+  const methods = useForm<RecipeStep>({
+    defaultValues: {
+      stepText: initialStep?.stepText || "",
+      stepEquipment: initialStep?.stepEquipment || [],
+      stepIngredientItems: initialStep?.stepIngredientItems || [],
+      stepImageUrl: initialStep?.stepImageUrl || null,
+    },
+  });
+
   // Initialize form state
   const [stepText, setStepText] = useState(initialStep?.stepText || "");
   const [stepEquipment, setStepEquipment] = useState<string[]>(
@@ -57,7 +68,6 @@ export function RecipeStepForm({
   const [stepIngredients, setStepIngredients] = useState<StepIngredientItem[]>(
     initialStep?.stepIngredientItems || []
   );
-  // Removed stepImage state since it's not being used
 
   // Equipment data for selection
   const [equipmentList, setEquipmentList] = useState<Equipment[]>([]);
@@ -80,7 +90,6 @@ export function RecipeStepForm({
         console.error("Error fetching equipment:", error);
       }
     };
-
     fetchEquipment();
   }, [getEquipmentService]);
 
@@ -110,14 +119,12 @@ export function RecipeStepForm({
   // Form submission
   const handleSave = () => {
     if (!stepText.trim()) return;
-
     const step: RecipeStep = {
       stepText,
       stepEquipment,
       stepIngredientItems: stepIngredients,
       stepImageUrl: null, // Set to null as we're not tracking image state
     };
-
     onSave(step);
   };
 
@@ -134,105 +141,103 @@ export function RecipeStepForm({
   }));
 
   return (
-    <Card withBorder p="lg">
-      <Stack gap="md">
-        <Text fw={500} size="lg">
-          {isEdit ? t("form.editStep") : t("form.addStep")}
-        </Text>
-
-        <Textarea
-          label={t("form.stepText")}
-          value={stepText}
-          onChange={(e) => setStepText(e.currentTarget.value)}
-          minRows={3}
-          required
-          disabled={isLoading}
-        />
-
-        <Box>
-          <Text mb="xs">{t("form.stepImage")}</Text>
-          <FormAvatarInput name="stepImageUrl" testId="step-image" />
-        </Box>
-
-        {/* Equipment Section */}
-        <Paper p="md" withBorder>
-          <Text fw={500} mb="md">
-            {t("form.equipment")}
+    <FormProvider {...methods}>
+      <Card withBorder p="lg">
+        <Stack gap="md">
+          <Text fw={500} size="lg">
+            {isEdit ? t("form.editStep") : t("form.addStep")}
           </Text>
-
-          {/* List of added equipment */}
-          {stepEquipment.length > 0 && (
-            <Stack mb="xl">
-              <Text size="sm" fw={500}>
-                {t("form.addedEquipment")}:
-              </Text>
-              {stepEquipment.map((equipmentId, index) => (
-                <Group key={index} justify="space-between">
-                  <Badge size="lg" radius="sm">
-                    {getEquipmentName(equipmentId)}
-                  </Badge>
-                  <ActionIcon
-                    color="red"
-                    onClick={() => handleRemoveEquipment(index)}
-                    disabled={isLoading}
-                  >
-                    <IconTrash size={16} />
-                  </ActionIcon>
-                </Group>
-              ))}
-            </Stack>
-          )}
-
-          {/* Add equipment form */}
-          <Group align="flex-end">
-            <Select
-              label={t("form.equipmentName")}
-              placeholder={t("form.searchEquipment")}
-              data={equipmentOptions}
-              searchable
-              clearable
-              value={selectedEquipmentId}
-              onChange={(value) => setSelectedEquipmentId(value || "")}
-              style={{ flex: 1 }}
-              disabled={isLoading}
-            />
+          <Textarea
+            label={t("form.stepText")}
+            value={stepText}
+            onChange={(e) => setStepText(e.currentTarget.value)}
+            minRows={3}
+            required
+            disabled={isLoading}
+          />
+          <Box>
+            <Text mb="xs">{t("form.stepImage")}</Text>
+            <FormAvatarInput name="stepImageUrl" testId="step-image" />
+          </Box>
+          {/* Equipment Section */}
+          <Paper p="md" withBorder>
+            <Text fw={500} mb="md">
+              {t("form.equipment")}
+            </Text>
+            {/* List of added equipment */}
+            {stepEquipment.length > 0 && (
+              <Stack mb="xl">
+                <Text size="sm" fw={500}>
+                  {t("form.addedEquipment")}:
+                </Text>
+                {stepEquipment.map((equipmentId, index) => (
+                  <Group key={index} justify="space-between">
+                    <Badge size="lg" radius="sm">
+                      {getEquipmentName(equipmentId)}
+                    </Badge>
+                    <ActionIcon
+                      color="red"
+                      onClick={() => handleRemoveEquipment(index)}
+                      disabled={isLoading}
+                    >
+                      <IconTrash size={16} />
+                    </ActionIcon>
+                  </Group>
+                ))}
+              </Stack>
+            )}
+            {/* Add equipment form */}
+            <Group align="flex-end">
+              <Select
+                label={t("form.equipmentName")}
+                placeholder={t("form.searchEquipment")}
+                data={equipmentOptions}
+                searchable
+                clearable
+                value={selectedEquipmentId}
+                onChange={(value) => setSelectedEquipmentId(value || "")}
+                style={{ flex: 1 }}
+                disabled={isLoading}
+              />
+              <Button
+                leftSection={<IconPlus size={16} />}
+                onClick={handleAddEquipment}
+                variant="light"
+                disabled={isLoading || !selectedEquipmentId}
+              >
+                {t("form.addEquipment")}
+              </Button>
+            </Group>
+          </Paper>
+          {/* Ingredients Section */}
+          <StepIngredientForm
+            restaurantId={restaurantId}
+            ingredients={stepIngredients}
+            onAddIngredient={handleAddIngredient}
+            onRemoveIngredient={handleRemoveIngredient}
+            isLoading={isLoading}
+          />
+          {/* Submit/Cancel Buttons */}
+          <Group mt="md">
             <Button
-              leftSection={<IconPlus size={16} />}
-              onClick={handleAddEquipment}
-              variant="light"
-              disabled={isLoading || !selectedEquipmentId}
+              onClick={handleSave}
+              disabled={isLoading || !stepText.trim()}
             >
-              {t("form.addEquipment")}
+              {isEdit ? t("form.updateStep") : t("form.addStep")}
             </Button>
+            {onCancel && (
+              <Button
+                variant="light"
+                color="gray"
+                onClick={onCancel}
+                disabled={isLoading}
+              >
+                {t("form.cancel")}
+              </Button>
+            )}
           </Group>
-        </Paper>
-
-        {/* Ingredients Section */}
-        <StepIngredientForm
-          restaurantId={restaurantId}
-          ingredients={stepIngredients}
-          onAddIngredient={handleAddIngredient}
-          onRemoveIngredient={handleRemoveIngredient}
-          isLoading={isLoading}
-        />
-
-        {/* Submit/Cancel Buttons */}
-        <Group mt="md">
-          <Button onClick={handleSave} disabled={isLoading || !stepText.trim()}>
-            {isEdit ? t("form.updateStep") : t("form.addStep")}
-          </Button>
-          {onCancel && (
-            <Button
-              variant="light"
-              color="gray"
-              onClick={onCancel}
-              disabled={isLoading}
-            >
-              {t("form.cancel")}
-            </Button>
-          )}
-        </Group>
-      </Stack>
-    </Card>
+        </Stack>
+      </Card>
+    </FormProvider>
   );
 }
