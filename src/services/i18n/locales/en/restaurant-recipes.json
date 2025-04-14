@@ -9,11 +9,10 @@
   "loadMore": "Load More",
   "loading": "Loading...",
   "showingResults": "Showing {{count}} recipes",
-
   "search": {
     "placeholder": "Search recipes..."
   },
-
+  "filter": "Filters",
   "filters": {
     "ingredients": "Filter by Ingredients",
     "selectIngredients": "Select ingredients",
@@ -22,7 +21,6 @@
     "maxPrepTime": "Maximum Preparation Time",
     "reset": "Reset Filters"
   },
-
   "table": {
     "name": "Name",
     "servings": "Servings",
@@ -32,13 +30,11 @@
     "actions": "Actions",
     "more": "more"
   },
-
   "actions": {
     "view": "View",
     "edit": "Edit",
     "delete": "Delete"
   },
-
   "form": {
     "name": "Recipe Name",
     "description": "Description",
@@ -52,9 +48,14 @@
     "stepText": "Step Instructions",
     "stepImage": "Step Image (optional)",
     "equipment": "Equipment",
+    "equipmentItems": "equipment items",
+    "addedEquipment": "Added Equipment",
+    "equipmentName": "Equipment Name",
     "searchEquipment": "Search equipment",
     "addEquipment": "Add Equipment",
     "ingredients": "Ingredients",
+    "addedIngredients": "Added Ingredients",
+    "addNewIngredient": "Add New Ingredient",
     "ingredientName": "Ingredient",
     "searchIngredients": "Search ingredients",
     "measureType": "Measure Type",
@@ -62,10 +63,11 @@
     "quantity": "Quantity",
     "addIngredient": "Add Ingredient",
     "addStep": "Add Step",
+    "editStep": "Edit Step",
+    "updateStep": "Update Step",
     "submit": "Create Recipe",
     "update": "Update Recipe",
     "cancel": "Cancel",
-
     "validation": {
       "nameRequired": "Recipe name is required",
       "servingsRequired": "Number of servings is required",
@@ -76,14 +78,12 @@
       "stepTextRequired": "Step instructions are required"
     }
   },
-
   "prepTime": "Prep Time",
   "totalTime": "Total Time",
   "servings": "Servings",
   "steps": "Steps",
   "minutes": "minutes",
   "min": "min",
-
   "viewRecipe": {
     "title": "Recipe Details",
     "restaurant": "Restaurant",
@@ -98,7 +98,6 @@
     "nextStep": "Next",
     "selectRecipe": "Select a recipe to view details"
   },
-
   "deleteConfirmTitle": "Delete Recipe",
   "deleteConfirmMessage": "Are you sure you want to delete the recipe '{{name}}'? This action cannot be undone.",
   "deleteSuccess": "Recipe deleted successfully",
@@ -110,11 +109,8 @@
   "fetchError": "Error loading recipe data",
   "unauthorized": "You don't have permission to access this recipe",
   "recipeNotFound": "Recipe not found",
-
   "errors": {
     "recipeNotFound": "Recipe not found",
     "loadingFailed": "Failed to load recipe data"
-  },
-
-  "filter": "Filters"
+  }
 }
