@@ -129,6 +129,11 @@ const createNavigationConfig = (): NavigationItem[] => [
         path: "/restaurant/menus",
         roles: [RoleEnum.USER],
       },
+      {
+        label: "common:navigation.quiz",
+        path: "/restaurant/quiz",
+        roles: [RoleEnum.USER],
+      },
     ],
   },
 ];

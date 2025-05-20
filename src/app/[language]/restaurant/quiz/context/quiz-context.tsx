@@ -21,6 +21,8 @@ import useSelectedRestaurant from "@/services/restaurant/use-selected-restaurant
 
 // Storage key for quiz state
 const QUIZ_STATE_STORAGE_KEY = "restaurant_quiz_state";
+// Required number of questions for a complete quiz
+const REQUIRED_QUESTION_COUNT = 10;
 
 // Initial state
 const initialState: QuizState = {
@@ -28,7 +30,7 @@ const initialState: QuizState = {
   currentQuestionIndex: 0,
   userAnswers: {},
   score: 0,
-  totalQuestions: 10,
+  totalQuestions: REQUIRED_QUESTION_COUNT,
   inProgress: false,
   completed: false,
   loading: false,
@@ -51,7 +53,6 @@ type QuizAction =
 // Reducer
 function quizReducer(state: QuizState, action: QuizAction): QuizState {
   let newState: QuizState;
-
   switch (action.type) {
     case "START_QUIZ_LOADING":
       newState = {
@@ -59,7 +60,6 @@ function quizReducer(state: QuizState, action: QuizAction): QuizState {
         loading: true,
       };
       break;
-
     case "START_QUIZ_SUCCESS":
       newState = {
         ...initialState,
@@ -70,7 +70,6 @@ function quizReducer(state: QuizState, action: QuizAction): QuizState {
         error: action.payload.error || null,
       };
       break;
-
     case "START_QUIZ_ERROR":
       newState = {
         ...initialState,
@@ -78,7 +77,6 @@ function quizReducer(state: QuizState, action: QuizAction): QuizState {
         loading: false,
       };
       break;
-
     case "ANSWER_QUESTION":
       newState = {
         ...state,
@@ -88,12 +86,10 @@ function quizReducer(state: QuizState, action: QuizAction): QuizState {
         },
       };
       break;
-
     case "SUBMIT_ANSWER": {
       const { currentQuestionIndex, questions, userAnswers } = state;
       const currentQuestion = questions[currentQuestionIndex];
       const userAnswerIds = userAnswers[currentQuestionIndex] || [];
-
       // Calculate if the answer is correct (exact match of arrays)
       const isCorrect =
         userAnswerIds.length === currentQuestion.correctAnswerIds.length &&
@@ -103,10 +99,8 @@ function quizReducer(state: QuizState, action: QuizAction): QuizState {
         currentQuestion.correctAnswerIds.every((id) =>
           userAnswerIds.includes(id)
         );
-
       // Check if this was the last question
       const isLastQuestion = currentQuestionIndex === questions.length - 1;
-
       newState = {
         ...state,
         score: state.score + (isCorrect ? 1 : 0),
@@ -117,24 +111,19 @@ function quizReducer(state: QuizState, action: QuizAction): QuizState {
       };
       break;
     }
-
     case "RESET_QUIZ":
       newState = initialState;
       break;
-
     case "LOAD_SAVED_STATE":
       newState = action.payload;
       break;
-
     default:
       return state;
   }
-
   // Save state to localStorage
   if (typeof window !== "undefined") {
     localStorage.setItem(QUIZ_STATE_STORAGE_KEY, JSON.stringify(newState));
   }
-
   return newState;
 }
 
@@ -145,7 +134,6 @@ const QuizContext = createContext<QuizContextType | undefined>(undefined);
 export function QuizProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(quizReducer, initialState);
   const { selectedRestaurant } = useSelectedRestaurant();
-
   const getMenuItemsService = useGetMenuItemsService();
   const getIngredientsService = useGetIngredientsService();
   const getAllergiesService = useGetAllergiesService();
@@ -240,17 +228,27 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         allergiesMap[allergy.allergyId] = allergy;
       });
 
-      // Generate questions
+      // Generate questions - always request REQUIRED_QUESTION_COUNT
       const result = await generateQuizQuestions(
         {
           menuItems,
           ingredients,
           allergies: allergiesMap,
         },
-        10
+        REQUIRED_QUESTION_COUNT
       );
 
       console.log(`Generated ${result.questions.length} questions`);
+
+      if (result.questions.length === 0) {
+        throw new Error(result.error || "Failed to generate any questions");
+      }
+
+      if (result.questions.length < REQUIRED_QUESTION_COUNT) {
+        console.warn(
+          `Generated only ${result.questions.length} questions, which is less than the required ${REQUIRED_QUESTION_COUNT}`
+        );
+      }
 
       dispatch({
         type: "START_QUIZ_SUCCESS",

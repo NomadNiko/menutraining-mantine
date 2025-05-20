@@ -1,4 +1,3 @@
-// src/app/[language]/restaurant/quiz/page-content.tsx
 "use client";
 import {
   Container,
@@ -9,21 +8,22 @@ import {
   Text,
   Center,
   Alert,
-  Loader,
 } from "@mantine/core";
 import { IconInfoCircle } from "@tabler/icons-react";
 import { useTranslation } from "@/services/i18n/client";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { HighScoreBoard } from "./components/HighScoreBoard";
 import useSelectedRestaurant from "@/services/restaurant/use-selected-restaurant";
 import { useQuiz } from "./context/quiz-context";
+import { QuizLoaderModal } from "./components/QuizLoaderModal";
 
 function QuizLandingPage() {
   const { t } = useTranslation("restaurant-quiz");
   const router = useRouter();
   const { selectedRestaurant } = useSelectedRestaurant();
   const { state, startQuiz, resetQuiz } = useQuiz();
+  const [showLoadingModal, setShowLoadingModal] = useState(false);
 
   // Reset quiz when landing on this page
   useEffect(() => {
@@ -34,11 +34,14 @@ function QuizLandingPage() {
   }, [resetQuiz, state.inProgress, state.completed]);
 
   const handleStartQuiz = async () => {
+    setShowLoadingModal(true);
     const success = await startQuiz();
 
     // Only navigate if quiz was started successfully
     if (success) {
       router.push("/restaurant/quiz/question");
+    } else {
+      setShowLoadingModal(false);
     }
   };
 
@@ -49,24 +52,10 @@ function QuizLandingPage() {
     );
   };
 
-  if (state.loading) {
-    return (
-      <Container size="md">
-        <Center p="xl">
-          <Stack align="center">
-            <Loader size="xl" />
-            <Text>{t("quiz.loading")}</Text>
-          </Stack>
-        </Center>
-      </Container>
-    );
-  }
-
   return (
     <Container size="md">
       <Stack gap="xl" my="xl">
         <Title order={2}>{t("quiz.welcomeTitle")}</Title>
-
         {!selectedRestaurant ? (
           <Alert
             icon={<IconInfoCircle size={16} />}
@@ -88,10 +77,8 @@ function QuizLandingPage() {
                     {state.error}
                   </Alert>
                 )}
-
                 <Text size="lg">{t("quiz.description")}</Text>
                 <Text>{t("quiz.instructions")}</Text>
-
                 <Center>
                   {state.inProgress || state.completed ? (
                     <Stack gap="md">
@@ -120,6 +107,7 @@ function QuizLandingPage() {
                       size="lg"
                       color="blue"
                       data-testid="start-quiz-button"
+                      disabled={state.loading}
                     >
                       {t("quiz.startButton")}
                     </Button>
@@ -127,7 +115,6 @@ function QuizLandingPage() {
                 </Center>
               </Stack>
             </Paper>
-
             <Paper p="md" withBorder>
               <Stack gap="md">
                 <Title order={4}>{t("quiz.highScores")}</Title>
@@ -139,6 +126,12 @@ function QuizLandingPage() {
           </>
         )}
       </Stack>
+
+      {/* Custom loading modal with animation */}
+      <QuizLoaderModal
+        opened={showLoadingModal || state.loading}
+        message={t("quiz.preparingQuiz")}
+      />
     </Container>
   );
 }
