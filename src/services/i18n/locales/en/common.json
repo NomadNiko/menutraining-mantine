@@ -14,7 +14,11 @@
     "menuItems": "Menu Items",
     "menuSections": "Menu Sections",
     "menus": "Menus",
-    "equipment": "Equipment"
+    "recipes": "Recipes",
+    "equipment": "Equipment",
+    "admin": "Admin",
+    "food": "Food",
+    "menuGroup": "Menu"
   },
   "formInputs": {
     "avatarInput": {
