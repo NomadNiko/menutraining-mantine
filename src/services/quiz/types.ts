@@ -5,6 +5,7 @@ import { Allergy } from "@/services/api/types/allergy";
 
 export enum QuestionType {
   INGREDIENTS_IN_DISH = "ingredients_in_dish",
+  INGREDIENTS_WITH_ALLERGY = "ingredients_with_allergy", // New question type
   // Future question types will be added here
 }
 
