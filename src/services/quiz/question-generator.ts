@@ -20,7 +20,7 @@ import { shuffleArray } from "./generators/utils";
 
 /**
  * Generates questions for the quiz, ensuring exactly the requested number of questions
- * by reusing menu items if necessary.
+ * by reusing questions if necessary.
  */
 export async function generateQuizQuestions(
   restaurantData: RestaurantData,
@@ -39,6 +39,7 @@ export async function generateQuizQuestions(
     }
 
     const questions: QuizQuestion[] = [];
+    const allGeneratedQuestions: QuizQuestion[] = []; // Store all unique questions we can generate
 
     // Determine which question types to use
     const useAllergyQuestions = questionTypes.includes(
@@ -78,7 +79,6 @@ export async function generateQuizQuestions(
             id: ing.ingredientId,
             text: ing.ingredientName,
           }));
-
         return { menuItem, ingredients };
       }
     );
@@ -113,26 +113,37 @@ export async function generateQuizQuestions(
 
     // Keep track of which menu items we've used to avoid immediate repeats
     const usedMenuItemIds = new Set<string>();
-
     // Keep track of which allergies we've used
     const usedAllergyIds = new Set<string>();
 
-    // Continue generating questions until we reach the desired count
-    while (questions.length < questionCount) {
+    // First, generate all possible unique questions
+    let uniqueQuestionsGenerated = 0;
+    let attempts = 0;
+    const maxAttempts = 100; // Prevent infinite loops
+
+    while (uniqueQuestionsGenerated < questionCount && attempts < maxAttempts) {
+      attempts++;
+
       // Determine if we need to force a specific question type to meet balance requirements
-      const remainingQuestions = questionCount - questions.length;
+      const remainingQuestions = questionCount - uniqueQuestionsGenerated;
+      const currentAllergyCount = allGeneratedQuestions.filter(
+        (q) => q.type === QuestionType.INGREDIENTS_WITH_ALLERGY
+      ).length;
+      const currentMenuItemCount = allGeneratedQuestions.filter(
+        (q) => q.type === QuestionType.INGREDIENTS_IN_DISH
+      ).length;
+
       const needMoreAllergyQuestions =
         useAllergyQuestions &&
-        allergyQuestionCount < minAllergyQuestions &&
-        remainingQuestions <= minAllergyQuestions - allergyQuestionCount;
+        currentAllergyCount < minAllergyQuestions &&
+        remainingQuestions <= minAllergyQuestions - currentAllergyCount;
       const needMoreMenuItemQuestions =
         useDishQuestions &&
-        menuItemQuestionCount < minMenuItemQuestions &&
-        remainingQuestions <= minMenuItemQuestions - menuItemQuestionCount;
+        currentMenuItemCount < minMenuItemQuestions &&
+        remainingQuestions <= minMenuItemQuestions - currentMenuItemCount;
 
       // Decide which type of question to generate
       let generateAllergyQuestion = false;
-
       if (needMoreAllergyQuestions) {
         // Force allergy questions if we need more to meet minimum
         generateAllergyQuestion = true;
@@ -148,7 +159,7 @@ export async function generateQuizQuestions(
         } else {
           // Both types enabled, alternate
           generateAllergyQuestion =
-            questions.length % 2 === 0 && allergies.length > 0;
+            uniqueQuestionsGenerated % 2 === 0 && allergies.length > 0;
         }
       }
 
@@ -159,12 +170,12 @@ export async function generateQuizQuestions(
           allergies,
           usedAllergyIds,
           restaurantData,
-          questions.length
+          uniqueQuestionsGenerated
         );
-
         if (question) {
-          questions.push(question);
+          allGeneratedQuestions.push(question);
           allergyQuestionCount++;
+          uniqueQuestionsGenerated++;
           questionGenerated = true;
         }
       }
@@ -176,26 +187,75 @@ export async function generateQuizQuestions(
           singleIngredientItems,
           usedMenuItemIds,
           restaurantData,
-          questions.length
+          uniqueQuestionsGenerated
         );
-
         if (question) {
-          questions.push(question);
+          allGeneratedQuestions.push(question);
           menuItemQuestionCount++;
+          uniqueQuestionsGenerated++;
           questionGenerated = true;
         }
       }
 
-      // If we couldn't generate any question, break to avoid infinite loop
+      // If we couldn't generate any new unique questions, break
       if (!questionGenerated) {
-        console.warn("Could not generate more questions, stopping early");
+        console.log("No more unique questions can be generated");
         break;
       }
     }
 
+    console.log(`Generated ${allGeneratedQuestions.length} unique questions`);
+
+    // If we have at least one question but need more to reach the target, reuse questions
+    if (
+      allGeneratedQuestions.length > 0 &&
+      allGeneratedQuestions.length < questionCount
+    ) {
+      console.log(`Reusing questions to reach target of ${questionCount}`);
+
+      // Create a pool of questions to reuse
+      let questionPool = [...allGeneratedQuestions];
+      let reusedCount = 0;
+
+      while (questions.length < questionCount) {
+        // If we've used all questions in the pool, shuffle and start again
+        if (questionPool.length === 0) {
+          questionPool = shuffleArray([...allGeneratedQuestions]);
+        }
+
+        // Take the next question from the pool
+        const questionToReuse = questionPool.shift()!;
+
+        // Create a new question with a unique ID to avoid duplicates
+        const reusedQuestion: QuizQuestion = {
+          ...questionToReuse,
+          id: `${questionToReuse.id}_reused_${reusedCount}`,
+        };
+
+        questions.push(reusedQuestion);
+        reusedCount++;
+      }
+
+      console.log(`Reused ${reusedCount} questions to reach target`);
+    } else if (allGeneratedQuestions.length >= questionCount) {
+      // We have enough unique questions, just use them
+      questions.push(...allGeneratedQuestions.slice(0, questionCount));
+    } else {
+      // Use whatever questions we have
+      questions.push(...allGeneratedQuestions);
+    }
+
+    if (questions.length === 0) {
+      return {
+        questions: [],
+        error: "Failed to generate any questions",
+      };
+    }
+
     console.log(`Generated ${questions.length} quiz questions`);
     console.log(
-      `Allergy questions: ${allergyQuestionCount}, Menu item questions: ${menuItemQuestionCount}`
+      `Allergy questions: ${questions.filter((q) => q.type === QuestionType.INGREDIENTS_WITH_ALLERGY).length}, ` +
+        `Menu item questions: ${questions.filter((q) => q.type === QuestionType.INGREDIENTS_IN_DISH).length}`
     );
 
     // Final shuffle to randomize question order
@@ -224,6 +284,11 @@ async function generateAllergyQuestionHelper(
   );
   const allergyPool = unusedAllergies.length > 0 ? unusedAllergies : allergies;
 
+  // If we're reusing allergies, clear the used set
+  if (unusedAllergies.length === 0 && allergies.length > 0) {
+    usedAllergyIds.clear();
+  }
+
   // Try each allergy until we find one that works
   for (const selectedAllergy of shuffleArray(allergyPool)) {
     // Try to generate an allergy question
@@ -235,7 +300,6 @@ async function generateAllergyQuestionHelper(
     if (question) {
       // Mark this allergy as used
       usedAllergyIds.add(selectedAllergy.allergyId);
-
       // Make the question ID unique
       question.id = `q_allergy_${selectedAllergy.allergyId}_${questionCount}`;
       return question;
