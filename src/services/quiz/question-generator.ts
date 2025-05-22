@@ -57,10 +57,6 @@ export async function generateQuizQuestions(
       };
     }
 
-    // Track question types to ensure a balanced distribution
-    let allergyQuestionCount = 0;
-    let menuItemQuestionCount = 0;
-
     // Calculate minimum questions for each type based on selected types
     const totalTypes = questionTypes.length;
     const minQuestionsPerType = Math.floor(questionCount / totalTypes);
@@ -174,7 +170,6 @@ export async function generateQuizQuestions(
         );
         if (question) {
           allGeneratedQuestions.push(question);
-          allergyQuestionCount++;
           uniqueQuestionsGenerated++;
           questionGenerated = true;
         }
@@ -191,7 +186,6 @@ export async function generateQuizQuestions(
         );
         if (question) {
           allGeneratedQuestions.push(question);
-          menuItemQuestionCount++;
           uniqueQuestionsGenerated++;
           questionGenerated = true;
         }
