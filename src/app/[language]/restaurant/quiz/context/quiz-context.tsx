@@ -11,18 +11,20 @@ import {
   QuizState,
   QuizContextType,
   QuestionGeneratorResult,
+  QuizConfiguration,
 } from "@/services/quiz/types";
 import { generateQuizQuestions } from "@/services/quiz/question-generator";
 import { useGetMenuItemsService } from "@/services/api/services/menu-items";
 import { useGetIngredientsService } from "@/services/api/services/ingredients";
 import { useGetAllergiesService } from "@/services/api/services/allergies";
+import { useGetMenuSectionsService } from "@/services/api/services/menu-sections";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import useSelectedRestaurant from "@/services/restaurant/use-selected-restaurant";
+import { MenuSection, SectionItem } from "@/services/api/types/menu-section";
+import { MenuItem } from "@/services/api/types/menu-item";
 
 // Storage key for quiz state
 const QUIZ_STATE_STORAGE_KEY = "restaurant_quiz_state";
-// Required number of questions for a complete quiz
-const REQUIRED_QUESTION_COUNT = 10;
 
 // Initial state
 const initialState: QuizState = {
@@ -30,17 +32,21 @@ const initialState: QuizState = {
   currentQuestionIndex: 0,
   userAnswers: {},
   score: 0,
-  totalQuestions: REQUIRED_QUESTION_COUNT,
+  totalQuestions: 10,
   inProgress: false,
   completed: false,
   loading: false,
   error: null,
+  configuration: undefined,
 };
 
 // Actions
 type QuizAction =
   | { type: "START_QUIZ_LOADING" }
-  | { type: "START_QUIZ_SUCCESS"; payload: QuestionGeneratorResult }
+  | {
+      type: "START_QUIZ_SUCCESS";
+      payload: { result: QuestionGeneratorResult; config: QuizConfiguration };
+    }
   | { type: "START_QUIZ_ERROR"; payload: string }
   | {
       type: "ANSWER_QUESTION";
@@ -53,6 +59,7 @@ type QuizAction =
 // Reducer
 function quizReducer(state: QuizState, action: QuizAction): QuizState {
   let newState: QuizState;
+
   switch (action.type) {
     case "START_QUIZ_LOADING":
       newState = {
@@ -60,16 +67,19 @@ function quizReducer(state: QuizState, action: QuizAction): QuizState {
         loading: true,
       };
       break;
+
     case "START_QUIZ_SUCCESS":
       newState = {
         ...initialState,
-        questions: action.payload.questions,
-        totalQuestions: action.payload.questions.length,
+        questions: action.payload.result.questions,
+        totalQuestions: action.payload.result.questions.length,
         inProgress: true,
         loading: false,
-        error: action.payload.error || null,
+        error: action.payload.result.error || null,
+        configuration: action.payload.config,
       };
       break;
+
     case "START_QUIZ_ERROR":
       newState = {
         ...initialState,
@@ -77,6 +87,7 @@ function quizReducer(state: QuizState, action: QuizAction): QuizState {
         loading: false,
       };
       break;
+
     case "ANSWER_QUESTION":
       newState = {
         ...state,
@@ -86,10 +97,12 @@ function quizReducer(state: QuizState, action: QuizAction): QuizState {
         },
       };
       break;
+
     case "SUBMIT_ANSWER": {
       const { currentQuestionIndex, questions, userAnswers } = state;
       const currentQuestion = questions[currentQuestionIndex];
       const userAnswerIds = userAnswers[currentQuestionIndex] || [];
+
       // Calculate if the answer is correct (exact match of arrays)
       const isCorrect =
         userAnswerIds.length === currentQuestion.correctAnswerIds.length &&
@@ -99,8 +112,10 @@ function quizReducer(state: QuizState, action: QuizAction): QuizState {
         currentQuestion.correctAnswerIds.every((id) =>
           userAnswerIds.includes(id)
         );
+
       // Check if this was the last question
       const isLastQuestion = currentQuestionIndex === questions.length - 1;
+
       newState = {
         ...state,
         score: state.score + (isCorrect ? 1 : 0),
@@ -111,19 +126,24 @@ function quizReducer(state: QuizState, action: QuizAction): QuizState {
       };
       break;
     }
+
     case "RESET_QUIZ":
       newState = initialState;
       break;
+
     case "LOAD_SAVED_STATE":
       newState = action.payload;
       break;
+
     default:
       return state;
   }
+
   // Save state to localStorage
   if (typeof window !== "undefined") {
     localStorage.setItem(QUIZ_STATE_STORAGE_KEY, JSON.stringify(newState));
   }
+
   return newState;
 }
 
@@ -134,9 +154,11 @@ const QuizContext = createContext<QuizContextType | undefined>(undefined);
 export function QuizProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(quizReducer, initialState);
   const { selectedRestaurant } = useSelectedRestaurant();
+
   const getMenuItemsService = useGetMenuItemsService();
   const getIngredientsService = useGetIngredientsService();
   const getAllergiesService = useGetAllergiesService();
+  const getMenuSectionsService = useGetMenuSectionsService();
 
   // Load saved state from localStorage on initial render
   useEffect(() => {
@@ -158,7 +180,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   }, []);
 
   // Start the quiz - fetch data and generate questions
-  const startQuiz = async (): Promise<boolean> => {
+  const startQuiz = async (config: QuizConfiguration): Promise<boolean> => {
     if (!selectedRestaurant) {
       dispatch({
         type: "START_QUIZ_ERROR",
@@ -174,8 +196,10 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         "Starting quiz for restaurant:",
         selectedRestaurant.restaurantId
       );
+      console.log("Quiz configuration:", config);
 
       // Fetch menu items for the restaurant
+      let menuItems: MenuItem[] = [];
       const menuItemsResponse = await getMenuItemsService(undefined, {
         restaurantId: selectedRestaurant.restaurantId,
         limit: 100,
@@ -185,11 +209,50 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         throw new Error("Failed to fetch menu items");
       }
 
-      const menuItems = Array.isArray(menuItemsResponse.data)
+      const allMenuItems = Array.isArray(menuItemsResponse.data)
         ? menuItemsResponse.data
         : menuItemsResponse.data?.data || [];
 
-      console.log(`Fetched ${menuItems.length} menu items`);
+      // Filter menu items by selected menu sections if specified
+      if (config.menuSectionIds.length > 0) {
+        // Fetch menu sections to get their items
+        const menuSectionsResponse = await getMenuSectionsService(undefined, {
+          restaurantId: selectedRestaurant.restaurantId,
+          limit: 100,
+        });
+
+        if (menuSectionsResponse.status === HTTP_CODES_ENUM.OK) {
+          const allSections = Array.isArray(menuSectionsResponse.data)
+            ? menuSectionsResponse.data
+            : menuSectionsResponse.data?.data || [];
+
+          // Filter sections by selected IDs
+          const selectedSections = allSections.filter((section: MenuSection) =>
+            config.menuSectionIds.includes(section.id)
+          );
+
+          // Extract menu item IDs from selected sections
+          const menuItemIdsInSections = new Set<string>();
+          selectedSections.forEach((section: MenuSection) => {
+            section.items?.forEach((item: SectionItem) => {
+              menuItemIdsInSections.add(item.menuItemId);
+            });
+          });
+
+          // Filter menu items to only include those in selected sections
+          menuItems = allMenuItems.filter((item: MenuItem) =>
+            menuItemIdsInSections.has(item.id)
+          );
+        } else {
+          // If fetching sections fails, use all menu items
+          menuItems = allMenuItems;
+        }
+      } else {
+        // Use all menu items if no sections specified
+        menuItems = allMenuItems;
+      }
+
+      console.log(`Filtered to ${menuItems.length} menu items`);
 
       // Fetch ingredients for the restaurant
       const ingredientsResponse = await getIngredientsService(undefined, {
@@ -228,14 +291,15 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         allergiesMap[allergy.allergyId] = allergy;
       });
 
-      // Generate questions - always request REQUIRED_QUESTION_COUNT
+      // Generate questions with configuration
       const result = await generateQuizQuestions(
         {
           menuItems,
           ingredients,
           allergies: allergiesMap,
         },
-        REQUIRED_QUESTION_COUNT
+        config.questionCount,
+        config.questionTypes
       );
 
       console.log(`Generated ${result.questions.length} questions`);
@@ -244,15 +308,9 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         throw new Error(result.error || "Failed to generate any questions");
       }
 
-      if (result.questions.length < REQUIRED_QUESTION_COUNT) {
-        console.warn(
-          `Generated only ${result.questions.length} questions, which is less than the required ${REQUIRED_QUESTION_COUNT}`
-        );
-      }
-
       dispatch({
         type: "START_QUIZ_SUCCESS",
-        payload: result,
+        payload: { result, config },
       });
 
       return result.questions.length > 0;

@@ -4,6 +4,7 @@ import {
   AnswerOption,
   QuestionGeneratorResult,
   RestaurantData,
+  QuestionType,
 } from "./types";
 import { MenuItem } from "@/services/api/types/menu-item";
 import { Ingredient } from "@/services/api/types/ingredient";
@@ -23,7 +24,8 @@ import { shuffleArray } from "./generators/utils";
  */
 export async function generateQuizQuestions(
   restaurantData: RestaurantData,
-  questionCount: number
+  questionCount: number,
+  questionTypes: QuestionType[] = Object.values(QuestionType)
 ): Promise<QuestionGeneratorResult> {
   try {
     if (
@@ -38,13 +40,31 @@ export async function generateQuizQuestions(
 
     const questions: QuizQuestion[] = [];
 
+    // Determine which question types to use
+    const useAllergyQuestions = questionTypes.includes(
+      QuestionType.INGREDIENTS_WITH_ALLERGY
+    );
+    const useDishQuestions = questionTypes.includes(
+      QuestionType.INGREDIENTS_IN_DISH
+    );
+
+    // If no types selected, return empty
+    if (!useAllergyQuestions && !useDishQuestions) {
+      return {
+        questions: [],
+        error: "No question types selected",
+      };
+    }
+
     // Track question types to ensure a balanced distribution
     let allergyQuestionCount = 0;
     let menuItemQuestionCount = 0;
 
-    // Define minimum thresholds for balance (aiming for roughly 50-50 split)
-    const minAllergyQuestions = Math.floor(questionCount * 0.4); // At least 40% allergy questions
-    const minMenuItemQuestions = Math.floor(questionCount * 0.4); // At least 40% menu item questions
+    // Calculate minimum questions for each type based on selected types
+    const totalTypes = questionTypes.length;
+    const minQuestionsPerType = Math.floor(questionCount / totalTypes);
+    const minAllergyQuestions = useAllergyQuestions ? minQuestionsPerType : 0;
+    const minMenuItemQuestions = useDishQuestions ? minQuestionsPerType : 0;
 
     // Get all menu items with their ingredients
     const menuItemsWithIngredients = restaurantData.menuItems.map(
@@ -101,9 +121,11 @@ export async function generateQuizQuestions(
       // Determine if we need to force a specific question type to meet balance requirements
       const remainingQuestions = questionCount - questions.length;
       const needMoreAllergyQuestions =
+        useAllergyQuestions &&
         allergyQuestionCount < minAllergyQuestions &&
         remainingQuestions <= minAllergyQuestions - allergyQuestionCount;
       const needMoreMenuItemQuestions =
+        useDishQuestions &&
         menuItemQuestionCount < minMenuItemQuestions &&
         remainingQuestions <= minMenuItemQuestions - menuItemQuestionCount;
 
@@ -117,18 +139,26 @@ export async function generateQuizQuestions(
         // Force menu item questions if we need more to meet minimum
         generateAllergyQuestion = false;
       } else {
-        // Simple alternating pattern to ensure balance
-        generateAllergyQuestion =
-          questions.length % 2 === 0 && allergies.length > 0;
+        // If only one type is enabled, use it
+        if (useAllergyQuestions && !useDishQuestions) {
+          generateAllergyQuestion = true;
+        } else if (!useAllergyQuestions && useDishQuestions) {
+          generateAllergyQuestion = false;
+        } else {
+          // Both types enabled, alternate
+          generateAllergyQuestion =
+            questions.length % 2 === 0 && allergies.length > 0;
+        }
       }
 
-      if (generateAllergyQuestion) {
+      if (generateAllergyQuestion && useAllergyQuestions) {
         const question = await generateAllergyQuestionHelper(
           allergies,
           usedAllergyIds,
           restaurantData,
           questions.length
         );
+
         if (question) {
           questions.push(question);
           allergyQuestionCount++;
@@ -137,17 +167,19 @@ export async function generateQuizQuestions(
       }
 
       // Generate menu item question (either as fallback or by choice)
-      const question = await generateMenuItemQuestion(
-        multiIngredientItems,
-        singleIngredientItems,
-        usedMenuItemIds,
-        restaurantData,
-        questions.length
-      );
+      if (useDishQuestions) {
+        const question = await generateMenuItemQuestion(
+          multiIngredientItems,
+          singleIngredientItems,
+          usedMenuItemIds,
+          restaurantData,
+          questions.length
+        );
 
-      if (question) {
-        questions.push(question);
-        menuItemQuestionCount++;
+        if (question) {
+          questions.push(question);
+          menuItemQuestionCount++;
+        }
       }
     }
 
@@ -196,7 +228,6 @@ async function generateAllergyQuestionHelper(
 
       // Make the question ID unique
       question.id = `q_allergy_${selectedAllergy.allergyId}_${questionCount}`;
-
       return question;
     }
   }

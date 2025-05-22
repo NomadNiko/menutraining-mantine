@@ -32,6 +32,19 @@
     "yourAnswers": "Your Answers",
     "backToMenu": "Back to Quiz Menu",
     "loading": "Loading quiz...",
-    "error": "Error"
+    "error": "Error",
+    "configuration": {
+      "title": "Quiz Settings",
+      "numberOfQuestions": "Number of Questions",
+      "questionTypes": "Question Types",
+      "ingredientsInDish": "Ingredients in Dish",
+      "ingredientsWithAllergy": "Ingredients with Allergy",
+      "menuSections": "Menu Sections",
+      "selectAll": "Select All",
+      "deselectAll": "Deselect All",
+      "noMenuSections": "No menu sections available"
+    },
+    "quizInProgress": "You have a quiz in progress",
+    "quizCompleted": "You have completed a quiz"
   }
 }

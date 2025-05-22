@@ -23,6 +23,12 @@ export interface QuizQuestion {
   correctAnswerIds: string[];
 }
 
+export interface QuizConfiguration {
+  questionCount: number;
+  questionTypes: QuestionType[];
+  menuSectionIds: string[];
+}
+
 export interface QuizState {
   questions: QuizQuestion[];
   currentQuestionIndex: number;
@@ -33,11 +39,12 @@ export interface QuizState {
   completed: boolean;
   loading: boolean;
   error: string | null;
+  configuration?: QuizConfiguration;
 }
 
 export interface QuizContextType {
   state: QuizState;
-  startQuiz: () => Promise<boolean>; // Changed from Promise<void> to Promise<boolean>
+  startQuiz: (config: QuizConfiguration) => Promise<boolean>;
   answerQuestion: (selectedAnswerIds: string[]) => void;
   submitAnswer: () => void;
   resetQuiz: () => void;
