@@ -95,8 +95,9 @@ export async function generateQuizQuestions(
       `Found ${multiIngredientItems.length} multi-ingredient items and ${singleIngredientItems.length} single-ingredient items`
     );
 
-    // If we have no valid menu items at all, we can't create questions
+    // If we need dish questions but have no valid menu items, we can't create questions
     if (
+      useDishQuestions &&
       multiIngredientItems.length === 0 &&
       singleIngredientItems.length === 0
     ) {
@@ -151,6 +152,8 @@ export async function generateQuizQuestions(
         }
       }
 
+      let questionGenerated = false;
+
       if (generateAllergyQuestion && useAllergyQuestions) {
         const question = await generateAllergyQuestionHelper(
           allergies,
@@ -162,12 +165,12 @@ export async function generateQuizQuestions(
         if (question) {
           questions.push(question);
           allergyQuestionCount++;
-          continue;
+          questionGenerated = true;
         }
       }
 
-      // Generate menu item question (either as fallback or by choice)
-      if (useDishQuestions) {
+      // Only try to generate menu item question if we should and haven't generated a question yet
+      if (!questionGenerated && useDishQuestions) {
         const question = await generateMenuItemQuestion(
           multiIngredientItems,
           singleIngredientItems,
@@ -179,7 +182,14 @@ export async function generateQuizQuestions(
         if (question) {
           questions.push(question);
           menuItemQuestionCount++;
+          questionGenerated = true;
         }
+      }
+
+      // If we couldn't generate any question, break to avoid infinite loop
+      if (!questionGenerated) {
+        console.warn("Could not generate more questions, stopping early");
+        break;
       }
     }
 
@@ -259,6 +269,11 @@ async function generateMenuItemQuestion(
   const availableItems = useMultiIngredientItem
     ? multiIngredientItems
     : singleIngredientItems;
+
+  // If we have no items at all, return null
+  if (availableItems.length === 0) {
+    return null;
+  }
 
   // If all available items of the chosen type are used, reset tracking for that type
   if (usedMenuItemIds.size >= availableItems.length) {

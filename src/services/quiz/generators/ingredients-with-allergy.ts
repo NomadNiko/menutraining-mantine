@@ -21,15 +21,15 @@ export function generateIngredientsWithAllergyQuestion(
       return allAllergies.includes(allergy.allergyId);
     });
 
-    // We need at least 2 ingredients with this allergy to make it interesting
-    if (ingredientsWithAllergy.length < 2) {
+    // We need at least 1 ingredient with this allergy
+    if (ingredientsWithAllergy.length < 1) {
       return null;
     }
 
-    // Get 2-3 correct ingredients (or all if fewer)
+    // Get 1-3 correct ingredients (or all if fewer)
     const correctCount = Math.min(
       ingredientsWithAllergy.length,
-      Math.floor(Math.random() * 2) + 2 // 2-3 correct answers
+      Math.floor(Math.random() * 3) + 1 // 1-3 correct answers
     );
     const selectedCorrect = getRandomSubset(
       ingredientsWithAllergy,
@@ -48,15 +48,18 @@ export function generateIngredientsWithAllergyQuestion(
       return !allAllergies.includes(allergy.allergyId);
     });
 
-    // Get incorrect options (ingredients without the allergy)
+    // Get 3-5 incorrect options to ensure we have enough choices
+    const targetIncorrectCount = 6 - correctCount; // Aim for 6 total options
     const incorrectCount = Math.min(
       ingredientsWithoutAllergy.length,
-      6 - correctCount // Ensure we have at most 6 total options
+      Math.max(3, targetIncorrectCount) // At least 3 incorrect options
     );
-    if (incorrectCount < 1) {
+
+    if (ingredientsWithoutAllergy.length < 3) {
       // Not enough incorrect options to make a good question
       return null;
     }
+
     const selectedIncorrected = getRandomSubset(
       ingredientsWithoutAllergy,
       incorrectCount
