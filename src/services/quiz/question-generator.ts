@@ -1,6 +1,5 @@
 // src/services/quiz/question-generator.ts
 import {
-  QuestionType,
   QuizQuestion,
   AnswerOption,
   QuestionGeneratorResult,
@@ -10,27 +9,13 @@ import { MenuItem } from "@/services/api/types/menu-item";
 import { Ingredient } from "@/services/api/types/ingredient";
 import { Allergy } from "@/services/api/types/allergy";
 
-/**
- * Shuffles an array using the Fisher-Yates algorithm
- */
-export function shuffleArray<T>(array: T[]): T[] {
-  const shuffled = [...array];
-  for (let i = shuffled.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-  }
-  return shuffled;
-}
+// Import question generators
+import { generateIngredientsWithAllergyQuestion } from "./generators/ingredients-with-allergy";
+import { generateIngredientsInDishQuestion } from "./generators/ingredients-in-dish";
+import { generateSingleIngredientQuestion } from "./generators/single-ingredient";
 
-/**
- * Gets a random subset of items from an array
- */
-export function getRandomSubset<T>(array: T[], count: number): T[] {
-  if (!array.length) return [];
-  if (array.length <= count) return [...array];
-  const shuffled = shuffleArray(array);
-  return shuffled.slice(0, count);
-}
+// Import utilities
+import { shuffleArray } from "./generators/utils";
 
 /**
  * Generates questions for the quiz, ensuring exactly the requested number of questions
@@ -73,6 +58,7 @@ export async function generateQuizQuestions(
             id: ing.ingredientId,
             text: ing.ingredientName,
           }));
+
         return { menuItem, ingredients };
       }
     );
@@ -121,109 +107,47 @@ export async function generateQuizQuestions(
         menuItemQuestionCount < minMenuItemQuestions &&
         remainingQuestions <= minMenuItemQuestions - menuItemQuestionCount;
 
-      // Decide which type of question to generate with improved probability distribution
-      let tryAllergyQuestion;
+      // Decide which type of question to generate
+      let generateAllergyQuestion = false;
 
       if (needMoreAllergyQuestions) {
         // Force allergy questions if we need more to meet minimum
-        tryAllergyQuestion = true;
+        generateAllergyQuestion = true;
       } else if (needMoreMenuItemQuestions) {
         // Force menu item questions if we need more to meet minimum
-        tryAllergyQuestion = false;
+        generateAllergyQuestion = false;
       } else {
-        // Otherwise use a higher probability for allergy questions (50% instead of 30%)
-        // This helps ensure a more balanced mix of question types
-        tryAllergyQuestion = Math.random() < 0.5 && allergies.length > 0;
+        // Simple alternating pattern to ensure balance
+        generateAllergyQuestion =
+          questions.length % 2 === 0 && allergies.length > 0;
       }
 
-      if (tryAllergyQuestion) {
-        // Get allergies we haven't used yet, or all if we've used them all
-        const unusedAllergies = allergies.filter(
-          (allergy) => !usedAllergyIds.has(allergy.allergyId)
+      if (generateAllergyQuestion) {
+        const question = await generateAllergyQuestionHelper(
+          allergies,
+          usedAllergyIds,
+          restaurantData,
+          questions.length
         );
-        const allergyPool =
-          unusedAllergies.length > 0 ? unusedAllergies : allergies;
-        const randomIndex = Math.floor(Math.random() * allergyPool.length);
-        const selectedAllergy = allergyPool[randomIndex];
-
-        // Try to generate an allergy question
-        const question = generateIngredientsWithAllergyQuestion(
-          selectedAllergy,
-          restaurantData.ingredients
-        );
-
         if (question) {
-          // Mark this allergy as used
-          usedAllergyIds.add(selectedAllergy.allergyId);
-          // Make the question ID unique
-          question.id = `q_allergy_${selectedAllergy.allergyId}_${questions.length}`;
           questions.push(question);
-          allergyQuestionCount++; // Track allergy questions count
-          continue; // Skip to next iteration
+          allergyQuestionCount++;
+          continue;
         }
-        // If allergy question generation failed, fall back to menu item questions
       }
 
-      // Determine whether to use multi-ingredient items or single-ingredient items
-      const useMultiIngredientItem =
-        multiIngredientItems.length > 0 &&
-        (singleIngredientItems.length === 0 || Math.random() > 0.3); // 70% chance to use multi-ingredient if both are available
-
-      const availableItems = useMultiIngredientItem
-        ? multiIngredientItems
-        : singleIngredientItems;
-
-      // If all available items of the chosen type are used, reset tracking for that type
-      if (usedMenuItemIds.size >= availableItems.length) {
-        console.log(
-          `Used all ${useMultiIngredientItem ? "multi" : "single"}-ingredient items, resetting for more questions`
-        );
-        availableItems.forEach((item) =>
-          usedMenuItemIds.delete(item.menuItem.id)
-        );
-      }
-
-      // Find menu items we haven't used yet
-      const unusedItems = availableItems.filter(
-        (item) => !usedMenuItemIds.has(item.menuItem.id)
+      // Generate menu item question (either as fallback or by choice)
+      const question = await generateMenuItemQuestion(
+        multiIngredientItems,
+        singleIngredientItems,
+        usedMenuItemIds,
+        restaurantData,
+        questions.length
       );
 
-      // If all menu items are used, just take any valid menu item from the chosen pool
-      const menuItemPool =
-        unusedItems.length > 0 ? unusedItems : availableItems;
-
-      // Get a random menu item
-      const randomIndex = Math.floor(Math.random() * menuItemPool.length);
-      const { menuItem, ingredients } = menuItemPool[randomIndex];
-
-      // Mark this menu item as used
-      usedMenuItemIds.add(menuItem.id);
-
-      // Generate a question based on ingredient count
-      let question: QuizQuestion | null = null;
-
-      if (ingredients.length >= 2) {
-        // For multi-ingredient menu items
-        question = generateIngredientsInDishQuestion(
-          menuItem,
-          ingredients,
-          restaurantData.ingredients
-        );
-      } else if (ingredients.length === 1) {
-        // For single-ingredient menu items
-        question = generateSingleIngredientQuestion(
-          menuItem,
-          ingredients[0],
-          restaurantData.ingredients,
-          restaurantData.menuItems
-        );
-      }
-
       if (question) {
-        // Make the question ID unique even when reusing menu items
-        question.id = `q_${menuItem.id}_${questions.length}`;
         questions.push(question);
-        menuItemQuestionCount++; // Track menu item questions count
+        menuItemQuestionCount++;
       }
     }
 
@@ -244,193 +168,121 @@ export async function generateQuizQuestions(
 }
 
 /**
- * Generates a question about ingredients that contain a specific allergy
+ * Helper function to generate an allergy-related question
  */
-function generateIngredientsWithAllergyQuestion(
-  allergy: Allergy,
-  allIngredients: Ingredient[]
-): QuizQuestion | null {
-  try {
-    // Find ingredients that contain this allergy
-    const ingredientsWithAllergy = allIngredients.filter((ing) => {
-      const allAllergies = [
-        ...(ing.ingredientAllergies || []),
-        ...(ing.derivedAllergies || []),
-      ];
-      return allAllergies.includes(allergy.allergyId);
-    });
+async function generateAllergyQuestionHelper(
+  allergies: Allergy[],
+  usedAllergyIds: Set<string>,
+  restaurantData: RestaurantData,
+  questionCount: number
+): Promise<QuizQuestion | null> {
+  // Get allergies we haven't used yet, or all if we've used them all
+  const unusedAllergies = allergies.filter(
+    (allergy) => !usedAllergyIds.has(allergy.allergyId)
+  );
+  const allergyPool = unusedAllergies.length > 0 ? unusedAllergies : allergies;
 
-    // We need at least 2 ingredients with this allergy to make it interesting
-    if (ingredientsWithAllergy.length < 2) {
-      return null;
-    }
-
-    // Get 2-3 correct ingredients (or all if fewer)
-    const correctCount = Math.min(
-      ingredientsWithAllergy.length,
-      Math.floor(Math.random() * 2) + 2 // 2-3 correct answers
+  // Try each allergy until we find one that works
+  for (const selectedAllergy of shuffleArray(allergyPool)) {
+    // Try to generate an allergy question
+    const question = generateIngredientsWithAllergyQuestion(
+      selectedAllergy,
+      restaurantData.ingredients
     );
-    const selectedCorrect = getRandomSubset(
-      ingredientsWithAllergy,
-      correctCount
-    ).map((ing) => ({
-      id: ing.ingredientId,
-      text: ing.ingredientName,
-    }));
 
-    // Find ingredients that do NOT contain this allergy
-    const ingredientsWithoutAllergy = allIngredients.filter((ing) => {
-      const allAllergies = [
-        ...(ing.ingredientAllergies || []),
-        ...(ing.derivedAllergies || []),
-      ];
-      return !allAllergies.includes(allergy.allergyId);
-    });
+    if (question) {
+      // Mark this allergy as used
+      usedAllergyIds.add(selectedAllergy.allergyId);
 
-    // Get incorrect options (ingredients without the allergy)
-    const incorrectCount = Math.min(
-      ingredientsWithoutAllergy.length,
-      6 - correctCount // Ensure we have at most 6 total options
-    );
-    if (incorrectCount < 1) {
-      // Not enough incorrect options to make a good question
-      return null;
+      // Make the question ID unique
+      question.id = `q_allergy_${selectedAllergy.allergyId}_${questionCount}`;
+
+      return question;
     }
-    const selectedIncorrect = getRandomSubset(
-      ingredientsWithoutAllergy,
-      incorrectCount
-    ).map((ing) => ({
-      id: ing.ingredientId,
-      text: ing.ingredientName,
-    }));
-
-    // Combine and shuffle options
-    const allOptions = shuffleArray([...selectedCorrect, ...selectedIncorrect]);
-
-    return {
-      id: `q_allergy_${allergy.allergyId}`,
-      type: QuestionType.INGREDIENTS_WITH_ALLERGY,
-      questionText: `Which ingredients contain the ${allergy.allergyName} allergy?`,
-      imageUrl: allergy.allergyLogoUrl || null,
-      options: allOptions,
-      correctAnswerIds: selectedCorrect.map((ing) => ing.id),
-    };
-  } catch (error) {
-    console.error("Error generating allergy question:", error);
-    return null;
   }
+
+  return null;
 }
 
 /**
- * Generates a question about ingredients in a dish (for multi-ingredient items)
+ * Helper function to generate a menu item-related question
  */
-function generateIngredientsInDishQuestion(
-  menuItem: MenuItem,
-  correctIngredients: AnswerOption[],
-  allIngredients: Ingredient[]
-): QuizQuestion | null {
-  try {
-    // Get 2-3 correct ingredients (or all if fewer) - REDUCED from 3-4
-    const correctCount = Math.min(
-      correctIngredients.length,
-      Math.floor(Math.random() * 2) + 2 // 2-3 correct answers
+async function generateMenuItemQuestion(
+  multiIngredientItems: Array<{
+    menuItem: MenuItem;
+    ingredients: AnswerOption[];
+  }>,
+  singleIngredientItems: Array<{
+    menuItem: MenuItem;
+    ingredients: AnswerOption[];
+  }>,
+  usedMenuItemIds: Set<string>,
+  restaurantData: RestaurantData,
+  questionCount: number
+): Promise<QuizQuestion | null> {
+  // Determine whether to use multi-ingredient items or single-ingredient items
+  const useMultiIngredientItem =
+    multiIngredientItems.length > 0 &&
+    (singleIngredientItems.length === 0 || Math.random() > 0.3); // 70% chance to use multi-ingredient if both are available
+
+  const availableItems = useMultiIngredientItem
+    ? multiIngredientItems
+    : singleIngredientItems;
+
+  // If all available items of the chosen type are used, reset tracking for that type
+  if (usedMenuItemIds.size >= availableItems.length) {
+    console.log(
+      `Used all ${useMultiIngredientItem ? "multi" : "single"}-ingredient items, resetting for more questions`
     );
-    const selectedCorrect = getRandomSubset(correctIngredients, correctCount);
-
-    // Get incorrect options (ingredients not in the dish)
-    const incorrectIngredients = allIngredients
-      .filter((ing) => !menuItem.menuItemIngredients.includes(ing.ingredientId))
-      .map((ing) => ({
-        id: ing.ingredientId,
-        text: ing.ingredientName,
-      }));
-
-    // Get 3-4 incorrect ingredients - REDUCED from 4-5
-    const incorrectCount = Math.min(
-      incorrectIngredients.length,
-      6 - correctCount // Ensure we have at most 6 total options (changed from 8)
-    );
-    if (incorrectCount < 1) {
-      // Not enough incorrect options to make a good question
-      return null;
-    }
-    const selectedIncorrect = getRandomSubset(
-      incorrectIngredients,
-      incorrectCount
-    );
-
-    // Combine and shuffle options
-    const allOptions = shuffleArray([...selectedCorrect, ...selectedIncorrect]);
-
-    return {
-      id: `q_${menuItem.id}`,
-      type: QuestionType.INGREDIENTS_IN_DISH,
-      questionText: `Which ingredients are in ${menuItem.menuItemName}?`,
-      imageUrl: menuItem.menuItemUrl,
-      options: allOptions,
-      correctAnswerIds: selectedCorrect.map((ing) => ing.id),
-    };
-  } catch (error) {
-    console.error("Error generating question:", error);
-    return null;
+    availableItems.forEach((item) => usedMenuItemIds.delete(item.menuItem.id));
   }
+
+  // Find menu items we haven't used yet
+  const unusedItems = availableItems.filter(
+    (item) => !usedMenuItemIds.has(item.menuItem.id)
+  );
+
+  // If all menu items are used, just take any valid menu item from the chosen pool
+  const menuItemPool = unusedItems.length > 0 ? unusedItems : availableItems;
+
+  // Get a random menu item
+  const randomIndex = Math.floor(Math.random() * menuItemPool.length);
+  const { menuItem, ingredients } = menuItemPool[randomIndex];
+
+  // Mark this menu item as used
+  usedMenuItemIds.add(menuItem.id);
+
+  // Generate a question based on ingredient count
+  let question: QuizQuestion | null = null;
+
+  if (ingredients.length >= 2) {
+    // For multi-ingredient menu items
+    question = generateIngredientsInDishQuestion(
+      menuItem,
+      ingredients,
+      restaurantData.ingredients
+    );
+  } else if (ingredients.length === 1) {
+    // For single-ingredient menu items
+    question = generateSingleIngredientQuestion(
+      menuItem,
+      ingredients[0],
+      restaurantData.ingredients,
+      restaurantData.menuItems
+    );
+  }
+
+  if (question) {
+    // Make the question ID unique even when reusing menu items
+    question.id = `q_${menuItem.id}_${questionCount}`;
+    return question;
+  }
+
+  return null;
 }
 
-/**
- * Generates a question for single-ingredient menu items
- * This creates a "Which menu item contains [ingredient]?" question
- */
-function generateSingleIngredientQuestion(
-  menuItem: MenuItem,
-  correctIngredient: AnswerOption,
-  allIngredients: Ingredient[],
-  allMenuItems: MenuItem[]
-): QuizQuestion | null {
-  try {
-    // For single-ingredient items, we change the question format to:
-    // "Which menu item contains [ingredient]?"
-    // First, get other menu items that don't contain this ingredient
-    const otherMenuItems = allMenuItems.filter(
-      (item) =>
-        item.id !== menuItem.id &&
-        !item.menuItemIngredients.includes(correctIngredient.id)
-    );
-
-    if (otherMenuItems.length < 3) {
-      console.log("Not enough other menu items to create a valid question");
-      return null;
-    }
-
-    // Limit to maximum 5 total options (1 correct + up to 4 incorrect) to stay within 6 options
-    const incorrectCount = Math.min(
-      otherMenuItems.length,
-      Math.floor(Math.random() * 2) + 3 // 3-4 incorrect answers
-    );
-    const incorrectMenuItems = getRandomSubset(otherMenuItems, incorrectCount);
-
-    // Create options from menu items
-    const correctOption = {
-      id: menuItem.id,
-      text: menuItem.menuItemName,
-    };
-    const incorrectOptions = incorrectMenuItems.map((item) => ({
-      id: item.id,
-      text: item.menuItemName,
-    }));
-
-    // Combine and shuffle options
-    const allOptions = shuffleArray([correctOption, ...incorrectOptions]);
-
-    return {
-      id: `q_single_${menuItem.id}`,
-      type: QuestionType.INGREDIENTS_IN_DISH, // Reusing same type for consistency
-      questionText: `Which menu item contains ${correctIngredient.text}?`,
-      imageUrl: null, // No image for this question type
-      options: allOptions,
-      correctAnswerIds: [correctOption.id],
-    };
-  } catch (error) {
-    console.error("Error generating single-ingredient question:", error);
-    return null;
-  }
-}
+// Re-export generators and utilities for direct access
+export * from "./generators/utils";
+export { generateIngredientsWithAllergyQuestion } from "./generators/ingredients-with-allergy";
+export { generateIngredientsInDishQuestion } from "./generators/ingredients-in-dish";
+export { generateSingleIngredientQuestion } from "./generators/single-ingredient";
