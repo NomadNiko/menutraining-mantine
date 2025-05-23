@@ -2,8 +2,6 @@
 import {
   Modal,
   Text,
-  Center,
-  Stack,
   useMantineTheme,
   useMantineColorScheme,
   Box,
