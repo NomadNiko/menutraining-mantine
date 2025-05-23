@@ -6,6 +6,7 @@ import {
   Stack,
   useMantineTheme,
   useMantineColorScheme,
+  Box,
 } from "@mantine/core";
 import { useTranslation } from "@/services/i18n/client";
 import { useState, useEffect, useCallback, useMemo } from "react";
@@ -14,10 +15,9 @@ import styles from "./QuizLoaderModal.module.css";
 interface QuizLoaderModalProps {
   opened: boolean;
   message?: string;
-  disableCycling?: boolean; // New prop to control cycling behavior
+  disableCycling?: boolean;
 }
 
-// Utility function to shuffle an array
 const shuffleArray = <T,>(array: T[]): T[] => {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -27,7 +27,6 @@ const shuffleArray = <T,>(array: T[]): T[] => {
   return shuffled;
 };
 
-// Available loader CSS classes
 const LOADER_CLASSES = [
   styles.loader1,
   styles.loader2,
@@ -46,24 +45,19 @@ export function QuizLoaderModal({
   const { colorScheme } = useMantineColorScheme();
   const isDark = colorScheme === "dark";
 
-  // Get the loading phrases from translations
   const loadingPhrases = t("quiz.loadingPhrases", {
     returnObjects: true,
   }) as string[];
-
-  // State for current phrase and animation
   const [currentPhraseIndex, setCurrentPhraseIndex] = useState(0);
   const [selectedLoaderClass, setSelectedLoaderClass] = useState<string>("");
 
-  // Memoize shuffled phrases to prevent re-shuffling on re-renders
   const shuffledPhrases = useMemo(() => {
     if (Array.isArray(loadingPhrases) && loadingPhrases.length > 0) {
       return shuffleArray(loadingPhrases);
     }
-    return [t("quiz.preparingQuiz")]; // Fallback
+    return [t("quiz.preparingQuiz")];
   }, [loadingPhrases, t]);
 
-  // Select random loader animation when component mounts or modal opens
   useEffect(() => {
     if (opened && !selectedLoaderClass) {
       const randomIndex = Math.floor(Math.random() * LOADER_CLASSES.length);
@@ -71,7 +65,6 @@ export function QuizLoaderModal({
     }
   }, [opened, selectedLoaderClass]);
 
-  // Reset states when modal is closed
   useEffect(() => {
     if (!opened) {
       setCurrentPhraseIndex(0);
@@ -79,7 +72,6 @@ export function QuizLoaderModal({
     }
   }, [opened]);
 
-  // Cycle through phrases every 2.5 seconds (only if cycling is enabled)
   useEffect(() => {
     if (!opened || shuffledPhrases.length <= 1 || disableCycling || message)
       return;
@@ -93,53 +85,85 @@ export function QuizLoaderModal({
     return () => clearInterval(interval);
   }, [opened, shuffledPhrases.length, disableCycling, message]);
 
-  // Get current phrase to display
   const getCurrentPhrase = useCallback(() => {
-    // Only use message if cycling is disabled or message is specifically provided
     if (disableCycling && message) return message;
-
-    // Use cycling phrases if available and cycling is enabled
     if (!disableCycling && shuffledPhrases.length > 0) {
       return shuffledPhrases[currentPhraseIndex] || t("quiz.preparingQuiz");
     }
-
-    // Fallback
     return message || t("quiz.preparingQuiz");
   }, [message, shuffledPhrases, currentPhraseIndex, t, disableCycling]);
 
   return (
     <Modal
       opened={opened}
-      onClose={() => {}} // No close handler - will be controlled by parent
+      onClose={() => {}}
       centered
       withCloseButton={false}
       overlayProps={{ opacity: 0.55, blur: 3 }}
       styles={{
-        header: { display: "none" }, // Hide the header
-        body: { padding: "2rem" }, // Add some padding
-        content: { background: isDark ? theme.colors.dark[7] : theme.white },
+        header: { display: "none" },
+        body: { padding: 0 },
+        content: {
+          background: isDark ? theme.colors.dark[7] : theme.white,
+          width: "320px",
+          height: "200px",
+        },
       }}
-      size="auto"
+      size="320px"
     >
-      <Center>
-        <Stack align="center" gap="md">
-          {/* Animated loader with randomly selected animation */}
-          <div className={selectedLoaderClass} />
+      <Box
+        style={{
+          width: "320px",
+          height: "200px",
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          position: "relative",
+        }}
+      >
+        {/* Fixed animation container */}
+        <Box
+          style={{
+            width: "100px",
+            height: "80px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            marginBottom: "20px",
+          }}
+        >
+          <div
+            className={selectedLoaderClass}
+            style={{
+              transform: "scale(0.7)",
+              transformOrigin: "center",
+            }}
+          />
+        </Box>
 
-          {/* Dynamic loading message with fade transition */}
+        {/* Fixed text container */}
+        <Box
+          style={{
+            width: "280px",
+            height: "40px",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            textAlign: "center",
+          }}
+        >
           <Text
-            size="lg"
+            size="sm"
             fw={500}
-            mt="xl"
             style={{
               transition: "opacity 0.3s ease-in-out",
-              minHeight: "1.5rem", // Prevent layout shift
             }}
           >
             {getCurrentPhrase()}
           </Text>
-        </Stack>
-      </Center>
+        </Box>
+      </Box>
     </Modal>
   );
 }
