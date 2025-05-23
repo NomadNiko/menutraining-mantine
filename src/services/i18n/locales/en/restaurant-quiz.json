@@ -14,6 +14,17 @@
     "pleaseSelectRestaurant": "Please select a restaurant to take the quiz",
     "error": "Error",
     "preparingQuiz": "Preparing your quiz...",
+    "correct": "Correct",
+    "incorrect": "Incorrect",
+    "accuracy": "Accuracy",
+    "all": "All",
+    "filterQuestions": "Filter Questions",
+    "showingResults": "Showing {{count}} of {{total}} questions",
+    "noCorrectAnswers": "No correct answers to display",
+    "noIncorrectAnswers": "No incorrect answers to display",
+    "incorrectAnswers": "Incorrect Answers",
+    "showAllQuestions": "Show All Questions",
+    "noAnswerSelected": "No answer selected",
     "loadingPhrases": [
       "Cooking up something hot...",
       "Uttering 'Yes Chef!' as quickly as possible...",
@@ -77,7 +88,6 @@
     "questionTitle": "Quiz Question",
     "questionTitleWithRestaurant": "{{restaurant}} - Quiz",
     "questionCount": "Question {{current}} of {{total}}",
-    "questionNumber": "Question {{number}}",
     "selectAnswer": "Select the correct answer:",
     "selectAnswers": "Select all correct answers:",
     "submitAnswer": "Submit Answer",
@@ -95,15 +105,5 @@
     "player": "Player",
     "date": "Date",
     "noHighScores": "No high scores yet"
-  },
-  "correct": "Correct",
-  "incorrect": "Incorrect",
-  "accuracy": "Accuracy",
-  "all": "All",
-  "filterQuestions": "Filter Questions",
-  "showingResults": "Showing {{count}} of {{total}} questions",
-  "noCorrectAnswers": "No correct answers to display",
-  "noIncorrectAnswers": "No incorrect answers to display",
-  "showAllQuestions": "Show All Questions",
-  "noAnswerSelected": "No answer selected"
+  }
 }
