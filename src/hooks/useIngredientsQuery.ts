@@ -1,4 +1,4 @@
-// src/hooks/useIngredientsQuery.ts
+// ./menutraining-mantine/src/hooks/useIngredientsQuery.ts
 "use client";
 import { useQuery } from "@tanstack/react-query";
 import { useGetIngredientsService } from "@/services/api/services/ingredients";
@@ -36,6 +36,8 @@ export interface IngredientsQueryResult {
   isError: boolean;
   error: unknown;
   totalCount: number;
+  coreIngredientsCount: number; // New field
+  restaurantIngredientsCount: number; // New field
   hasMore: boolean;
   loadMore: () => void;
   refetch: () => void;
@@ -167,15 +169,26 @@ export const useIngredientsQuery = ({
           );
         }
 
+        // Calculate counts for core vs restaurant ingredients
+        const coreCount = filteredIngredients.filter(
+          (ing) => ing.isCoreIngredient
+        ).length;
+        const restaurantCount = filteredIngredients.filter(
+          (ing) => !ing.isCoreIngredient
+        ).length;
+
         return {
           ingredients: filteredIngredients,
           totalCount: filteredIngredients.length,
+          coreIngredientsCount: coreCount,
+          restaurantIngredientsCount: restaurantCount,
         };
       }
-
       return {
         ingredients: [],
         totalCount: 0,
+        coreIngredientsCount: 0,
+        restaurantIngredientsCount: 0,
       };
     },
     enabled: !!restaurantId,
@@ -188,6 +201,9 @@ export const useIngredientsQuery = ({
     isError: ingredientsQuery.isError || allergiesQuery.isError,
     error: ingredientsQuery.error || allergiesQuery.error,
     totalCount: ingredientsQuery.data?.totalCount || 0,
+    coreIngredientsCount: ingredientsQuery.data?.coreIngredientsCount || 0,
+    restaurantIngredientsCount:
+      ingredientsQuery.data?.restaurantIngredientsCount || 0,
     hasMore: false,
     loadMore: () => {},
     refetch: ingredientsQuery.refetch,

@@ -1,12 +1,111 @@
 /* src/app/[language]/restaurant/quiz/components/QuizLoaderModal.module.css */
-/* Loader Animation 1 - Balancing Ball */
+
+/* Shared keyframes */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes reverseSpin {
+  to {
+    transform: rotate(-360deg);
+  }
+}
+
+@keyframes bounce {
+  0%,
+  50%,
+  100% {
+    transform: translate(-50%, 0px);
+    height: 16px;
+  }
+  20% {
+    transform: translate(-25%, 65px);
+    height: 22px;
+  }
+  25% {
+    transform: translate(-25%, 85px);
+    height: 9px;
+  }
+  70% {
+    transform: translate(-75%, 65px);
+    height: 22px;
+  }
+  75% {
+    transform: translate(-75%, 85px);
+    height: 9px;
+  }
+}
+
+@keyframes seesaw {
+  0%,
+  30% {
+    translate: 0% -2px;
+    rotate: 20deg;
+  }
+  70%,
+  100% {
+    translate: 300% -2px;
+    rotate: -20deg;
+  }
+}
+
+@keyframes ballBounce {
+  0%,
+  2% {
+    bottom: 0%;
+  }
+  98%,
+  100% {
+    bottom: 0.1%;
+  }
+}
+
+@keyframes slideLeft {
+  100% {
+    left: 100%;
+  }
+}
+
+@keyframes morphingInset {
+  0% {
+    inset: 0 35px 35px 0;
+  }
+  12.5% {
+    inset: 0 35px 0 0;
+  }
+  25% {
+    inset: 35px 35px 0 0;
+  }
+  37.5% {
+    inset: 35px 0 0 0;
+  }
+  50% {
+    inset: 35px 0 0 35px;
+  }
+  62.5% {
+    inset: 0 0 0 35px;
+  }
+  75% {
+    inset: 0 0 35px 35px;
+  }
+  87.5% {
+    inset: 0 0 35px 0;
+  }
+  100% {
+    inset: 0 35px 35px 0;
+  }
+}
+
+/* Loader 1 - Balancing Ball */
 .loader1 {
-  display: block;
   position: relative;
+  box-sizing: border-box;
+  display: block;
   height: 24px;
   width: 90px;
   border-bottom: 4px solid #3498db;
-  box-sizing: border-box;
   animation: balancing 2s linear infinite alternate;
   transform-origin: 50% 100%;
 }
@@ -19,7 +118,7 @@
   height: 20px;
   border-radius: 50%;
   background: #3498db;
-  animation: ballbns 2s linear infinite alternate;
+  animation: ballSlide 2s linear infinite alternate;
 }
 .loader1:after {
   content: "";
@@ -32,7 +131,7 @@
   border-radius: 50%;
   border: 4px solid #3498db;
 }
-@keyframes ballbns {
+@keyframes ballSlide {
   0% {
     left: 0;
     transform: translateX(0%);
@@ -54,8 +153,10 @@
   }
 }
 
-/* Loader Animation 2 - Gear Spinner */
+/* Loader 2 - Gear Spinner */
 .loader2 {
+  position: relative;
+  box-sizing: border-box;
   display: inline-grid;
   width: 60px;
   aspect-ratio: 1;
@@ -63,7 +164,7 @@
   overflow: hidden;
   outline: 5px solid #3498db;
   outline-offset: -1px;
-  animation: l3-0 4s linear infinite;
+  animation: reverseSpin 4s linear infinite;
 }
 .loader2:before,
 .loader2:after {
@@ -129,26 +230,21 @@
     78.19% 39.74%
   );
   background: #2980b9;
-  transform: rotate(0turn) translate(15.625%) rotate(0turn);
-  animation: l3-1 2s linear infinite;
+  animation: gearInner 2s linear infinite;
 }
-@keyframes l3-0 {
-  to {
-    rotate: -1turn;
-  }
-}
-@keyframes l3-1 {
+@keyframes gearInner {
   to {
     transform: rotate(1turn) translate(15.625%) rotate(-1.333turn);
   }
 }
 
-/* Loader Animation 3 - Orbit Dots */
+/* Loader 3 - Orbit Dots */
 .loader3 {
+  position: relative;
+  box-sizing: border-box;
   width: 16px;
   aspect-ratio: 1;
-  animation: l13-0 2s linear infinite;
-  position: relative;
+  animation: spin 2s linear infinite;
 }
 .loader3::before,
 .loader3::after {
@@ -158,25 +254,21 @@
   border-radius: 50%;
   background: radial-gradient(at 30% 30%, transparent, rgba(52, 152, 219, 0.7))
     #3498db;
-  animation: l13-1 0.5s cubic-bezier(0.5, -500, 0.5, 500) infinite;
+  animation: microShake 0.5s cubic-bezier(0.5, -500, 0.5, 500) infinite;
 }
 .loader3::after {
   animation-delay: -0.15s;
 }
-@keyframes l13-0 {
-  100% {
-    transform: rotate(360deg);
-  }
-}
-@keyframes l13-1 {
+@keyframes microShake {
   100% {
     transform: translate(0.5px);
   }
 }
 
-/* Loader Animation 4 - Welding Sparks */
+/* Loader 4 - Welding Sparks */
 .loader4 {
   position: relative;
+  box-sizing: border-box;
   width: 36px;
   height: 36px;
 }
@@ -189,13 +281,13 @@
   position: absolute;
   left: 0;
   top: 0;
-  animation: weld-rotate 2s infinite ease-in;
+  animation: weldRotate 2s infinite ease-in;
 }
 .loader4:before {
   border-color: transparent transparent transparent #2980b9;
   animation-delay: 0.5s;
 }
-@keyframes weld-rotate {
+@keyframes weldRotate {
   0%,
   25% {
     transform: rotate(0deg);
@@ -209,11 +301,12 @@
   }
 }
 
-/* Loader Animation 5 - Bouncing Box */
+/* Loader 5 - Bouncing Box */
 .loader5 {
+  position: relative;
+  box-sizing: border-box;
   width: 40px;
   height: 130px;
-  position: relative;
 }
 .loader5::before {
   content: "";
@@ -238,33 +331,9 @@
   width: 36px;
   background: #2980b9;
   border-radius: 4px;
-  animation: rotate 2s linear infinite;
+  animation: boxRotate 2s linear infinite;
 }
-@keyframes bounce {
-  0%,
-  50%,
-  100% {
-    transform: translate(-50%, 0px);
-    height: 16px;
-  }
-  20% {
-    transform: translate(-25%, 65px);
-    height: 22px;
-  }
-  25% {
-    transform: translate(-25%, 85px);
-    height: 9px;
-  }
-  70% {
-    transform: translate(-75%, 65px);
-    height: 22px;
-  }
-  75% {
-    transform: translate(-75%, 85px);
-    height: 9px;
-  }
-}
-@keyframes rotate {
+@keyframes boxRotate {
   0%,
   50%,
   100% {
@@ -275,5 +344,270 @@
   }
   75% {
     transform: rotate(-90deg);
+  }
+}
+
+/* Loader 6 - Kitchen Prep Station */
+.loader6 {
+  position: relative;
+  box-sizing: border-box;
+  width: 80px;
+  height: 70px;
+  border: 5px solid #2980b9;
+  padding: 0 8px;
+  background:
+    linear-gradient(#fff 0 0) 0 0/8px 20px,
+    linear-gradient(#fff 0 0) 100% 0/8px 20px,
+    radial-gradient(farthest-side, #fff 90%, #0000) 0 5px/8px 8px content-box,
+    #2980b9;
+  background-repeat: no-repeat;
+  animation: prepStation 2s infinite linear;
+}
+@keyframes prepStation {
+  25% {
+    background-position:
+      0 0,
+      100% 100%,
+      100% calc(100% - 5px);
+  }
+  50% {
+    background-position:
+      0 100%,
+      100% 100%,
+      0 calc(100% - 5px);
+  }
+  75% {
+    background-position:
+      0 100%,
+      100% 0,
+      100% 5px;
+  }
+}
+
+/* Loader 7 - Conveyor Belt */
+.loader7 {
+  position: relative;
+  box-sizing: border-box;
+  width: 80px;
+  height: 60px;
+  background:
+    linear-gradient(#fff 0 0) left / calc(50% - 15px) 8px no-repeat,
+    linear-gradient(#fff 0 0) right/calc(50% - 15px) 8px no-repeat,
+    conic-gradient(from 135deg at top, #0000, #3498db 1deg 90deg, #0000 91deg)
+      bottom/14px 8px repeat-x,
+    #2980b9;
+  border-bottom: 2px solid #3498db;
+  overflow: hidden;
+  animation: conveyorBelt 1s infinite linear;
+}
+.loader7::before {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 14px;
+  background: #e74c3c;
+  left: -5px;
+  border-radius: 50%;
+  animation:
+    ballBounce 2s infinite cubic-bezier(0, 100, 1, 100),
+    slideLeft 2s infinite linear;
+}
+@keyframes conveyorBelt {
+  50% {
+    background-position:
+      left,
+      right,
+      bottom -2px left -4px;
+  }
+}
+
+/* Loader 8 - Morphing Ingredients */
+.loader8 {
+  position: relative;
+  box-sizing: border-box;
+  width: 65px;
+  aspect-ratio: 1;
+}
+.loader8:before,
+.loader8:after {
+  content: "";
+  position: absolute;
+  border-radius: 50px;
+  box-shadow: 0 0 0 3px inset #3498db;
+  animation: morphingInset 2.5s infinite;
+}
+.loader8:after {
+  animation-delay: -1.25s;
+  border-radius: 0;
+  box-shadow: 0 0 0 3px inset #2980b9;
+}
+
+/* Loader 9 - Flaming Grill */
+.loader9 {
+  position: relative;
+  box-sizing: border-box;
+  display: inline-grid;
+  width: 80px;
+  aspect-ratio: 1;
+  animation: flameShift 0.5s linear infinite;
+  background:
+    conic-gradient(
+        from -34deg at 50% 99%,
+        #0000,
+        #e74c3c 2deg 65deg,
+        #0000 68deg
+      ) -6%
+      0%/20% 27% repeat-x,
+    conic-gradient(
+        from 146deg at 50% 1%,
+        #0000,
+        #e74c3c 2deg 65deg,
+        #0000 68deg
+      ) -5%
+      100%/20% 27% repeat-x;
+}
+.loader9:before {
+  content: "";
+  animation: grillRotate 0.5s linear infinite;
+  margin: 12.5%;
+  clip-path: polygon(
+    100% 50%,
+    78.19% 60.26%,
+    88.3% 82.14%,
+    65% 75.98%,
+    58.68% 99.24%,
+    44.79% 79.54%,
+    25% 93.3%,
+    27.02% 69.28%,
+    3.02% 67.1%,
+    20% 50%,
+    3.02% 32.9%,
+    27.02% 30.72%,
+    25% 6.7%,
+    44.79% 20.46%,
+    58.68% 0.76%,
+    65% 24.02%,
+    88.3% 17.86%,
+    78.19% 39.74%
+  );
+  background: #3498db;
+}
+@keyframes flameShift {
+  to {
+    background-position:
+      -31% 0%,
+      20% 100%;
+  }
+}
+@keyframes grillRotate {
+  to {
+    rotate: -40deg;
+  }
+}
+
+/* Loader 10 - Rolling Pin */
+.loader10 {
+  position: relative;
+  box-sizing: border-box;
+  height: 60px;
+  aspect-ratio: 2;
+  border-bottom: 3px solid #0000;
+  background: linear-gradient(90deg, #2980b9 50%, #0000 0) -25% 100%/50% 3px
+    repeat-x border-box;
+  animation: rollingPattern 0.75s linear infinite;
+}
+.loader10:before {
+  content: "";
+  position: absolute;
+  inset: auto 42.5% 0;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #3498db;
+  animation: ballBounce 0.75s cubic-bezier(0, 900, 1, 900) infinite;
+}
+@keyframes rollingPattern {
+  to {
+    background-position: -125% 100%;
+  }
+}
+
+/* Loader 11 - Seesaw Chef */
+.loader11 {
+  position: relative;
+  box-sizing: border-box;
+  height: 60px;
+  aspect-ratio: 2;
+}
+.loader11:before {
+  content: "";
+  position: absolute;
+  inset: 100% 75% -3px 0;
+  background: #2980b9;
+  animation: seesaw 1s linear infinite alternate;
+}
+.loader11:after {
+  content: "";
+  position: absolute;
+  inset: auto 42.5% 0;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #3498db;
+  animation:
+    ballBounce 1s cubic-bezier(0, 700, 1, 700) infinite alternate,
+    seesawSlide 1s linear infinite alternate;
+}
+@keyframes seesawSlide {
+  0% {
+    translate: -220%;
+  }
+  100% {
+    translate: 220%;
+  }
+}
+
+/* Loader 12 - Mixing Bowl */
+.loader12 {
+  position: relative;
+  box-sizing: border-box;
+  height: 60px;
+  aspect-ratio: 1;
+  border: 3px solid #2980b9;
+}
+.loader12:before,
+.loader12:after {
+  content: "";
+  position: absolute;
+  width: 20%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #3498db;
+  animation:
+    mixingVertical 0.57s infinite alternate linear -0.13s,
+    mixingHorizontal 0.35s infinite alternate linear -0.23s;
+}
+.loader12:after {
+  background: #e74c3c;
+  animation:
+    mixingVertical 0.29s infinite alternate linear -0.11s,
+    mixingHorizontal 0.51s infinite alternate linear -0.34s;
+}
+@keyframes mixingVertical {
+  0%,
+  5% {
+    bottom: 0%;
+  }
+  95%,
+  100% {
+    bottom: 80%;
+  }
+}
+@keyframes mixingHorizontal {
+  0%,
+  5% {
+    left: 0%;
+  }
+  95%,
+  100% {
+    left: 80%;
   }
 }

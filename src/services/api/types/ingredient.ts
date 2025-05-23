@@ -1,3 +1,4 @@
+// ./menutraining-mantine/src/services/api/types/ingredient.ts
 export type Ingredient = {
   id: string;
   ingredientId: string;
@@ -9,6 +10,7 @@ export type Ingredient = {
   derivedAllergies?: string[];
   categories: string[];
   subIngredientDetails?: Array<{ id: string; name: string }>;
+  isCoreIngredient?: boolean; // New field to identify core ingredients
 };
 
 export type CreateIngredientDto = {

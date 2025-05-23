@@ -31,6 +31,13 @@ const LOADER_CLASSES = [
   styles.loader3,
   styles.loader4,
   styles.loader5,
+  styles.loader6,
+  styles.loader7,
+  styles.loader8,
+  styles.loader9,
+  styles.loader10,
+  styles.loader11,
+  styles.loader12,
 ];
 
 export function QuizLoaderModal({
