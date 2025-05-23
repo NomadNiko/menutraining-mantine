@@ -161,6 +161,10 @@ function FormCreateUser() {
       value: RoleEnum.USER.toString(),
       label: t(`admin-panel-users-create:inputs.role.options.${RoleEnum.USER}`),
     },
+    {
+      value: RoleEnum.FOH.toString(),
+      label: t(`admin-panel-users-create:inputs.role.options.${RoleEnum.FOH}`),
+    },
   ];
 
   return (

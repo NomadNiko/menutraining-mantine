@@ -22,6 +22,8 @@ import useConfirmDialog from "@/components/confirm-dialog/use-confirm-dialog";
 import { useSnackbar } from "@/components/mantine/feedback/notification-service";
 import { useDeleteIngredientService } from "@/services/api/services/ingredients";
 import useSelectedRestaurant from "@/services/restaurant/use-selected-restaurant";
+import RouteGuard from "@/services/auth/route-guard";
+import { RoleEnum } from "@/services/api/types/role";
 
 // Import components
 import { SearchBar } from "@/components/ingredients/SearchBar";
@@ -118,7 +120,6 @@ function RestaurantIngredientsPage() {
   // Update URL when filters change - debounced to reduce state updates
   useEffect(() => {
     if (!selectedRestaurant) return;
-
     const updateUrlParams = () => {
       const params = new URLSearchParams();
       if (searchQuery) params.set("search", searchQuery);
@@ -132,11 +133,9 @@ function RestaurantIngredientsPage() {
       params.set("categoryExcludeMode", categoryExcludeMode.toString());
       params.set("sortField", sortField);
       params.set("sortDirection", sortDirection);
-
       // Use router.replace to update URL without full page reload
       router.replace(`?${params.toString()}`, { scroll: false });
     };
-
     // Use a timeout to debounce the URL updates
     const timeoutId = setTimeout(updateUrlParams, 300);
     return () => clearTimeout(timeoutId);
@@ -192,7 +191,6 @@ function RestaurantIngredientsPage() {
         title: t("deleteConfirmTitle"),
         message: t("deleteConfirmMessage", { name }),
       });
-
       if (confirmed) {
         setLoading(true);
         try {
@@ -228,87 +226,89 @@ function RestaurantIngredientsPage() {
   }
 
   return (
-    <Container size={isMobile ? "100%" : "lg"}>
-      <Group justify="space-between" mb="xl">
-        <Title order={2}>
-          {t("title")}: {selectedRestaurant.name}
-        </Title>
-        <Button
-          component={Link}
-          href="/restaurant/ingredients/create"
-          color="green"
-          size="compact-sm"
-        >
-          {t("create")}
-        </Button>
-      </Group>
-      <Stack gap="md">
-        {/* Search and Filters */}
-        <Group align="flex-start" grow>
-          <SearchBar
-            initialValue={searchQuery}
-            onSearch={handleSearch}
-            placeholder={t("search.placeholder")}
+    <RouteGuard roles={[RoleEnum.ADMIN, RoleEnum.USER]}>
+      <Container size={isMobile ? "100%" : "lg"}>
+        <Group justify="space-between" mb="xl">
+          <Title order={2}>
+            {t("title")}: {selectedRestaurant.name}
+          </Title>
+          <Button
+            component={Link}
+            href="/restaurant/ingredients/create"
+            color="green"
+            size="compact-sm"
+          >
+            {t("create")}
+          </Button>
+        </Group>
+        <Stack gap="md">
+          {/* Search and Filters */}
+          <Group align="flex-start" grow>
+            <SearchBar
+              initialValue={searchQuery}
+              onSearch={handleSearch}
+              placeholder={t("search.placeholder")}
+              disabled={isLoading}
+            />
+          </Group>
+          <FilterPanel
+            allergies={allergiesMap}
+            selectedAllergies={selectedAllergies}
+            hasSubIngredients={hasSubIngredients}
+            allergyExcludeMode={allergyExcludeMode}
+            selectedCategories={selectedCategories}
+            categoryExcludeMode={categoryExcludeMode}
+            onFilterChange={handleFilterChange}
+            onFilterReset={handleFilterReset}
             disabled={isLoading}
           />
-        </Group>
-        <FilterPanel
-          allergies={allergiesMap}
-          selectedAllergies={selectedAllergies}
-          hasSubIngredients={hasSubIngredients}
-          allergyExcludeMode={allergyExcludeMode}
-          selectedCategories={selectedCategories}
-          categoryExcludeMode={categoryExcludeMode}
-          onFilterChange={handleFilterChange}
-          onFilterReset={handleFilterReset}
-          disabled={isLoading}
-        />
-        {/* Results Information */}
-        <ResultsInfo
-          totalCount={totalCount}
-          displayedCount={ingredients.length}
-          searchQuery={searchQuery}
-          selectedAllergies={selectedAllergies}
-          allergiesMap={allergiesMap}
-          hasSubIngredients={hasSubIngredients}
-          allergyExcludeMode={allergyExcludeMode}
-          selectedCategories={selectedCategories}
-          categoryExcludeMode={categoryExcludeMode}
-          isLoading={isLoading}
-        />
-        {/* Ingredients Table/Cards */}
-        <Paper p="md" withBorder>
-          {isError ? (
-            <Center p="xl">
-              <Text color="red">{t("errorLoading")}</Text>
-            </Center>
-          ) : isMobile ? (
-            <IngredientCards
-              ingredients={ingredients}
-              allergies={allergiesMap}
-              onDelete={handleDeleteIngredient}
-              loading={isLoading}
-            />
-          ) : (
-            <IngredientTable
-              ingredients={ingredients}
-              allergies={allergiesMap}
-              onDelete={handleDeleteIngredient}
-              loading={isLoading}
-              sortField={sortField}
-              sortDirection={sortDirection}
-              onSort={handleSort}
-            />
-          )}
-        </Paper>
-        {/* Load More Button */}
-        <LoadMoreButton
-          onClick={loadMore}
-          hasMore={hasMore}
-          isLoading={isLoading}
-        />
-      </Stack>
-    </Container>
+          {/* Results Information */}
+          <ResultsInfo
+            totalCount={totalCount}
+            displayedCount={ingredients.length}
+            searchQuery={searchQuery}
+            selectedAllergies={selectedAllergies}
+            allergiesMap={allergiesMap}
+            hasSubIngredients={hasSubIngredients}
+            allergyExcludeMode={allergyExcludeMode}
+            selectedCategories={selectedCategories}
+            categoryExcludeMode={categoryExcludeMode}
+            isLoading={isLoading}
+          />
+          {/* Ingredients Table/Cards */}
+          <Paper p="md" withBorder>
+            {isError ? (
+              <Center p="xl">
+                <Text color="red">{t("errorLoading")}</Text>
+              </Center>
+            ) : isMobile ? (
+              <IngredientCards
+                ingredients={ingredients}
+                allergies={allergiesMap}
+                onDelete={handleDeleteIngredient}
+                loading={isLoading}
+              />
+            ) : (
+              <IngredientTable
+                ingredients={ingredients}
+                allergies={allergiesMap}
+                onDelete={handleDeleteIngredient}
+                loading={isLoading}
+                sortField={sortField}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+              />
+            )}
+          </Paper>
+          {/* Load More Button */}
+          <LoadMoreButton
+            onClick={loadMore}
+            hasMore={hasMore}
+            isLoading={isLoading}
+          />
+        </Stack>
+      </Container>
+    </RouteGuard>
   );
 }
 

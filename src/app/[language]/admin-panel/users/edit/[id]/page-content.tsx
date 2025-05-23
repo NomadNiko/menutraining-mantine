@@ -151,6 +151,10 @@ function FormEditUser() {
       value: RoleEnum.USER.toString(),
       label: t(`admin-panel-users-edit:inputs.role.options.${RoleEnum.USER}`),
     },
+    {
+      value: RoleEnum.FOH.toString(),
+      label: t(`admin-panel-users-edit:inputs.role.options.${RoleEnum.FOH}`),
+    },
   ];
 
   return (

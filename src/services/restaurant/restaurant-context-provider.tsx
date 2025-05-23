@@ -1,4 +1,4 @@
-// ./menutraining-mantine/src/services/restaurant/restaurant-context-provider.tsx
+// src/services/restaurant/restaurant-context-provider.tsx
 "use client";
 import { Restaurant } from "@/services/api/types/restaurant";
 import { useGetRestaurantsService } from "@/services/api/services/restaurants";
@@ -17,6 +17,7 @@ import useAuth from "@/services/auth/use-auth";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { RoleEnum } from "@/services/api/types/role";
 
 const SELECTED_RESTAURANT_KEY = "selected-restaurant-id";
 
@@ -38,27 +39,34 @@ function RestaurantContextProvider({ children }: PropsWithChildren<{}>) {
   const queryClient = useQueryClient();
   const router = useRouter();
 
+  // Check if user is admin
+  const isAdmin = user?.role?.id === RoleEnum.ADMIN;
+
   // Load restaurants and set initial selection
   const loadRestaurants = useCallback(async () => {
     if (!isAuthLoaded || !user) {
       setIsLoaded(true);
       return;
     }
+
     try {
-      console.log("Loading restaurants...");
+      console.log("Loading restaurants...", { isAdmin });
       const { status, data } = await getRestaurantsService(undefined, {
         page: 1,
-        limit: 100,
+        limit: 100, // For admins, this will get all restaurants they have access to (which should be all)
       });
+
       if (status === HTTP_CODES_ENUM.OK) {
         const restaurantsArray = Array.isArray(data) ? data : data?.data || [];
         console.log("Loaded restaurants:", restaurantsArray);
         setAvailableRestaurants(restaurantsArray);
+
         if (restaurantsArray.length > 0) {
           const savedRestaurantId = localStorage.getItem(
             SELECTED_RESTAURANT_KEY
           );
           let restaurantToSelect;
+
           if (savedRestaurantId) {
             restaurantToSelect =
               restaurantsArray.find((r) => r.id === savedRestaurantId) ||
@@ -66,6 +74,7 @@ function RestaurantContextProvider({ children }: PropsWithChildren<{}>) {
           } else {
             restaurantToSelect = restaurantsArray[0];
           }
+
           console.log("Setting selected restaurant:", restaurantToSelect);
           setSelectedRestaurant(restaurantToSelect);
           localStorage.setItem(SELECTED_RESTAURANT_KEY, restaurantToSelect.id);
@@ -76,7 +85,7 @@ function RestaurantContextProvider({ children }: PropsWithChildren<{}>) {
     } finally {
       setIsLoaded(true);
     }
-  }, [getRestaurantsService, user, isAuthLoaded]);
+  }, [getRestaurantsService, user, isAuthLoaded, isAdmin]);
 
   // Initial load
   useEffect(() => {
@@ -92,10 +101,8 @@ function RestaurantContextProvider({ children }: PropsWithChildren<{}>) {
         localStorage.removeItem(key);
       }
     });
-
     // Clear React Query cache
     queryClient.clear();
-
     console.log("Cleared restaurant-specific cache");
   }, [queryClient]);
 
@@ -103,7 +110,6 @@ function RestaurantContextProvider({ children }: PropsWithChildren<{}>) {
     (restaurant: Restaurant) => {
       const currentRestaurantId = selectedRestaurant?.id;
       const newRestaurantId = restaurant.id;
-
       console.log("Manually setting selected restaurant:", restaurant);
 
       // Only proceed if the restaurant is actually changing

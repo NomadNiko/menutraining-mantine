@@ -1,4 +1,4 @@
-// index.tsx
+// src/components/app-bar/index.tsx
 "use client";
 import { AppShell, Burger, Group, Container, Box, Flex } from "@mantine/core";
 import { useState } from "react";
@@ -15,9 +15,13 @@ const ResponsiveAppBar = ({ children }: { children: React.ReactNode }) => {
   const [opened, setOpened] = useState(false);
   const { user } = useAuth();
 
-  // Correct role checking pattern matching the rest of the application
-  const isRegularUser =
-    user && user.role?.id && String(user.role.id) === String(RoleEnum.USER);
+  // Show restaurant selector for both admins and regular users
+  const shouldShowRestaurantSelector =
+    user &&
+    user.role?.id &&
+    (String(user.role.id) === String(RoleEnum.ADMIN) ||
+      String(user.role.id) === String(RoleEnum.USER) ||
+      String(user.role.id) === String(RoleEnum.FOH));
 
   return (
     <AppShell
@@ -48,7 +52,6 @@ const ResponsiveAppBar = ({ children }: { children: React.ReactNode }) => {
                 <DesktopNavigation onCloseMenu={() => setOpened(false)} />
               </Group>
             </Box>
-
             {/* Mobile Logo - centered with overflow handling */}
             <Box
               style={{
@@ -60,11 +63,10 @@ const ResponsiveAppBar = ({ children }: { children: React.ReactNode }) => {
             >
               <Logo isMobile />
             </Box>
-
             {/* Right section with fixed width and nowrap */}
             <Group gap="xs" align="center" wrap="nowrap">
-              {/* Restaurant Selector - only for regular users */}
-              {isRegularUser && <RestaurantSelector />}
+              {/* Restaurant Selector - for both admins and regular users */}
+              {shouldShowRestaurantSelector && <RestaurantSelector />}
               {/* Theme Switch Button */}
               <SwitchThemeButton />
               {/* Authentication Section */}
