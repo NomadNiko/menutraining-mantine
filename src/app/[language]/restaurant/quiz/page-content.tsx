@@ -148,10 +148,7 @@ function QuizLandingPage() {
       </Stack>
 
       {/* Custom loading modal with animation */}
-      <QuizLoaderModal
-        opened={showLoadingModal || state.loading}
-        message={t("quiz.preparingQuiz")}
-      />
+      <QuizLoaderModal opened={showLoadingModal || state.loading} />
     </Container>
   );
 }

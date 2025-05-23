@@ -1,3 +1,4 @@
+// src/app/[language]/restaurant/quiz/components/QuizLoaderModal.tsx
 import {
   Modal,
   Text,
@@ -13,6 +14,7 @@ import styles from "./QuizLoaderModal.module.css";
 interface QuizLoaderModalProps {
   opened: boolean;
   message?: string;
+  disableCycling?: boolean; // New prop to control cycling behavior
 }
 
 // Utility function to shuffle an array
@@ -34,7 +36,11 @@ const LOADER_CLASSES = [
   styles.loader5,
 ];
 
-export function QuizLoaderModal({ opened, message }: QuizLoaderModalProps) {
+export function QuizLoaderModal({
+  opened,
+  message,
+  disableCycling = false,
+}: QuizLoaderModalProps) {
   const { t } = useTranslation("restaurant-quiz");
   const theme = useMantineTheme();
   const { colorScheme } = useMantineColorScheme();
@@ -73,9 +79,10 @@ export function QuizLoaderModal({ opened, message }: QuizLoaderModalProps) {
     }
   }, [opened]);
 
-  // Cycle through phrases every 2.5 seconds
+  // Cycle through phrases every 2.5 seconds (only if cycling is enabled)
   useEffect(() => {
-    if (!opened || shuffledPhrases.length <= 1) return;
+    if (!opened || shuffledPhrases.length <= 1 || disableCycling || message)
+      return;
 
     const interval = setInterval(() => {
       setCurrentPhraseIndex(
@@ -84,14 +91,21 @@ export function QuizLoaderModal({ opened, message }: QuizLoaderModalProps) {
     }, 2500);
 
     return () => clearInterval(interval);
-  }, [opened, shuffledPhrases.length]);
+  }, [opened, shuffledPhrases.length, disableCycling, message]);
 
   // Get current phrase to display
   const getCurrentPhrase = useCallback(() => {
-    if (message) return message;
-    if (shuffledPhrases.length === 0) return t("quiz.preparingQuiz");
-    return shuffledPhrases[currentPhraseIndex] || t("quiz.preparingQuiz");
-  }, [message, shuffledPhrases, currentPhraseIndex, t]);
+    // Only use message if cycling is disabled or message is specifically provided
+    if (disableCycling && message) return message;
+
+    // Use cycling phrases if available and cycling is enabled
+    if (!disableCycling && shuffledPhrases.length > 0) {
+      return shuffledPhrases[currentPhraseIndex] || t("quiz.preparingQuiz");
+    }
+
+    // Fallback
+    return message || t("quiz.preparingQuiz");
+  }, [message, shuffledPhrases, currentPhraseIndex, t, disableCycling]);
 
   return (
     <Modal
