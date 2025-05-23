@@ -48,7 +48,7 @@ function RecipesPage() {
       try {
         const { status, data } = await getRestaurantsService(undefined, {
           page: 1,
-          limit: 100, // Assuming reasonable number of restaurants
+          limit: 300, // Assuming reasonable number of restaurants
         });
         if (status === HTTP_CODES_ENUM.OK) {
           // Check if data is an array directly or within the data.data structure

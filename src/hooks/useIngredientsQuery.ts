@@ -63,7 +63,7 @@ export const useIngredientsQuery = ({
     queryFn: async () => {
       const { status, data } = await getAllergiesService(undefined, {
         page: 1,
-        limit: 100,
+        limit: 300,
       });
       if (status === HTTP_CODES_ENUM.OK) {
         const allergiesArray = Array.isArray(data) ? data : data?.data || [];
@@ -95,7 +95,7 @@ export const useIngredientsQuery = ({
     queryFn: async () => {
       const queryParams: ApiQueryParams = {
         restaurantId,
-        limit: 1000,
+        limit: 3000,
       };
 
       if (searchQuery) {

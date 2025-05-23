@@ -73,7 +73,7 @@ function MenuSectionsPage() {
       const { status, data } = await getMenuSectionsService(undefined, {
         restaurantId: selectedRestaurant.restaurantId,
         title: searchQuery || undefined,
-        limit: 100,
+        limit: 300,
       });
       if (status === HTTP_CODES_ENUM.OK) {
         const sectionsData = Array.isArray(data) ? data : data?.data || [];

@@ -74,7 +74,7 @@ export function QuizConfiguration({
       try {
         const { status, data } = await getMenuSectionsService(undefined, {
           restaurantId: selectedRestaurant.restaurantId,
-          limit: 100,
+          limit: 300,
         });
 
         if (status === HTTP_CODES_ENUM.OK) {

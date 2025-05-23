@@ -73,7 +73,7 @@ function MenusPage() {
       const { status, data } = await getMenusService(undefined, {
         restaurantId: selectedRestaurant.restaurantId,
         name: searchQuery || undefined,
-        limit: 100,
+        limit: 300,
       });
       if (status === HTTP_CODES_ENUM.OK) {
         // Handle both array and paginated responses

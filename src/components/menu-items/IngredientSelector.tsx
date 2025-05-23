@@ -54,7 +54,7 @@ export function IngredientSelector({
       try {
         const { status, data } = await getIngredientsService(undefined, {
           restaurantId,
-          limit: 100,
+          limit: 300,
         });
         if (status === HTTP_CODES_ENUM.OK) {
           const allIngredients = Array.isArray(data) ? data : data?.data || [];

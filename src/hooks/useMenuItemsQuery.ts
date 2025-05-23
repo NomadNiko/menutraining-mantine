@@ -54,7 +54,7 @@ export const useMenuItemsQuery = ({
     queryFn: async () => {
       const { status, data } = await getAllergiesService(undefined, {
         page: 1,
-        limit: 100,
+        limit: 300,
       });
 
       if (status === HTTP_CODES_ENUM.OK) {
@@ -88,7 +88,7 @@ export const useMenuItemsQuery = ({
     queryFn: async () => {
       const queryParams: ApiQueryParams = {
         restaurantId,
-        limit: 1000,
+        limit: 3000,
       };
 
       // We can only use one ingredientId in the API query

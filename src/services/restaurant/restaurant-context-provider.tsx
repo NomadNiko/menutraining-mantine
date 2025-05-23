@@ -53,7 +53,7 @@ function RestaurantContextProvider({ children }: PropsWithChildren<{}>) {
       console.log("Loading restaurants...", { isAdmin });
       const { status, data } = await getRestaurantsService(undefined, {
         page: 1,
-        limit: 100, // For admins, this will get all restaurants they have access to (which should be all)
+        limit: 300, // For admins, this will get all restaurants they have access to (which should be all)
       });
 
       if (status === HTTP_CODES_ENUM.OK) {

@@ -52,7 +52,7 @@ export function AllergySelector({
         // We'll fetch all allergies and filter
         const { status, data } = await getAllergiesService(undefined, {
           page: 1,
-          limit: 100, // Assuming reasonable number of allergies
+          limit: 300, // Assuming reasonable number of allergies
         });
         if (status === HTTP_CODES_ENUM.OK) {
           const allAllergies = Array.isArray(data) ? data : data?.data || [];

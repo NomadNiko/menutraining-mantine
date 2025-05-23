@@ -29,7 +29,7 @@ export function AllergyCheckboxGroup({
       try {
         const { status, data } = await getAllergiesService(undefined, {
           page: 1,
-          limit: 100, // Assuming a reasonable number of allergies
+          limit: 300, // Assuming a reasonable number of allergies
         });
         if (status === HTTP_CODES_ENUM.OK) {
           const allergiesData = Array.isArray(data) ? data : data?.data || [];

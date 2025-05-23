@@ -118,7 +118,7 @@ function RecipesPage() {
       // Load ingredients
       const { status: ingStatus, data: ingData } = await getIngredientsService(
         undefined,
-        { restaurantId: selectedRestaurant.restaurantId, limit: 100 }
+        { restaurantId: selectedRestaurant.restaurantId, limit: 300 }
       );
 
       if (ingStatus === HTTP_CODES_ENUM.OK) {
@@ -136,7 +136,7 @@ function RecipesPage() {
       // Load equipment
       const { status: eqStatus, data: eqData } = await getEquipmentService(
         undefined,
-        { page: 1, limit: 100 }
+        { page: 1, limit: 300 }
       );
 
       if (eqStatus === HTTP_CODES_ENUM.OK) {

@@ -80,7 +80,7 @@ export function RecipeStepForm({
       try {
         const { status, data } = await getEquipmentService(undefined, {
           page: 1,
-          limit: 100,
+          limit: 300,
         });
         if (status === HTTP_CODES_ENUM.OK) {
           const equipmentData = Array.isArray(data) ? data : data?.data || [];

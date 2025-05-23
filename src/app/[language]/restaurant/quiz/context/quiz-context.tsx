@@ -201,7 +201,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       let menuItems: MenuItem[] = [];
       const menuItemsResponse = await getMenuItemsService(undefined, {
         restaurantId: selectedRestaurant.restaurantId,
-        limit: 100,
+        limit: 300,
       });
 
       if (menuItemsResponse.status !== HTTP_CODES_ENUM.OK) {
@@ -217,7 +217,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         // Fetch menu sections to get their items
         const menuSectionsResponse = await getMenuSectionsService(undefined, {
           restaurantId: selectedRestaurant.restaurantId,
-          limit: 100,
+          limit: 300,
         });
 
         if (menuSectionsResponse.status === HTTP_CODES_ENUM.OK) {
@@ -256,7 +256,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       // Fetch ingredients for the restaurant
       const ingredientsResponse = await getIngredientsService(undefined, {
         restaurantId: selectedRestaurant.restaurantId,
-        limit: 100,
+        limit: 300,
       });
 
       if (ingredientsResponse.status !== HTTP_CODES_ENUM.OK) {
@@ -272,7 +272,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       // Fetch allergies
       const allergiesResponse = await getAllergiesService(undefined, {
         page: 1,
-        limit: 100,
+        limit: 300,
       });
 
       if (allergiesResponse.status !== HTTP_CODES_ENUM.OK) {

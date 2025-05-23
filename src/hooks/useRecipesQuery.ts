@@ -64,7 +64,7 @@ export const useRecipesQuery = ({
       if (!restaurantId) return {};
       const { status, data } = await getIngredientsService(undefined, {
         restaurantId,
-        limit: 1000,
+        limit: 3000,
         page: 1, // Added required parameter
       });
       if (status === HTTP_CODES_ENUM.OK) {
@@ -87,7 +87,7 @@ export const useRecipesQuery = ({
     queryFn: async () => {
       const { status, data } = await getEquipmentService(undefined, {
         page: 1, // Added required parameter
-        limit: 1000,
+        limit: 3000,
       });
       if (status === HTTP_CODES_ENUM.OK) {
         const equipmentArray = Array.isArray(data) ? data : data?.data || [];
@@ -118,7 +118,7 @@ export const useRecipesQuery = ({
       if (!restaurantId) return { recipes: [], totalCount: 0 };
       const queryParams: ApiQueryParams = {
         restaurantId,
-        limit: 1000,
+        limit: 3000,
       };
       if (searchQuery) {
         queryParams.name = searchQuery;

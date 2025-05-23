@@ -144,7 +144,7 @@ export function RecipeForm({
       try {
         const { status, data } = await getIngredientsService(undefined, {
           restaurantId,
-          limit: 100,
+          limit: 300,
           page: 1,
         });
         if (status === HTTP_CODES_ENUM.OK) {

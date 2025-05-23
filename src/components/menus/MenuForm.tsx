@@ -105,7 +105,7 @@ export function MenuForm({
       try {
         const { status, data } = await getMenuSectionsService(undefined, {
           restaurantId,
-          limit: 100,
+          limit: 300,
         });
         if (status === HTTP_CODES_ENUM.OK) {
           const menuSectionsData = Array.isArray(data)

@@ -52,7 +52,7 @@ export function SubIngredientSelector({
         // We'll fetch all ingredients for this restaurant and filter
         const { status, data } = await getIngredientsService(undefined, {
           restaurantId,
-          limit: 100, // Assuming reasonable number of ingredients
+          limit: 300, // Assuming reasonable number of ingredients
         });
         if (status === HTTP_CODES_ENUM.OK) {
           // Handle data as array directly or in data.data
