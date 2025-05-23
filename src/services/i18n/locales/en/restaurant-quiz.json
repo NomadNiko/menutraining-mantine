@@ -54,7 +54,7 @@
       "hard": "Hard",
       "custom": "Custom",
       "easyModeDescription": "5 questions with 2 answer choices. Basic ingredient and menu item questions.",
-      "mediumModeDescription": "10 questions with 4 answer choices. Includes allergy-related questions.",
+      "mediumModeDescription": "10 questions with 4 answer choices. Includes ingredient allergy questions.",
       "hardModeDescription": "20 questions with 6 answer choices. All question types included.",
       "customModeDescription": "Customize your quiz settings including question count, difficulty, and types.",
       "modeSettings": "{{questions}} questions with {{choices}} answer choices per question",
@@ -67,7 +67,8 @@
       "ingredientsInDish": "Which ingredients are in this dish?",
       "ingredientsWithAllergy": "Which ingredients contain this allergy?",
       "menuItemContainsIngredient": "Does this menu item contain this ingredient?",
-      "ingredientOrMenuItemContainsAllergy": "Does this ingredient/item contain this allergy?",
+      "ingredientContainsAllergy": "Does this ingredient contain this allergy?",
+      "menuItemContainsAllergy": "Does this menu item contain this allergy?",
       "menuSections": "Menu Sections",
       "selectAll": "Select All",
       "deselectAll": "Deselect All",
@@ -94,5 +95,15 @@
     "player": "Player",
     "date": "Date",
     "noHighScores": "No high scores yet"
-  }
+  },
+  "correct": "Correct",
+  "incorrect": "Incorrect",
+  "accuracy": "Accuracy",
+  "all": "All",
+  "filterQuestions": "Filter Questions",
+  "showingResults": "Showing {{count}} of {{total}} questions",
+  "noCorrectAnswers": "No correct answers to display",
+  "noIncorrectAnswers": "No incorrect answers to display",
+  "showAllQuestions": "Show All Questions",
+  "noAnswerSelected": "No answer selected"
 }

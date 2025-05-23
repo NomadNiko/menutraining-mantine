@@ -1,5 +1,6 @@
 // src/app/[language]/restaurant/quiz/components/QuizConfiguration.tsx
 "use client";
+
 import {
   Paper,
   Stack,
@@ -179,11 +180,9 @@ export function QuizConfiguration({
 
   const isStartDisabled = () => {
     if (selectedMenuSections.length === 0) return true;
-
     if (selectedMode === QuizMode.CUSTOM) {
       return customQuestionTypes.length === 0;
     }
-
     return false;
   };
 
@@ -323,15 +322,24 @@ export function QuizConfiguration({
                   }
                 />
                 <Checkbox
-                  label={t(
-                    "quiz.configuration.ingredientOrMenuItemContainsAllergy"
-                  )}
+                  label={t("quiz.configuration.ingredientContainsAllergy")}
                   checked={customQuestionTypes.includes(
-                    QuestionType.INGREDIENT_OR_MENU_ITEM_CONTAINS_ALLERGY
+                    QuestionType.INGREDIENT_CONTAINS_ALLERGY
                   )}
                   onChange={() =>
                     handleQuestionTypeToggle(
-                      QuestionType.INGREDIENT_OR_MENU_ITEM_CONTAINS_ALLERGY
+                      QuestionType.INGREDIENT_CONTAINS_ALLERGY
+                    )
+                  }
+                />
+                <Checkbox
+                  label={t("quiz.configuration.menuItemContainsAllergy")}
+                  checked={customQuestionTypes.includes(
+                    QuestionType.MENU_ITEM_CONTAINS_ALLERGY
+                  )}
+                  onChange={() =>
+                    handleQuestionTypeToggle(
+                      QuestionType.MENU_ITEM_CONTAINS_ALLERGY
                     )
                   }
                 />

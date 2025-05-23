@@ -13,4 +13,5 @@ export { generateIngredientsWithAllergyQuestion } from "./ingredients-with-aller
 export { generateIngredientsInDishQuestion } from "./ingredients-in-dish";
 export { generateSingleIngredientQuestion } from "./single-ingredient";
 export { generateMenuItemContainsIngredientQuestion } from "./menu-item-contains-ingredient";
-export { generateIngredientOrMenuItemContainsAllergyQuestion } from "./ingredient-or-menu-item-contains-allergy";
+export { generateIngredientContainsAllergyQuestion } from "./ingredient-contains-allergy";
+export { generateMenuItemContainsAllergyQuestion } from "./menu-item-contains-allergy";

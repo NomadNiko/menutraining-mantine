@@ -7,7 +7,8 @@ export enum QuestionType {
   INGREDIENTS_IN_DISH = "ingredients_in_dish",
   INGREDIENTS_WITH_ALLERGY = "ingredients_with_allergy",
   MENU_ITEM_CONTAINS_INGREDIENT = "menu_item_contains_ingredient",
-  INGREDIENT_OR_MENU_ITEM_CONTAINS_ALLERGY = "ingredient_or_menu_item_contains_allergy",
+  INGREDIENT_CONTAINS_ALLERGY = "ingredient_contains_allergy",
+  MENU_ITEM_CONTAINS_ALLERGY = "menu_item_contains_allergy",
 }
 
 export enum Difficulty {
@@ -71,7 +72,7 @@ export const QUIZ_MODE_SETTINGS: Record<
     questionTypes: [
       QuestionType.MENU_ITEM_CONTAINS_INGREDIENT,
       QuestionType.INGREDIENTS_IN_DISH,
-      QuestionType.INGREDIENT_OR_MENU_ITEM_CONTAINS_ALLERGY,
+      QuestionType.INGREDIENT_CONTAINS_ALLERGY,
     ],
   },
   [QuizMode.HARD]: {

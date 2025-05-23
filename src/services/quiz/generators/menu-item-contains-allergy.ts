@@ -1,4 +1,4 @@
-// src/services/quiz/generators/ingredient-or-menu-item-contains-allergy.ts
+// src/services/quiz/generators/menu-item-contains-allergy.ts
 import { QuizQuestion, QuestionType } from "../types";
 import { MenuItem } from "@/services/api/types/menu-item";
 import { Ingredient } from "@/services/api/types/ingredient";
@@ -96,18 +96,18 @@ function menuItemContainsAllergy(
 }
 
 /**
- * Generates a true/false question about whether an ingredient or menu item contains a specific allergy
+ * Generates a true/false question about whether a menu item contains a specific allergy
  */
-export function generateIngredientOrMenuItemContainsAllergyQuestion(
-  allIngredients: Ingredient[],
+export function generateMenuItemContainsAllergyQuestion(
   allMenuItems: MenuItem[],
+  allIngredients: Ingredient[],
   allergies: Record<string, Allergy>
 ): QuizQuestion | null {
   try {
     // Early validation
     if (
-      !allIngredients.length ||
       !allMenuItems.length ||
+      !allIngredients.length ||
       !Object.keys(allergies).length
     ) {
       return null;
@@ -115,41 +115,20 @@ export function generateIngredientOrMenuItemContainsAllergyQuestion(
 
     const allergyList = Object.values(allergies);
 
-    // Randomly decide whether to ask about an ingredient or menu item (50/50 chance)
-    const askAboutIngredient = Math.random() < 0.5;
-
     // Select a random allergy
     const selectedAllergy = getRandomSubset(allergyList, 1)[0];
 
-    let questionText: string;
-    let imageUrl: string | null = null;
-    let correctAnswer: boolean;
-    let entityName: string;
+    // Select a random menu item
+    const selectedMenuItem = getRandomSubset(allMenuItems, 1)[0];
 
-    if (askAboutIngredient) {
-      // Ask about an ingredient
-      const selectedIngredient = getRandomSubset(allIngredients, 1)[0];
-      const ingredientAllergies = getIngredientAllAllergies(
-        selectedIngredient,
-        allIngredients
-      );
+    // Check if the menu item contains this allergy
+    const correctAnswer = menuItemContainsAllergy(
+      selectedMenuItem,
+      selectedAllergy.allergyId,
+      allIngredients
+    );
 
-      correctAnswer = ingredientAllergies.has(selectedAllergy.allergyId);
-      entityName = selectedIngredient.ingredientName;
-      imageUrl = selectedIngredient.ingredientImageUrl || null;
-      questionText = `Does "${entityName}" contain the ${selectedAllergy.allergyName} allergy?`;
-    } else {
-      // Ask about a menu item
-      const selectedMenuItem = getRandomSubset(allMenuItems, 1)[0];
-      correctAnswer = menuItemContainsAllergy(
-        selectedMenuItem,
-        selectedAllergy.allergyId,
-        allIngredients
-      );
-      entityName = selectedMenuItem.menuItemName;
-      imageUrl = selectedMenuItem.menuItemUrl || null;
-      questionText = `Does "${entityName}" contain the ${selectedAllergy.allergyName} allergy?`;
-    }
+    const questionText = `Does "${selectedMenuItem.menuItemName}" contain the ${selectedAllergy.allergyName} allergy?`;
 
     // Create the true/false options
     const options = [
@@ -158,17 +137,17 @@ export function generateIngredientOrMenuItemContainsAllergyQuestion(
     ];
 
     return {
-      id: `q_allergy_contains_${Date.now()}_${Math.random()}`,
-      type: QuestionType.INGREDIENT_OR_MENU_ITEM_CONTAINS_ALLERGY,
+      id: `q_menu_item_allergy_${Date.now()}_${Math.random()}`,
+      type: QuestionType.MENU_ITEM_CONTAINS_ALLERGY,
       questionText,
-      imageUrl,
+      imageUrl: selectedMenuItem.menuItemUrl || null,
       options,
       correctAnswerIds: [correctAnswer ? "true" : "false"],
-      isSingleChoice: true, // Mark as single choice
+      isSingleChoice: true,
     };
   } catch (error) {
     console.error(
-      "Error generating ingredient/menu item contains allergy question:",
+      "Error generating menu item contains allergy question:",
       error
     );
     return null;
