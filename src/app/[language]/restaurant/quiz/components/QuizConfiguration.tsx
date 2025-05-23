@@ -12,10 +12,16 @@ import {
   Divider,
   Loader,
   Center,
+  Box,
 } from "@mantine/core";
 import { useState, useEffect } from "react";
 import { useTranslation } from "@/services/i18n/client";
-import { QuestionType, Difficulty } from "@/services/quiz/types";
+import {
+  QuestionType,
+  Difficulty,
+  QuizMode,
+  QUIZ_MODE_SETTINGS,
+} from "@/services/quiz/types";
 import { useGetMenuSectionsService } from "@/services/api/services/menu-sections";
 import { MenuSection } from "@/services/api/types/menu-section";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
@@ -23,6 +29,7 @@ import useSelectedRestaurant from "@/services/restaurant/use-selected-restaurant
 
 interface QuizConfigurationProps {
   onStartQuiz: (config: {
+    mode: QuizMode;
     questionCount: number;
     questionTypes: QuestionType[];
     menuSectionIds: string[];
@@ -40,11 +47,18 @@ export function QuizConfiguration({
   const getMenuSectionsService = useGetMenuSectionsService();
 
   // Configuration state
-  const [questionCount, setQuestionCount] = useState<string>("10");
-  const [difficulty, setDifficulty] = useState<Difficulty>(Difficulty.MEDIUM);
-  const [selectedQuestionTypes, setSelectedQuestionTypes] = useState<
+  const [selectedMode, setSelectedMode] = useState<QuizMode>(QuizMode.MEDIUM);
+
+  // Custom mode specific state
+  const [customQuestionCount, setCustomQuestionCount] = useState<string>("10");
+  const [customDifficulty, setCustomDifficulty] = useState<Difficulty>(
+    Difficulty.MEDIUM
+  );
+  const [customQuestionTypes, setCustomQuestionTypes] = useState<
     QuestionType[]
   >(Object.values(QuestionType));
+
+  // Shared state
   const [menuSections, setMenuSections] = useState<MenuSection[]>([]);
   const [selectedMenuSections, setSelectedMenuSections] = useState<string[]>(
     []
@@ -79,9 +93,37 @@ export function QuizConfiguration({
     loadMenuSections();
   }, [selectedRestaurant, getMenuSectionsService]);
 
-  // Handle question type toggle
+  // Get current configuration based on mode
+  const getCurrentConfiguration = () => {
+    if (selectedMode === QuizMode.CUSTOM) {
+      return {
+        mode: selectedMode,
+        questionCount: parseInt(customQuestionCount),
+        questionTypes: customQuestionTypes,
+        difficulty: customDifficulty,
+        menuSectionIds:
+          selectedMenuSections.length === menuSections.length
+            ? [] // Empty array means all sections
+            : selectedMenuSections,
+      };
+    } else {
+      const modeSettings = QUIZ_MODE_SETTINGS[selectedMode];
+      return {
+        mode: selectedMode,
+        questionCount: modeSettings.questionCount,
+        questionTypes: modeSettings.questionTypes,
+        difficulty: modeSettings.difficulty,
+        menuSectionIds:
+          selectedMenuSections.length === menuSections.length
+            ? [] // Empty array means all sections
+            : selectedMenuSections,
+      };
+    }
+  };
+
+  // Handle question type toggle (custom mode only)
   const handleQuestionTypeToggle = (type: QuestionType) => {
-    setSelectedQuestionTypes((prev) => {
+    setCustomQuestionTypes((prev) => {
       if (prev.includes(type)) {
         // Don't allow deselecting if it's the last one
         if (prev.length === 1) return prev;
@@ -117,15 +159,32 @@ export function QuizConfiguration({
   };
 
   const handleStartQuiz = () => {
-    onStartQuiz({
-      questionCount: parseInt(questionCount),
-      questionTypes: selectedQuestionTypes,
-      menuSectionIds:
-        selectedMenuSections.length === menuSections.length
-          ? [] // Empty array means all sections
-          : selectedMenuSections,
-      difficulty,
-    });
+    onStartQuiz(getCurrentConfiguration());
+  };
+
+  const getModeDescription = (mode: QuizMode) => {
+    switch (mode) {
+      case QuizMode.EASY:
+        return t("quiz.configuration.easyModeDescription");
+      case QuizMode.MEDIUM:
+        return t("quiz.configuration.mediumModeDescription");
+      case QuizMode.HARD:
+        return t("quiz.configuration.hardModeDescription");
+      case QuizMode.CUSTOM:
+        return t("quiz.configuration.customModeDescription");
+      default:
+        return "";
+    }
+  };
+
+  const isStartDisabled = () => {
+    if (selectedMenuSections.length === 0) return true;
+
+    if (selectedMode === QuizMode.CUSTOM) {
+      return customQuestionTypes.length === 0;
+    }
+
+    return false;
   };
 
   return (
@@ -133,105 +192,153 @@ export function QuizConfiguration({
       <Stack gap="lg">
         <Title order={5}>{t("quiz.configuration.title")}</Title>
 
-        {/* Number of Questions */}
+        {/* Quiz Mode Selection */}
         <div>
           <Text size="sm" fw={500} mb="xs">
-            {t("quiz.configuration.numberOfQuestions")}
+            {t("quiz.configuration.mode")}
           </Text>
           <SegmentedControl
             data={[
-              { label: "5", value: "5" },
-              { label: "10", value: "10" },
-              { label: "20", value: "20" },
+              { label: t("quiz.configuration.easy"), value: QuizMode.EASY },
+              { label: t("quiz.configuration.medium"), value: QuizMode.MEDIUM },
+              { label: t("quiz.configuration.hard"), value: QuizMode.HARD },
+              { label: t("quiz.configuration.custom"), value: QuizMode.CUSTOM },
             ]}
-            value={questionCount}
-            onChange={setQuestionCount}
-            fullWidth
-          />
-        </div>
-
-        <Divider />
-
-        {/* Difficulty Setting */}
-        <div>
-          <Text size="sm" fw={500} mb="xs">
-            {t("quiz.configuration.difficulty")}
-          </Text>
-          <SegmentedControl
-            data={[
-              { label: t("quiz.configuration.easy"), value: Difficulty.EASY },
-              {
-                label: t("quiz.configuration.medium"),
-                value: Difficulty.MEDIUM,
-              },
-              { label: t("quiz.configuration.hard"), value: Difficulty.HARD },
-            ]}
-            value={difficulty}
-            onChange={(value) => setDifficulty(value as Difficulty)}
+            value={selectedMode}
+            onChange={(value) => setSelectedMode(value as QuizMode)}
             fullWidth
           />
           <Text size="xs" c="dimmed" mt="xs">
-            {difficulty === Difficulty.EASY &&
-              t("quiz.configuration.easyDescription")}
-            {difficulty === Difficulty.MEDIUM &&
-              t("quiz.configuration.mediumDescription")}
-            {difficulty === Difficulty.HARD &&
-              t("quiz.configuration.hardDescription")}
+            {getModeDescription(selectedMode)}
           </Text>
         </div>
 
-        <Divider />
+        {selectedMode !== QuizMode.CUSTOM && (
+          <Box>
+            <Text size="sm" c="dimmed">
+              {t("quiz.configuration.modeSettings", {
+                questions: QUIZ_MODE_SETTINGS[selectedMode].questionCount,
+                choices:
+                  selectedMode === QuizMode.EASY
+                    ? 2
+                    : selectedMode === QuizMode.MEDIUM
+                      ? 4
+                      : 6,
+              })}
+            </Text>
+          </Box>
+        )}
 
-        {/* Question Types */}
-        <div>
-          <Text size="sm" fw={500} mb="xs">
-            {t("quiz.configuration.questionTypes")}
-          </Text>
-          <Stack gap="xs">
-            <Checkbox
-              label={t("quiz.configuration.ingredientsInDish")}
-              checked={selectedQuestionTypes.includes(
-                QuestionType.INGREDIENTS_IN_DISH
-              )}
-              onChange={() =>
-                handleQuestionTypeToggle(QuestionType.INGREDIENTS_IN_DISH)
-              }
-            />
-            <Checkbox
-              label={t("quiz.configuration.ingredientsWithAllergy")}
-              checked={selectedQuestionTypes.includes(
-                QuestionType.INGREDIENTS_WITH_ALLERGY
-              )}
-              onChange={() =>
-                handleQuestionTypeToggle(QuestionType.INGREDIENTS_WITH_ALLERGY)
-              }
-            />
-            <Checkbox
-              label={t("quiz.configuration.menuItemContainsIngredient")}
-              checked={selectedQuestionTypes.includes(
-                QuestionType.MENU_ITEM_CONTAINS_INGREDIENT
-              )}
-              onChange={() =>
-                handleQuestionTypeToggle(
-                  QuestionType.MENU_ITEM_CONTAINS_INGREDIENT
-                )
-              }
-            />
-            <Checkbox
-              label={t(
-                "quiz.configuration.ingredientOrMenuItemContainsAllergy"
-              )}
-              checked={selectedQuestionTypes.includes(
-                QuestionType.INGREDIENT_OR_MENU_ITEM_CONTAINS_ALLERGY
-              )}
-              onChange={() =>
-                handleQuestionTypeToggle(
-                  QuestionType.INGREDIENT_OR_MENU_ITEM_CONTAINS_ALLERGY
-                )
-              }
-            />
-          </Stack>
-        </div>
+        {/* Custom Mode Settings */}
+        {selectedMode === QuizMode.CUSTOM && (
+          <>
+            <Divider />
+
+            {/* Number of Questions */}
+            <div>
+              <Text size="sm" fw={500} mb="xs">
+                {t("quiz.configuration.numberOfQuestions")}
+              </Text>
+              <SegmentedControl
+                data={[
+                  { label: "5", value: "5" },
+                  { label: "10", value: "10" },
+                  { label: "20", value: "20" },
+                ]}
+                value={customQuestionCount}
+                onChange={setCustomQuestionCount}
+                fullWidth
+              />
+            </div>
+
+            {/* Difficulty Setting */}
+            <div>
+              <Text size="sm" fw={500} mb="xs">
+                {t("quiz.configuration.difficulty")}
+              </Text>
+              <SegmentedControl
+                data={[
+                  {
+                    label: t("quiz.configuration.easy"),
+                    value: Difficulty.EASY,
+                  },
+                  {
+                    label: t("quiz.configuration.medium"),
+                    value: Difficulty.MEDIUM,
+                  },
+                  {
+                    label: t("quiz.configuration.hard"),
+                    value: Difficulty.HARD,
+                  },
+                ]}
+                value={customDifficulty}
+                onChange={(value) => setCustomDifficulty(value as Difficulty)}
+                fullWidth
+              />
+              <Text size="xs" c="dimmed" mt="xs">
+                {customDifficulty === Difficulty.EASY &&
+                  t("quiz.configuration.easyDescription")}
+                {customDifficulty === Difficulty.MEDIUM &&
+                  t("quiz.configuration.mediumDescription")}
+                {customDifficulty === Difficulty.HARD &&
+                  t("quiz.configuration.hardDescription")}
+              </Text>
+            </div>
+
+            {/* Question Types */}
+            <div>
+              <Text size="sm" fw={500} mb="xs">
+                {t("quiz.configuration.questionTypes")}
+              </Text>
+              <Stack gap="xs">
+                <Checkbox
+                  label={t("quiz.configuration.ingredientsInDish")}
+                  checked={customQuestionTypes.includes(
+                    QuestionType.INGREDIENTS_IN_DISH
+                  )}
+                  onChange={() =>
+                    handleQuestionTypeToggle(QuestionType.INGREDIENTS_IN_DISH)
+                  }
+                />
+                <Checkbox
+                  label={t("quiz.configuration.ingredientsWithAllergy")}
+                  checked={customQuestionTypes.includes(
+                    QuestionType.INGREDIENTS_WITH_ALLERGY
+                  )}
+                  onChange={() =>
+                    handleQuestionTypeToggle(
+                      QuestionType.INGREDIENTS_WITH_ALLERGY
+                    )
+                  }
+                />
+                <Checkbox
+                  label={t("quiz.configuration.menuItemContainsIngredient")}
+                  checked={customQuestionTypes.includes(
+                    QuestionType.MENU_ITEM_CONTAINS_INGREDIENT
+                  )}
+                  onChange={() =>
+                    handleQuestionTypeToggle(
+                      QuestionType.MENU_ITEM_CONTAINS_INGREDIENT
+                    )
+                  }
+                />
+                <Checkbox
+                  label={t(
+                    "quiz.configuration.ingredientOrMenuItemContainsAllergy"
+                  )}
+                  checked={customQuestionTypes.includes(
+                    QuestionType.INGREDIENT_OR_MENU_ITEM_CONTAINS_ALLERGY
+                  )}
+                  onChange={() =>
+                    handleQuestionTypeToggle(
+                      QuestionType.INGREDIENT_OR_MENU_ITEM_CONTAINS_ALLERGY
+                    )
+                  }
+                />
+              </Stack>
+            </div>
+          </>
+        )}
 
         <Divider />
 
@@ -279,11 +386,7 @@ export function QuizConfiguration({
           onClick={handleStartQuiz}
           fullWidth
           size="lg"
-          disabled={
-            isLoading ||
-            selectedQuestionTypes.length === 0 ||
-            selectedMenuSections.length === 0
-          }
+          disabled={isLoading || isStartDisabled()}
           loading={isLoading}
         >
           {t("quiz.startButton")}

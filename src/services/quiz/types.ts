@@ -16,6 +16,13 @@ export enum Difficulty {
   HARD = "hard",
 }
 
+export enum QuizMode {
+  EASY = "easy",
+  MEDIUM = "medium",
+  HARD = "hard",
+  CUSTOM = "custom",
+}
+
 export interface DifficultySettings {
   totalChoices: number;
   minCorrect: number;
@@ -40,6 +47,40 @@ export const DIFFICULTY_SETTINGS: Record<Difficulty, DifficultySettings> = {
   },
 };
 
+export interface QuizModeSettings {
+  questionCount: number;
+  difficulty: Difficulty;
+  questionTypes: QuestionType[];
+}
+
+export const QUIZ_MODE_SETTINGS: Record<
+  Exclude<QuizMode, QuizMode.CUSTOM>,
+  QuizModeSettings
+> = {
+  [QuizMode.EASY]: {
+    questionCount: 5,
+    difficulty: Difficulty.EASY,
+    questionTypes: [
+      QuestionType.MENU_ITEM_CONTAINS_INGREDIENT,
+      QuestionType.INGREDIENTS_IN_DISH,
+    ],
+  },
+  [QuizMode.MEDIUM]: {
+    questionCount: 10,
+    difficulty: Difficulty.MEDIUM,
+    questionTypes: [
+      QuestionType.MENU_ITEM_CONTAINS_INGREDIENT,
+      QuestionType.INGREDIENTS_IN_DISH,
+      QuestionType.INGREDIENT_OR_MENU_ITEM_CONTAINS_ALLERGY,
+    ],
+  },
+  [QuizMode.HARD]: {
+    questionCount: 20,
+    difficulty: Difficulty.HARD,
+    questionTypes: Object.values(QuestionType),
+  },
+};
+
 export interface AnswerOption {
   id: string;
   text: string;
@@ -52,10 +93,11 @@ export interface QuizQuestion {
   imageUrl?: string | null;
   options: AnswerOption[];
   correctAnswerIds: string[];
-  isSingleChoice?: boolean; // Add this to explicitly mark single choice questions
+  isSingleChoice?: boolean;
 }
 
 export interface QuizConfiguration {
+  mode: QuizMode;
   questionCount: number;
   questionTypes: QuestionType[];
   menuSectionIds: string[];

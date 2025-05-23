@@ -290,7 +290,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         allergiesMap[allergy.allergyId] = allergy;
       });
 
-      // Generate questions with configuration including difficulty
+      // Generate questions with configuration
       const result = await generateQuizQuestions(
         {
           menuItems,

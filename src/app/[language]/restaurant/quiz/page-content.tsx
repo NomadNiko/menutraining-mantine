@@ -20,7 +20,7 @@ import { QuizConfiguration } from "./components/QuizConfiguration";
 import useSelectedRestaurant from "@/services/restaurant/use-selected-restaurant";
 import { useQuiz } from "./context/quiz-context";
 import { QuizLoaderModal } from "./components/QuizLoaderModal";
-import { QuestionType, Difficulty } from "@/services/quiz/types";
+import { QuestionType, Difficulty, QuizMode } from "@/services/quiz/types";
 
 function QuizLandingPage() {
   const { t } = useTranslation("restaurant-quiz");
@@ -38,6 +38,7 @@ function QuizLandingPage() {
   }, [resetQuiz, state.inProgress, state.completed]);
 
   const handleStartQuiz = async (config: {
+    mode: QuizMode;
     questionCount: number;
     questionTypes: QuestionType[];
     menuSectionIds: string[];
