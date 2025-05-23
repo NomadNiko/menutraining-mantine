@@ -173,6 +173,30 @@ export function QuizConfiguration({
                 handleQuestionTypeToggle(QuestionType.INGREDIENTS_WITH_ALLERGY)
               }
             />
+            <Checkbox
+              label={t("quiz.configuration.menuItemContainsIngredient")}
+              checked={selectedQuestionTypes.includes(
+                QuestionType.MENU_ITEM_CONTAINS_INGREDIENT
+              )}
+              onChange={() =>
+                handleQuestionTypeToggle(
+                  QuestionType.MENU_ITEM_CONTAINS_INGREDIENT
+                )
+              }
+            />
+            <Checkbox
+              label={t(
+                "quiz.configuration.ingredientOrMenuItemContainsAllergy"
+              )}
+              checked={selectedQuestionTypes.includes(
+                QuestionType.INGREDIENT_OR_MENU_ITEM_CONTAINS_ALLERGY
+              )}
+              onChange={() =>
+                handleQuestionTypeToggle(
+                  QuestionType.INGREDIENT_OR_MENU_ITEM_CONTAINS_ALLERGY
+                )
+              }
+            />
           </Stack>
         </div>
 
@@ -196,6 +220,7 @@ export function QuizConfiguration({
               </Button>
             )}
           </Group>
+
           {sectionsLoading ? (
             <Center p="md">
               <Loader size="sm" />

@@ -21,6 +21,7 @@
     "questionTitleWithRestaurant": "Quiz for {{restaurant}}",
     "questionCount": "Question {{current}} of {{total}}",
     "selectAnswers": "Select all that apply:",
+    "selectAnswer": "Select your answer:",
     "submitAnswer": "Submit Answer",
     "resultsTitle": "Quiz Results",
     "yourScore": "Your Score",
@@ -39,12 +40,21 @@
       "questionTypes": "Question Types",
       "ingredientsInDish": "Ingredients in Dish",
       "ingredientsWithAllergy": "Ingredients with Allergy",
+      "menuItemContainsIngredient": "Menu Item Contains Ingredient",
+      "ingredientOrMenuItemContainsAllergy": "Ingredient/Menu Item Contains Allergy",
       "menuSections": "Menu Sections",
       "selectAll": "Select All",
       "deselectAll": "Deselect All",
       "noMenuSections": "No menu sections available"
     },
     "quizInProgress": "You have a quiz in progress",
-    "quizCompleted": "You have completed a quiz"
+    "quizCompleted": "You have completed a quiz",
+    "loadingPhrases": [
+      "Preparing your quiz...",
+      "Loading menu items and ingredients...",
+      "Analyzing allergen information...",
+      "Shuffling questions for you...",
+      "Almost ready to test your knowledge!"
+    ]
   }
 }

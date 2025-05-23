@@ -45,9 +45,20 @@ function QuizQuestionPage() {
 
   // Handle answer selection
   const toggleAnswerSelection = (answerId: string) => {
-    const newSelectedAnswers = selectedAnswers.includes(answerId)
-      ? selectedAnswers.filter((id) => id !== answerId)
-      : [...selectedAnswers, answerId];
+    const currentQuestion = state.questions[state.currentQuestionIndex];
+    const isSingleChoice = currentQuestion?.isSingleChoice;
+
+    let newSelectedAnswers: string[];
+
+    if (isSingleChoice) {
+      // For single choice questions, only allow one selection
+      newSelectedAnswers = [answerId];
+    } else {
+      // For multiple choice questions, allow toggle
+      newSelectedAnswers = selectedAnswers.includes(answerId)
+        ? selectedAnswers.filter((id) => id !== answerId)
+        : [...selectedAnswers, answerId];
+    }
 
     setSelectedAnswers(newSelectedAnswers);
     answerQuestion(newSelectedAnswers);
@@ -109,6 +120,7 @@ function QuizQuestionPage() {
   }
 
   const currentQuestion = state.questions[state.currentQuestionIndex];
+  const isSingleChoice = currentQuestion.isSingleChoice;
 
   return (
     <Container size="lg">
@@ -149,7 +161,11 @@ function QuizQuestionPage() {
               </Center>
             )}
 
-            <Text fw={500}>{t("quiz.selectAnswers")}</Text>
+            <Text fw={500}>
+              {isSingleChoice
+                ? t("quiz.selectAnswer")
+                : t("quiz.selectAnswers")}
+            </Text>
 
             <Grid>
               {currentQuestion.options.map((option) => (
@@ -159,6 +175,7 @@ function QuizQuestionPage() {
                     text={option.text}
                     selected={selectedAnswers.includes(option.id)}
                     onSelect={toggleAnswerSelection}
+                    isSingleChoice={isSingleChoice}
                   />
                 </Grid.Col>
               ))}

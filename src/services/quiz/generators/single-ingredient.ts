@@ -2,11 +2,16 @@
 import { QuizQuestion, QuestionType, AnswerOption } from "../types";
 import { MenuItem } from "@/services/api/types/menu-item";
 import { Ingredient } from "@/services/api/types/ingredient";
-import { getRandomSubset, combineAndShuffleOptions } from "./utils";
+import {
+  getRandomSubset,
+  combineAndShuffleOptions,
+  menuItemContainsIngredient,
+} from "./utils";
 
 /**
  * Generates a question for single-ingredient menu items
  * This creates a "Which menu item contains [ingredient]?" question
+ * Now considers sub-ingredients when determining ingredient presence
  */
 export function generateSingleIngredientQuestion(
   menuItem: MenuItem,
@@ -15,21 +20,28 @@ export function generateSingleIngredientQuestion(
   allMenuItems: MenuItem[]
 ): QuizQuestion | null {
   try {
-    // For single-ingredient items, we change the question format to:
-    // "Which menu item contains [ingredient]?"
-    // First, get other menu items that don't contain this ingredient
-    const otherMenuItems = allMenuItems.filter(
-      (item) =>
-        item.id !== menuItem.id &&
-        !item.menuItemIngredients.includes(correctIngredient.id)
-    );
-
-    if (otherMenuItems.length < 3) {
-      console.log("Not enough other menu items to create a valid question");
+    // Early validation
+    if (!correctIngredient || !allMenuItems.length) {
       return null;
     }
 
-    // Limit to maximum 5 total options (1 correct + up to 4 incorrect) to stay within 6 options
+    // Filter other menu items efficiently - those that don't contain this ingredient
+    // Now using sub-ingredient aware checking
+    const otherMenuItems: MenuItem[] = [];
+    for (const item of allMenuItems) {
+      if (
+        item.id !== menuItem.id &&
+        !menuItemContainsIngredient(item, correctIngredient.id, allIngredients)
+      ) {
+        otherMenuItems.push(item);
+      }
+    }
+
+    if (otherMenuItems.length < 3) {
+      return null;
+    }
+
+    // Get 3-4 incorrect menu items
     const incorrectCount = Math.min(
       otherMenuItems.length,
       Math.floor(Math.random() * 2) + 3 // 3-4 incorrect answers

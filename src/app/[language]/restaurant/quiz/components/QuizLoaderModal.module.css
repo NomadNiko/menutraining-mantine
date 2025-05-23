@@ -1,60 +1,278 @@
-.loader {
-  width: 48px;
-  height: 48px;
-  margin: auto;
+/* Loader Animation 1 - Balancing Ball */
+.loader1 {
+  display: block;
+  position: relative;
+  height: 32px;
+  width: 120px;
+  border-bottom: 5px solid #3498db;
+  box-sizing: border-box;
+  animation: balancing 2s linear infinite alternate;
+  transform-origin: 50% 100%;
+}
+.loader1:before {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #3498db;
+  animation: ballbns 2s linear infinite alternate;
+}
+.loader1:after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  height: 20px;
+  width: 20px;
+  transform: translate(-50%, 100%);
+  border-radius: 50%;
+  border: 6px solid #3498db;
+}
+@keyframes ballbns {
+  0% {
+    left: 0;
+    transform: translateX(0%);
+  }
+  100% {
+    left: 100%;
+    transform: translateX(-100%);
+  }
+}
+@keyframes balancing {
+  0% {
+    transform: rotate(-15deg);
+  }
+  50% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(15deg);
+  }
+}
+
+/* Loader Animation 2 - Gear Spinner */
+.loader2 {
+  display: inline-grid;
+  width: 80px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  overflow: hidden;
+  outline: 7px solid #3498db;
+  outline-offset: -1px;
+  animation: l3-0 4s linear infinite;
+}
+.loader2:before,
+.loader2:after {
+  content: "";
+  grid-area: 1/1;
+}
+.loader2:before {
+  clip-path: polygon(
+    evenodd,
+    0 0,
+    100% 0,
+    100% 100%,
+    0 100%,
+    0 0,
+    100% 50%,
+    83.81% 59.06%,
+    93.3% 75%,
+    74.75% 74.75%,
+    75% 93.3%,
+    59.06% 83.81%,
+    50% 100%,
+    40.94% 83.81%,
+    25% 93.3%,
+    25.25% 74.75%,
+    6.7% 75%,
+    16.19% 59.06%,
+    0% 50%,
+    16.19% 40.94%,
+    6.7% 25%,
+    25.25% 25.25%,
+    25% 6.7%,
+    40.94% 16.19%,
+    50% 0%,
+    59.06% 16.19%,
+    75% 6.7%,
+    74.75% 25.25%,
+    93.3% 25%,
+    83.81% 40.94%,
+    100% 50%
+  );
+  background: #3498db;
+}
+.loader2:after {
+  margin: 12.5%;
+  clip-path: polygon(
+    100% 50%,
+    78.19% 60.26%,
+    88.3% 82.14%,
+    65% 75.98%,
+    58.68% 99.24%,
+    44.79% 79.54%,
+    25% 93.3%,
+    27.02% 69.28%,
+    3.02% 67.1%,
+    20% 50%,
+    3.02% 32.9%,
+    27.02% 30.72%,
+    25% 6.7%,
+    44.79% 20.46%,
+    58.68% 0.76%,
+    65% 24.02%,
+    88.3% 17.86%,
+    78.19% 39.74%
+  );
+  background: #2980b9;
+  transform: rotate(0turn) translate(15.625%) rotate(0turn);
+  animation: l3-1 2s linear infinite;
+}
+@keyframes l3-0 {
+  to {
+    rotate: -1turn;
+  }
+}
+@keyframes l3-1 {
+  to {
+    transform: rotate(1turn) translate(15.625%) rotate(-1.333turn);
+  }
+}
+
+/* Loader Animation 3 - Orbit Dots */
+.loader3 {
+  width: 20px;
+  aspect-ratio: 1;
+  animation: l13-0 2s linear infinite;
   position: relative;
 }
-
-.loader:before {
+.loader3::before,
+.loader3::after {
   content: "";
-  width: 48px;
-  height: 5px;
-  background: #000;
-  opacity: 0.25;
   position: absolute;
-  top: 60px;
-  left: 0;
+  inset: 0;
   border-radius: 50%;
-  animation: shadow 0.5s linear infinite;
+  background: radial-gradient(at 30% 30%, transparent, rgba(52, 152, 219, 0.7))
+    #3498db;
+  animation: l13-1 0.5s cubic-bezier(0.5, -500, 0.5, 500) infinite;
+}
+.loader3::after {
+  animation-delay: -0.15s;
+}
+@keyframes l13-0 {
+  100% {
+    transform: rotate(360deg);
+  }
+}
+@keyframes l13-1 {
+  100% {
+    transform: translate(0.5px);
+  }
 }
 
-.loader:after {
+/* Loader Animation 4 - Welding Sparks */
+.loader4 {
+  position: relative;
+  width: 48px;
+  height: 48px;
+}
+.loader4:before,
+.loader4:after {
   content: "";
-  width: 100%;
-  height: 100%;
-  background: #3498db; /* Explicit blue color instead of theme variable */
-  animation: bxSpin 0.5s linear infinite;
+  display: block;
+  border: 32px solid transparent;
+  border-top-color: #3498db;
   position: absolute;
-  top: 0;
   left: 0;
-  border-radius: 4px;
+  top: 0;
+  animation: weld-rotate 2s infinite ease-in;
+}
+.loader4:before {
+  border-color: transparent transparent transparent #2980b9;
+  animation-delay: 0.5s;
+}
+@keyframes weld-rotate {
+  0%,
+  25% {
+    transform: rotate(0deg);
+  }
+  50%,
+  75% {
+    transform: rotate(180deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
-@keyframes bxSpin {
-  17% {
-    border-bottom-right-radius: 3px;
+/* Loader Animation 5 - Bouncing Box */
+.loader5 {
+  width: 50px;
+  height: 165px;
+  position: relative;
+}
+.loader5::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 0;
+  transform: translate(-50%, 0);
+  width: 16px;
+  height: 16px;
+  background: #3498db;
+  border-radius: 50%;
+  animation: bounce 2s linear infinite;
+}
+.loader5::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  height: 48px;
+  width: 48px;
+  background: #2980b9;
+  border-radius: 4px;
+  animation: rotate 2s linear infinite;
+}
+@keyframes bounce {
+  0%,
+  50%,
+  100% {
+    transform: translate(-50%, 0px);
+    height: 20px;
+  }
+  20% {
+    transform: translate(-25%, 85px);
+    height: 28px;
   }
   25% {
-    transform: translateY(9px) rotate(22.5deg);
+    transform: translate(-25%, 110px);
+    height: 12px;
   }
-  50% {
-    transform: translateY(18px) scale(1, 0.9) rotate(45deg);
-    border-bottom-right-radius: 40px;
+  70% {
+    transform: translate(-75%, 85px);
+    height: 28px;
   }
   75% {
-    transform: translateY(9px) rotate(67.5deg);
-  }
-  100% {
-    transform: translateY(0) rotate(90deg);
+    transform: translate(-75%, 108px);
+    height: 12px;
   }
 }
-
-@keyframes shadow {
+@keyframes rotate {
   0%,
+  50%,
   100% {
-    transform: scale(1, 1);
+    transform: rotate(0deg);
   }
-  50% {
-    transform: scale(1.2, 1);
+  25% {
+    transform: rotate(90deg);
+  }
+  75% {
+    transform: rotate(-90deg);
   }
 }

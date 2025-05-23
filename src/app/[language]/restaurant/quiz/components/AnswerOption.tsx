@@ -1,11 +1,12 @@
 // src/app/[language]/restaurant/quiz/components/AnswerOption.tsx
-import { Paper, Checkbox, Text, Group } from "@mantine/core";
+import { Paper, Checkbox, Radio, Text, Group } from "@mantine/core";
 
 interface AnswerOptionProps {
   id: string;
   text: string;
   selected: boolean;
   onSelect: (id: string) => void;
+  isSingleChoice?: boolean;
 }
 
 export function AnswerOption({
@@ -13,6 +14,7 @@ export function AnswerOption({
   text,
   selected,
   onSelect,
+  isSingleChoice = false,
 }: AnswerOptionProps) {
   return (
     <Paper
@@ -29,16 +31,25 @@ export function AnswerOption({
     >
       <Group justify="space-between" wrap="nowrap">
         <Text>{text}</Text>
-        <Checkbox
-          checked={selected}
-          onChange={() => onSelect(id)}
-          onClick={(e) => e.stopPropagation()}
-          styles={{
-            input: {
-              cursor: "pointer",
-            },
-          }}
-        />
+        {isSingleChoice ? (
+          <Radio
+            checked={selected}
+            onChange={() => onSelect(id)}
+            onClick={(e) => e.stopPropagation()}
+            style={{ cursor: "pointer" }}
+          />
+        ) : (
+          <Checkbox
+            checked={selected}
+            onChange={() => onSelect(id)}
+            onClick={(e) => e.stopPropagation()}
+            styles={{
+              input: {
+                cursor: "pointer",
+              },
+            }}
+          />
+        )}
       </Group>
     </Paper>
   );

@@ -5,8 +5,9 @@ import { Allergy } from "@/services/api/types/allergy";
 
 export enum QuestionType {
   INGREDIENTS_IN_DISH = "ingredients_in_dish",
-  INGREDIENTS_WITH_ALLERGY = "ingredients_with_allergy", // New question type
-  // Future question types will be added here
+  INGREDIENTS_WITH_ALLERGY = "ingredients_with_allergy",
+  MENU_ITEM_CONTAINS_INGREDIENT = "menu_item_contains_ingredient",
+  INGREDIENT_OR_MENU_ITEM_CONTAINS_ALLERGY = "ingredient_or_menu_item_contains_allergy",
 }
 
 export interface AnswerOption {
@@ -21,6 +22,7 @@ export interface QuizQuestion {
   imageUrl?: string | null;
   options: AnswerOption[];
   correctAnswerIds: string[];
+  isSingleChoice?: boolean; // Add this to explicitly mark single choice questions
 }
 
 export interface QuizConfiguration {
