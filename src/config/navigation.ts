@@ -29,11 +29,6 @@ const createNavigationConfig = (): NavigationItem[] => [
         roles: [RoleEnum.ADMIN, RoleEnum.USER],
       },
       {
-        label: "common:navigation.menuItems",
-        path: "/restaurant/menu-items",
-        roles: [RoleEnum.ADMIN, RoleEnum.USER],
-      },
-      {
         label: "common:navigation.recipes",
         path: "/restaurant/recipes",
         roles: [RoleEnum.ADMIN, RoleEnum.USER],
@@ -44,9 +39,14 @@ const createNavigationConfig = (): NavigationItem[] => [
   {
     label: "common:navigation.menuGroup",
     path: "#",
-    roles: [RoleEnum.ADMIN, RoleEnum.USER],
+    roles: [RoleEnum.ADMIN, RoleEnum.USER, RoleEnum.FOH],
     isGroup: true,
     children: [
+      {
+        label: "common:navigation.menuItems",
+        path: "/restaurant/menu-items",
+        roles: [RoleEnum.ADMIN, RoleEnum.USER],
+      },
       {
         label: "common:navigation.menuSections",
         path: "/restaurant/menu-sections",
