@@ -78,7 +78,7 @@ export function QuizLoaderModal({
       setCurrentPhraseIndex(
         (prevIndex) => (prevIndex + 1) % shuffledPhrases.length
       );
-    }, 2500);
+    }, 1500);
 
     return () => clearInterval(interval);
   }, [opened, shuffledPhrases.length, disableCycling, message]);

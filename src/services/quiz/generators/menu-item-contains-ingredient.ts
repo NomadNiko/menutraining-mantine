@@ -43,6 +43,7 @@ export function generateMenuItemContainsIngredientQuestion(
 
     // Randomly decide whether to ask about an ingredient that IS in the item (50/50 chance)
     const askAboutIngredientInItem = Math.random() < 0.5;
+
     let selectedIngredient: Ingredient;
     let correctAnswer: boolean;
 
@@ -69,6 +70,7 @@ export function generateMenuItemContainsIngredientQuestion(
       imageUrl: menuItem.menuItemUrl,
       options,
       correctAnswerIds: [correctAnswer ? "true" : "false"],
+      isSingleChoice: true, // Add this line to mark as single choice
     };
   } catch (error) {
     console.error(
