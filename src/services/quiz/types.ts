@@ -10,6 +10,36 @@ export enum QuestionType {
   INGREDIENT_OR_MENU_ITEM_CONTAINS_ALLERGY = "ingredient_or_menu_item_contains_allergy",
 }
 
+export enum Difficulty {
+  EASY = "easy",
+  MEDIUM = "medium",
+  HARD = "hard",
+}
+
+export interface DifficultySettings {
+  totalChoices: number;
+  minCorrect: number;
+  maxCorrect: number;
+}
+
+export const DIFFICULTY_SETTINGS: Record<Difficulty, DifficultySettings> = {
+  [Difficulty.EASY]: {
+    totalChoices: 2,
+    minCorrect: 1,
+    maxCorrect: 1,
+  },
+  [Difficulty.MEDIUM]: {
+    totalChoices: 4,
+    minCorrect: 1,
+    maxCorrect: 3,
+  },
+  [Difficulty.HARD]: {
+    totalChoices: 6,
+    minCorrect: 1,
+    maxCorrect: 5,
+  },
+};
+
 export interface AnswerOption {
   id: string;
   text: string;
@@ -29,6 +59,7 @@ export interface QuizConfiguration {
   questionCount: number;
   questionTypes: QuestionType[];
   menuSectionIds: string[];
+  difficulty: Difficulty;
 }
 
 export interface QuizState {

@@ -5,6 +5,7 @@ import {
   QuestionGeneratorResult,
   RestaurantData,
   QuestionType,
+  Difficulty,
 } from "./types";
 import { MenuItem } from "@/services/api/types/menu-item";
 import { Ingredient } from "@/services/api/types/ingredient";
@@ -27,7 +28,8 @@ import { shuffleArray } from "./generators/utils";
 export async function generateQuizQuestions(
   restaurantData: RestaurantData,
   questionCount: number,
-  questionTypes: QuestionType[] = Object.values(QuestionType)
+  questionTypes: QuestionType[] = Object.values(QuestionType),
+  difficulty: Difficulty = Difficulty.MEDIUM
 ): Promise<QuestionGeneratorResult> {
   try {
     if (
@@ -66,7 +68,9 @@ export async function generateQuizQuestions(
       };
     }
 
-    console.log(`Generating up to ${questionCount} questions`);
+    console.log(
+      `Generating up to ${questionCount} questions with difficulty: ${difficulty}`
+    );
 
     // Pre-process data for efficiency
     const { multiIngredientItems, singleIngredientItems, allergies } =
@@ -85,7 +89,8 @@ export async function generateQuizQuestions(
     if (useAllergyQuestions && allergies.length > 0) {
       const allergyQuestions = generateAllergyQuestions(
         allergies,
-        restaurantData.ingredients
+        restaurantData.ingredients,
+        difficulty
       );
       allPossibleQuestions.push(...allergyQuestions);
     }
@@ -98,7 +103,8 @@ export async function generateQuizQuestions(
       const menuItemQuestions = generateMenuItemQuestions(
         multiIngredientItems,
         singleIngredientItems,
-        restaurantData
+        restaurantData,
+        difficulty
       );
       allPossibleQuestions.push(...menuItemQuestions);
     }
@@ -214,14 +220,16 @@ function preprocessData(restaurantData: RestaurantData) {
  */
 function generateAllergyQuestions(
   allergies: Allergy[],
-  ingredients: Ingredient[]
+  ingredients: Ingredient[],
+  difficulty: Difficulty
 ): QuizQuestion[] {
   const questions: QuizQuestion[] = [];
 
   for (const allergy of allergies) {
     const question = generateIngredientsWithAllergyQuestion(
       allergy,
-      ingredients
+      ingredients,
+      difficulty
     );
     if (question) {
       questions.push(question);
@@ -243,7 +251,8 @@ function generateMenuItemQuestions(
     menuItem: MenuItem;
     ingredients: AnswerOption[];
   }>,
-  restaurantData: RestaurantData
+  restaurantData: RestaurantData,
+  difficulty: Difficulty
 ): QuizQuestion[] {
   const questions: QuizQuestion[] = [];
 
@@ -252,7 +261,8 @@ function generateMenuItemQuestions(
     const question = generateIngredientsInDishQuestion(
       menuItem,
       ingredients,
-      restaurantData.ingredients
+      restaurantData.ingredients,
+      difficulty
     );
     if (question) {
       questions.push(question);
@@ -266,7 +276,8 @@ function generateMenuItemQuestions(
         menuItem,
         ingredients[0],
         restaurantData.ingredients,
-        restaurantData.menuItems
+        restaurantData.menuItems,
+        difficulty
       );
       if (question) {
         questions.push(question);

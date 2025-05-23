@@ -45,7 +45,14 @@
       "menuSections": "Menu Sections",
       "selectAll": "Select All",
       "deselectAll": "Deselect All",
-      "noMenuSections": "No menu sections available"
+      "noMenuSections": "No menu sections available",
+      "difficulty": "Difficulty",
+      "easy": "Easy",
+      "medium": "Medium",
+      "hard": "Hard",
+      "easyDescription": "2 choices, 1 correct answer",
+      "mediumDescription": "4 choices, 1-3 correct answers",
+      "hardDescription": "6 choices, 1-5 correct answers"
     },
     "quizInProgress": "You have a quiz in progress",
     "quizCompleted": "You have completed a quiz",

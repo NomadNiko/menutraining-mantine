@@ -15,7 +15,7 @@ import {
 } from "@mantine/core";
 import { useState, useEffect } from "react";
 import { useTranslation } from "@/services/i18n/client";
-import { QuestionType } from "@/services/quiz/types";
+import { QuestionType, Difficulty } from "@/services/quiz/types";
 import { useGetMenuSectionsService } from "@/services/api/services/menu-sections";
 import { MenuSection } from "@/services/api/types/menu-section";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
@@ -26,6 +26,7 @@ interface QuizConfigurationProps {
     questionCount: number;
     questionTypes: QuestionType[];
     menuSectionIds: string[];
+    difficulty: Difficulty;
   }) => void;
   isLoading?: boolean;
 }
@@ -40,6 +41,7 @@ export function QuizConfiguration({
 
   // Configuration state
   const [questionCount, setQuestionCount] = useState<string>("10");
+  const [difficulty, setDifficulty] = useState<Difficulty>(Difficulty.MEDIUM);
   const [selectedQuestionTypes, setSelectedQuestionTypes] = useState<
     QuestionType[]
   >(Object.values(QuestionType));
@@ -122,6 +124,7 @@ export function QuizConfiguration({
         selectedMenuSections.length === menuSections.length
           ? [] // Empty array means all sections
           : selectedMenuSections,
+      difficulty,
     });
   };
 
@@ -145,6 +148,36 @@ export function QuizConfiguration({
             onChange={setQuestionCount}
             fullWidth
           />
+        </div>
+
+        <Divider />
+
+        {/* Difficulty Setting */}
+        <div>
+          <Text size="sm" fw={500} mb="xs">
+            {t("quiz.configuration.difficulty")}
+          </Text>
+          <SegmentedControl
+            data={[
+              { label: t("quiz.configuration.easy"), value: Difficulty.EASY },
+              {
+                label: t("quiz.configuration.medium"),
+                value: Difficulty.MEDIUM,
+              },
+              { label: t("quiz.configuration.hard"), value: Difficulty.HARD },
+            ]}
+            value={difficulty}
+            onChange={(value) => setDifficulty(value as Difficulty)}
+            fullWidth
+          />
+          <Text size="xs" c="dimmed" mt="xs">
+            {difficulty === Difficulty.EASY &&
+              t("quiz.configuration.easyDescription")}
+            {difficulty === Difficulty.MEDIUM &&
+              t("quiz.configuration.mediumDescription")}
+            {difficulty === Difficulty.HARD &&
+              t("quiz.configuration.hardDescription")}
+          </Text>
         </div>
 
         <Divider />
@@ -220,7 +253,6 @@ export function QuizConfiguration({
               </Button>
             )}
           </Group>
-
           {sectionsLoading ? (
             <Center p="md">
               <Loader size="sm" />

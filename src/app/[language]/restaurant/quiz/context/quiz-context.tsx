@@ -154,7 +154,6 @@ const QuizContext = createContext<QuizContextType | undefined>(undefined);
 export function QuizProvider({ children }: { children: ReactNode }) {
   const [state, dispatch] = useReducer(quizReducer, initialState);
   const { selectedRestaurant } = useSelectedRestaurant();
-
   const getMenuItemsService = useGetMenuItemsService();
   const getIngredientsService = useGetIngredientsService();
   const getAllergiesService = useGetAllergiesService();
@@ -291,7 +290,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
         allergiesMap[allergy.allergyId] = allergy;
       });
 
-      // Generate questions with configuration
+      // Generate questions with configuration including difficulty
       const result = await generateQuizQuestions(
         {
           menuItems,
@@ -299,7 +298,8 @@ export function QuizProvider({ children }: { children: ReactNode }) {
           allergies: allergiesMap,
         },
         config.questionCount,
-        config.questionTypes
+        config.questionTypes,
+        config.difficulty
       );
 
       console.log(`Generated ${result.questions.length} questions`);

@@ -1,5 +1,11 @@
 // src/services/quiz/generators/single-ingredient.ts
-import { QuizQuestion, QuestionType, AnswerOption } from "../types";
+import {
+  QuizQuestion,
+  QuestionType,
+  AnswerOption,
+  Difficulty,
+  DIFFICULTY_SETTINGS,
+} from "../types";
 import { MenuItem } from "@/services/api/types/menu-item";
 import { Ingredient } from "@/services/api/types/ingredient";
 import {
@@ -11,19 +17,22 @@ import {
 /**
  * Generates a question for single-ingredient menu items
  * This creates a "Which menu item contains [ingredient]?" question
- * Now considers sub-ingredients when determining ingredient presence
+ * Now considers sub-ingredients when determining ingredient presence and uses difficulty settings
  */
 export function generateSingleIngredientQuestion(
   menuItem: MenuItem,
   correctIngredient: AnswerOption,
   allIngredients: Ingredient[],
-  allMenuItems: MenuItem[]
+  allMenuItems: MenuItem[],
+  difficulty: Difficulty = Difficulty.MEDIUM
 ): QuizQuestion | null {
   try {
     // Early validation
     if (!correctIngredient || !allMenuItems.length) {
       return null;
     }
+
+    const settings = DIFFICULTY_SETTINGS[difficulty];
 
     // Filter other menu items efficiently - those that don't contain this ingredient
     // Now using sub-ingredient aware checking
@@ -37,15 +46,16 @@ export function generateSingleIngredientQuestion(
       }
     }
 
-    if (otherMenuItems.length < 3) {
+    // Calculate required counts based on difficulty
+    // For single ingredient questions, we always have 1 correct answer
+    const correctCount = 1;
+    const incorrectCount = settings.totalChoices - correctCount;
+
+    // Early validation - ensure we have enough incorrect options
+    if (otherMenuItems.length < incorrectCount) {
       return null;
     }
 
-    // Get 3-4 incorrect menu items
-    const incorrectCount = Math.min(
-      otherMenuItems.length,
-      Math.floor(Math.random() * 2) + 3 // 3-4 incorrect answers
-    );
     const incorrectMenuItems = getRandomSubset(otherMenuItems, incorrectCount);
 
     // Create options from menu items
@@ -53,10 +63,16 @@ export function generateSingleIngredientQuestion(
       id: menuItem.id,
       text: menuItem.menuItemName,
     };
+
     const incorrectOptions = incorrectMenuItems.map((item) => ({
       id: item.id,
       text: item.menuItemName,
     }));
+
+    // Ensure we have the right total number of options
+    if (1 + incorrectOptions.length !== settings.totalChoices) {
+      return null;
+    }
 
     // Combine and shuffle options
     const allOptions = combineAndShuffleOptions(

@@ -20,7 +20,7 @@ import { QuizConfiguration } from "./components/QuizConfiguration";
 import useSelectedRestaurant from "@/services/restaurant/use-selected-restaurant";
 import { useQuiz } from "./context/quiz-context";
 import { QuizLoaderModal } from "./components/QuizLoaderModal";
-import { QuestionType } from "@/services/quiz/types";
+import { QuestionType, Difficulty } from "@/services/quiz/types";
 
 function QuizLandingPage() {
   const { t } = useTranslation("restaurant-quiz");
@@ -41,10 +41,10 @@ function QuizLandingPage() {
     questionCount: number;
     questionTypes: QuestionType[];
     menuSectionIds: string[];
+    difficulty: Difficulty;
   }) => {
     setShowLoadingModal(true);
     const success = await startQuiz(config);
-
     // Only navigate if quiz was started successfully
     if (success) {
       router.push("/restaurant/quiz/question");
