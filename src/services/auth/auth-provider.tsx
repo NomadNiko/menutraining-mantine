@@ -1,3 +1,4 @@
+// ./menutraining-mantine/src/services/auth/auth-provider.tsx
 "use client";
 import { User } from "@/services/api/types/user";
 import {
@@ -20,11 +21,15 @@ import {
   getTokensInfo,
   setTokensInfo as setTokensInfoToStorage,
 } from "./auth-tokens-info";
+import { useRouter } from "next/navigation";
+import useLanguage from "../i18n/use-language";
 
 function AuthProvider(props: PropsWithChildren<{}>) {
   const [isLoaded, setIsLoaded] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const fetchBase = useFetch();
+  const router = useRouter();
+  const language = useLanguage();
 
   const setTokensInfo = useCallback((tokensInfo: TokensInfo) => {
     setTokensInfoToStorage(tokensInfo);
@@ -41,7 +46,10 @@ function AuthProvider(props: PropsWithChildren<{}>) {
       });
     }
     setTokensInfo(null);
-  }, [setTokensInfo, fetchBase]);
+
+    // Route to home page after logout
+    router.push(`/${language}`);
+  }, [setTokensInfo, fetchBase, router, language]);
 
   // Load user data once at initialization
   const loadData = useCallback(async () => {
