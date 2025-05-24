@@ -1,6 +1,6 @@
+// ./menutraining-mantine/src/app/[language]/restaurant/quiz/components/QuizConfiguration.tsx
 // src/app/[language]/restaurant/quiz/components/QuizConfiguration.tsx
 "use client";
-
 import {
   Paper,
   Stack,
@@ -340,6 +340,17 @@ export function QuizConfiguration({
                   onChange={() =>
                     handleQuestionTypeToggle(
                       QuestionType.MENU_ITEM_CONTAINS_ALLERGY
+                    )
+                  }
+                />
+                <Checkbox
+                  label={t("quiz.configuration.whichMenuItemIsThis")}
+                  checked={customQuestionTypes.includes(
+                    QuestionType.WHICH_MENU_ITEM_IS_THIS
+                  )}
+                  onChange={() =>
+                    handleQuestionTypeToggle(
+                      QuestionType.WHICH_MENU_ITEM_IS_THIS
                     )
                   }
                 />

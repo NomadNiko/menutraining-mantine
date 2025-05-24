@@ -1,3 +1,4 @@
+// ./menutraining-mantine/src/services/quiz/types.ts
 // src/services/quiz/types.ts
 import { MenuItem } from "@/services/api/types/menu-item";
 import { Ingredient } from "@/services/api/types/ingredient";
@@ -9,6 +10,7 @@ export enum QuestionType {
   MENU_ITEM_CONTAINS_INGREDIENT = "menu_item_contains_ingredient",
   INGREDIENT_CONTAINS_ALLERGY = "ingredient_contains_allergy",
   MENU_ITEM_CONTAINS_ALLERGY = "menu_item_contains_allergy",
+  WHICH_MENU_ITEM_IS_THIS = "which_menu_item_is_this", // New question type
 }
 
 export enum Difficulty {
@@ -64,6 +66,7 @@ export const QUIZ_MODE_SETTINGS: Record<
     questionTypes: [
       QuestionType.MENU_ITEM_CONTAINS_INGREDIENT,
       QuestionType.INGREDIENTS_IN_DISH,
+      QuestionType.WHICH_MENU_ITEM_IS_THIS, // Added to easy mode
     ],
   },
   [QuizMode.MEDIUM]: {
@@ -73,12 +76,13 @@ export const QUIZ_MODE_SETTINGS: Record<
       QuestionType.MENU_ITEM_CONTAINS_INGREDIENT,
       QuestionType.INGREDIENTS_IN_DISH,
       QuestionType.INGREDIENT_CONTAINS_ALLERGY,
+      QuestionType.WHICH_MENU_ITEM_IS_THIS, // Added to medium mode
     ],
   },
   [QuizMode.HARD]: {
     questionCount: 20,
     difficulty: Difficulty.HARD,
-    questionTypes: Object.values(QuestionType),
+    questionTypes: Object.values(QuestionType), // Includes all types including new one
   },
 };
 

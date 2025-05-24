@@ -15,3 +15,4 @@ export { generateSingleIngredientQuestion } from "./single-ingredient";
 export { generateMenuItemContainsIngredientQuestion } from "./menu-item-contains-ingredient";
 export { generateIngredientContainsAllergyQuestion } from "./ingredient-contains-allergy";
 export { generateMenuItemContainsAllergyQuestion } from "./menu-item-contains-allergy";
+export { generateWhichMenuItemIsThisQuestion } from "./which-menu-item-is-this"; // New export

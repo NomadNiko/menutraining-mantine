@@ -80,6 +80,7 @@
       "menuItemContainsIngredient": "Does this menu item contain this ingredient?",
       "ingredientContainsAllergy": "Does this ingredient contain this allergy?",
       "menuItemContainsAllergy": "Does this menu item contain this allergy?",
+      "whichMenuItemIsThis": "Which menu item is this?",
       "menuSections": "Menu Sections",
       "selectAll": "Select All",
       "deselectAll": "Deselect All",

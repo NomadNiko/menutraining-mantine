@@ -1,3 +1,4 @@
+// ./menutraining-mantine/src/services/quiz/question-generator.ts
 // src/services/quiz/question-generator.ts
 import {
   QuizQuestion,
@@ -18,6 +19,7 @@ import { generateSingleIngredientQuestion } from "./generators/single-ingredient
 import { generateMenuItemContainsIngredientQuestion } from "./generators/menu-item-contains-ingredient";
 import { generateIngredientContainsAllergyQuestion } from "./generators/ingredient-contains-allergy";
 import { generateMenuItemContainsAllergyQuestion } from "./generators/menu-item-contains-allergy";
+import { generateWhichMenuItemIsThisQuestion } from "./generators/which-menu-item-is-this"; // New import
 
 // Import utilities
 import { shuffleArray } from "./generators/utils";
@@ -59,13 +61,17 @@ export async function generateQuizQuestions(
     const useMenuItemAllergyQuestions = questionTypes.includes(
       QuestionType.MENU_ITEM_CONTAINS_ALLERGY
     );
+    const useWhichMenuItemQuestions = questionTypes.includes(
+      QuestionType.WHICH_MENU_ITEM_IS_THIS
+    ); // New question type check
 
     if (
       !useAllergyQuestions &&
       !useDishQuestions &&
       !useContainsQuestions &&
       !useIngredientAllergyQuestions &&
-      !useMenuItemAllergyQuestions
+      !useMenuItemAllergyQuestions &&
+      !useWhichMenuItemQuestions // Added to validation
     ) {
       return {
         questions: [],
@@ -146,6 +152,15 @@ export async function generateQuizQuestions(
         restaurantData.allergies
       );
       allPossibleQuestions.push(...menuItemAllergyQuestions);
+    }
+
+    // Generate "which menu item is this" questions if requested
+    if (useWhichMenuItemQuestions && restaurantData.menuItems.length > 0) {
+      const whichMenuItemQuestions = generateWhichMenuItemQuestions(
+        restaurantData.menuItems,
+        difficulty
+      );
+      allPossibleQuestions.push(...whichMenuItemQuestions);
     }
 
     console.log(
@@ -241,7 +256,6 @@ function generateAllergyQuestions(
   difficulty: Difficulty
 ): QuizQuestion[] {
   const questions: QuizQuestion[] = [];
-
   for (const allergy of allergies) {
     const question = generateIngredientsWithAllergyQuestion(
       allergy,
@@ -252,7 +266,6 @@ function generateAllergyQuestions(
       questions.push(question);
     }
   }
-
   return questions;
 }
 
@@ -383,6 +396,32 @@ function generateMenuItemAllergyQuestions(
 }
 
 /**
+ * Generate all possible "which menu item is this" questions efficiently
+ */
+function generateWhichMenuItemQuestions(
+  menuItems: MenuItem[],
+  difficulty: Difficulty
+): QuizQuestion[] {
+  const questions: QuizQuestion[] = [];
+
+  // Filter menu items that have images
+  const menuItemsWithImages = menuItems.filter(
+    (item) => item.menuItemUrl && item.menuItemUrl.trim() !== ""
+  );
+
+  // Generate multiple questions to increase variety
+  const targetQuestionCount = Math.min(10, menuItemsWithImages.length);
+  for (let i = 0; i < targetQuestionCount; i++) {
+    const question = generateWhichMenuItemIsThisQuestion(menuItems, difficulty);
+    if (question) {
+      questions.push(question);
+    }
+  }
+
+  return questions;
+}
+
+/**
  * Extend questions by duplicating existing ones with unique IDs
  */
 function extendQuestionsWithDuplicates(
@@ -418,3 +457,4 @@ export { generateSingleIngredientQuestion } from "./generators/single-ingredient
 export { generateMenuItemContainsIngredientQuestion } from "./generators/menu-item-contains-ingredient";
 export { generateIngredientContainsAllergyQuestion } from "./generators/ingredient-contains-allergy";
 export { generateMenuItemContainsAllergyQuestion } from "./generators/menu-item-contains-allergy";
+export { generateWhichMenuItemIsThisQuestion } from "./generators/which-menu-item-is-this"; // New export
