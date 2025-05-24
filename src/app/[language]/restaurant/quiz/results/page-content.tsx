@@ -22,15 +22,12 @@ import { useRouter } from "next/navigation";
 import { useState, useMemo } from "react";
 import { useQuiz } from "../context/quiz-context";
 import { QuizSummary } from "../components/QuizSummary";
-
 type FilterType = "all" | "correct" | "incorrect";
-
 function QuizResultsPage() {
   const { t } = useTranslation("restaurant-quiz");
   const router = useRouter();
   const { state } = useQuiz();
   const [filter, setFilter] = useState<FilterType>("all");
-
   // Process questions and create summary data
   const questionSummaries = useMemo(() => {
     return state.questions.map((question, index) => {
@@ -39,16 +36,13 @@ function QuizResultsPage() {
         userAnswerIds.length === question.correctAnswerIds.length &&
         userAnswerIds.every((id) => question.correctAnswerIds.includes(id)) &&
         question.correctAnswerIds.every((id) => userAnswerIds.includes(id));
-
       // Find text representations of answers
       const correctAnswers = question.options
         .filter((option) => question.correctAnswerIds.includes(option.id))
         .map((option) => option.text);
-
       const userAnswers = question.options
         .filter((option) => userAnswerIds.includes(option.id))
         .map((option) => option.text);
-
       return {
         id: question.id,
         questionNumber: index + 1,
@@ -60,7 +54,6 @@ function QuizResultsPage() {
       };
     });
   }, [state.questions, state.userAnswers]);
-
   // Filter questions based on selected filter
   const filteredQuestions = useMemo(() => {
     switch (filter) {
@@ -72,11 +65,9 @@ function QuizResultsPage() {
         return questionSummaries;
     }
   }, [questionSummaries, filter]);
-
   // Calculate statistics
   const correctCount = questionSummaries.filter((q) => q.isCorrect).length;
   const incorrectCount = questionSummaries.length - correctCount;
-
   // If quiz is not completed, redirect back to quiz page
   if (!state.completed) {
     router.push("/restaurant/quiz");
@@ -88,7 +79,6 @@ function QuizResultsPage() {
       </Container>
     );
   }
-
   // Handle errors
   if (state.error) {
     return (
@@ -111,14 +101,23 @@ function QuizResultsPage() {
       </Container>
     );
   }
-
   // Calculate the success threshold
   const isSuccessful = state.score >= Math.ceil(state.totalQuestions * 0.7);
-
   return (
     <Container size="xl">
       <Stack gap="xl" my="xl">
-        <Title order={2}>{t("quiz.resultsTitle")}</Title>
+        {/* Header with title and back button */}
+        <Group justify="space-between" align="center">
+          <Title order={2}>{t("quiz.resultsTitle")}</Title>
+          <Button
+            onClick={() => router.push("/restaurant/quiz")}
+            size="md"
+            leftSection={<IconHome size={16} />}
+            data-testid="back-to-menu-button-top"
+          >
+            {t("quiz.backToMenu")}
+          </Button>
+        </Group>
 
         {/* Score Summary */}
         <Paper p="lg" withBorder>
@@ -136,7 +135,6 @@ function QuizResultsPage() {
                 </Text>
               </Stack>
             </Group>
-
             {/* Statistics */}
             <Group justify="center" gap="xl">
               <Group gap="xs">
@@ -158,7 +156,6 @@ function QuizResultsPage() {
             </Group>
           </Stack>
         </Paper>
-
         {/* Filters */}
         <Paper p="md" withBorder>
           <Group justify="space-between" align="center">
@@ -186,7 +183,6 @@ function QuizResultsPage() {
             />
           </Group>
         </Paper>
-
         {/* Questions Summary */}
         <Box>
           <Group justify="space-between" align="center" mb="md">
@@ -202,7 +198,6 @@ function QuizResultsPage() {
               })}
             </Text>
           </Group>
-
           {filteredQuestions.length === 0 ? (
             <Paper p="xl" withBorder>
               <Center>
@@ -230,8 +225,7 @@ function QuizResultsPage() {
             </Grid>
           )}
         </Box>
-
-        {/* Back Button */}
+        {/* Back Button at bottom */}
         <Center>
           <Button
             onClick={() => router.push("/restaurant/quiz")}
@@ -246,5 +240,4 @@ function QuizResultsPage() {
     </Container>
   );
 }
-
 export default QuizResultsPage;

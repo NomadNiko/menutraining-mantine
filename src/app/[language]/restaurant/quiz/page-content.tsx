@@ -21,14 +21,12 @@ import useSelectedRestaurant from "@/services/restaurant/use-selected-restaurant
 import { useQuiz } from "./context/quiz-context";
 import { QuizLoaderModal } from "./components/QuizLoaderModal";
 import { QuestionType, Difficulty, QuizMode } from "@/services/quiz/types";
-
 function QuizLandingPage() {
   const { t } = useTranslation("restaurant-quiz");
   const router = useRouter();
   const { selectedRestaurant } = useSelectedRestaurant();
   const { state, startQuiz, resetQuiz } = useQuiz();
   const [showLoadingModal, setShowLoadingModal] = useState(false);
-
   // Reset quiz when landing on this page
   useEffect(() => {
     // Only reset if not in progress or completed
@@ -36,7 +34,6 @@ function QuizLandingPage() {
       resetQuiz();
     }
   }, [resetQuiz, state.inProgress, state.completed]);
-
   const handleStartQuiz = async (config: {
     mode: QuizMode;
     questionCount: number;
@@ -53,19 +50,16 @@ function QuizLandingPage() {
       setShowLoadingModal(false);
     }
   };
-
   // If a quiz is already in progress, offer to continue
   const handleContinueQuiz = () => {
     router.push(
       state.completed ? "/restaurant/quiz/results" : "/restaurant/quiz/question"
     );
   };
-
   return (
     <Container size="md">
       <Stack gap="xl" my="xl">
         <Title order={2}>{t("quiz.welcomeTitle")}</Title>
-
         {!selectedRestaurant ? (
           <Alert
             icon={<IconInfoCircle size={16} />}
@@ -110,6 +104,12 @@ function QuizLandingPage() {
               </Paper>
             ) : (
               <Grid gutter="xl">
+                <Grid.Col span={{ base: 12, md: 5 }}>
+                  <QuizConfiguration
+                    onStartQuiz={handleStartQuiz}
+                    isLoading={state.loading}
+                  />
+                </Grid.Col>
                 <Grid.Col span={{ base: 12, md: 7 }}>
                   <Paper p="md" withBorder>
                     <Stack gap="lg">
@@ -127,15 +127,8 @@ function QuizLandingPage() {
                     </Stack>
                   </Paper>
                 </Grid.Col>
-                <Grid.Col span={{ base: 12, md: 5 }}>
-                  <QuizConfiguration
-                    onStartQuiz={handleStartQuiz}
-                    isLoading={state.loading}
-                  />
-                </Grid.Col>
               </Grid>
             )}
-
             <Paper p="md" withBorder>
               <Stack gap="md">
                 <Title order={4}>{t("quiz.highScores")}</Title>
@@ -147,11 +140,9 @@ function QuizLandingPage() {
           </>
         )}
       </Stack>
-
       {/* Custom loading modal with animation */}
       <QuizLoaderModal opened={showLoadingModal || state.loading} />
     </Container>
   );
 }
-
 export default QuizLandingPage;
