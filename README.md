@@ -1,86 +1,269 @@
-# Extensive React Boilerplate
+# Menu Training Platform - Frontend
 
-[![image](https://github.com/brocoders/extensive-react-boilerplate/assets/72293912/052e74be-7de0-4a4a-92a6-e6a4b68fd4b5)](https://github.com/new?template_name=extensive-react-boilerplate&template_owner=brocoders)
+A modern, interactive restaurant staff training application built with Next.js and Mantine UI. This platform helps restaurant employees learn about menu items, ingredients, recipes, and allergen information through an engaging quiz system.
 
-**Belongs to the [bc boilerplates](https://bcboilerplates.com/) ecosystem**
+![Menu Training Sign In](docs/images/sign-in.png)
 
-## Table of Contents <!-- omit in toc -->
+## 🎯 Overview
 
-- [Extensive React Boilerplate](#extensive-react-boilerplate)
-  - [Description](#description)
-  - [Getting Started](#getting-started)
-  - [Features](#features)
-  - [Screenshots](#screenshots)
-  - [Contributors](#contributors)
-  - [Support](#support)
+Menu Training is a comprehensive restaurant management and staff training system that enables:
+- Restaurant managers to organize menu data including ingredients, recipes, and allergen information
+- Staff members to learn through interactive quizzes tailored to their restaurant's menu
+- Multi-restaurant support for chains or franchises
+- Real-time progress tracking and leaderboards
 
-## Description
+## ✨ Features
 
-ReactJS Boilerplate for a typical project.
+### 📊 Restaurant Management
+- **Ingredients Management**: Track ingredients with allergen information, categories, and sub-ingredients
+- **Menu Items**: Organize dishes with ingredients, pricing, and detailed descriptions
+- **Recipes**: Step-by-step recipe management with equipment requirements
+- **Menu Organization**: Structure items into menu sections (Breakfast, Lunch, Dinner, etc.)
+- **Allergen Tracking**: Comprehensive allergen management for customer safety
 
-[Full documentation here](/docs/README.md)
+![Ingredients Management](docs/images/ingredients.png)
 
-Demo: <https://react-boilerplate-coral.vercel.app>
+### 🎮 Interactive Quiz System
+- **Adaptive Difficulty**: Easy, Medium, Hard, and Custom difficulty levels
+- **Dynamic Questions**: Automatically generated based on your restaurant's data
+- **Question Types**:
+  - Ingredient identification
+  - Allergen awareness
+  - Recipe knowledge
+  - Menu item composition
+- **Progress Tracking**: Real-time scoring and performance analytics
+- **Leaderboards**: Restaurant-specific high score tracking
 
-Backend: <https://github.com/brocoders/nestjs-boilerplate>
+![Quiz Configuration](docs/images/quiz-config.png)
+![Quiz Question](docs/images/quiz-question.png)
 
-## Getting Started
+### 👥 User Management
+- **Multi-Restaurant Support**: Users can access multiple restaurant locations
+- **Role-Based Access**: Admin and staff roles with appropriate permissions
+- **Profile Management**: Users can update their information and preferences
+- **Authentication**: Secure JWT-based authentication with refresh tokens
 
-First, run the development server:
+![Dashboard](docs/images/dashboard.png)
 
+### 🌐 Additional Features
+- **Internationalization**: Multi-language support (currently English)
+- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
+- **Dark Mode**: Toggle between light and dark themes
+- **Real-time Updates**: Live data synchronization across the platform
+
+## 📋 Prerequisites
+
+- Node.js 18+ 
+- Yarn package manager
+- Backend server running (see [menutraining-server](../menutraining-server/README.md))
+
+## 🛠️ Installation
+
+1. Clone the repository:
 ```bash
-cp example.env.local .env.local
-
-npm run dev
+git clone <repository-url>
+cd menutraining-mantine
 ```
 
-## Features
+2. Install dependencies:
+```bash
+yarn install
+```
 
-- [x] Next.js
-- [x] TypeScript
-- [x] [i18n](https://react.i18next.com/) (based on https://github.com/i18next/next-13-app-dir-i18next-example)
-- [x] [Material UI](https://mui.com/). Supports dark mode.
-- [x] [React Hook Form](https://react-hook-form.com/)
-- [x] React Query
-- [x] Auth (Sign in, Sign up, Reset password, Confirm email, Refresh Token)
-- [x] User management (CRUD)
-- [x] File Upload
-- [x] E2E tests ([Playwright](https://playwright.dev/))
-- [x] ESLint
-- [x] CI (GitHub Actions)
+3. Create environment file:
+```bash
+cp example.env.local .env.local
+```
 
-## Screenshots
+4. Configure environment variables:
+```env
+NEXT_PUBLIC_API_URL=http://localhost:3001/api
+NEXT_PUBLIC_IS_GOOGLE_AUTH_ENABLED=true
+NEXT_PUBLIC_GOOGLE_CLIENT_ID=your-google-client-id
+NEXT_PUBLIC_IS_SIGN_UP_ENABLED=true
+NEXT_PUBLIC_FILE_DRIVER=s3
+```
 
-<img width="1552" alt="Sign In" src="https://github.com/brocoders/extensive-react-boilerplate/assets/6001723/5d42cd15-685b-4ae7-951d-4c8ed89c5390">
+## 🏃‍♂️ Running the Application
 
-<img width="1552" alt="Sign Up" src="https://github.com/brocoders/extensive-react-boilerplate/assets/6001723/aca2d405-2155-4755-8d0e-d41bdc0db852">
+### Development Mode
+```bash
+yarn dev
+```
+Application will be available at http://localhost:3000
 
-<img width="1552" alt="Users list" src="https://github.com/brocoders/extensive-react-boilerplate/assets/6001723/244409c0-2235-4018-b062-44fb54ea4321">
+### Production Build
+```bash
+yarn build
+yarn start
+```
 
-<img width="1552" alt="Create user" src="https://github.com/brocoders/extensive-react-boilerplate/assets/6001723/cb86a3e1-331f-4bd7-9668-3c6cf44eb372">
+## 📱 Application Structure
 
-## Contributors
+### Authentication
+![Sign In](docs/images/sign-in.png)
 
-<!-- ALL-CONTRIBUTORS-LIST:START - Do not remove or modify this section -->
-<!-- prettier-ignore-start -->
-<!-- markdownlint-disable -->
-<table>
-  <tbody>
-    <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Shchepotin"><img src="https://avatars.githubusercontent.com/u/6001723?v=4?s=100" width="100px;" alt="Vladyslav Shchepotin"/><br /><sub><b>Vladyslav Shchepotin</b></sub></a><br /><a href="#maintenance-Shchepotin" title="Maintenance">🚧</a> <a href="#doc-Shchepotin" title="Documentation">📖</a> <a href="#code-Shchepotin" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/ElenVlass"><img src="https://avatars.githubusercontent.com/u/72293912?v=4?s=100" width="100px;" alt="Elena Vlasenko"/><br /><sub><b>Elena Vlasenko</b></sub></a><br /><a href="#doc-ElenVlass" title="Documentation">📖</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/TetianaFomina"><img src="https://avatars.githubusercontent.com/u/72749258?v=4?s=100" width="100px;" alt="TetianaFomina"/><br /><sub><b>TetianaFomina</b></sub></a><br /><a href="#test-TetianaFomina" title="Tests">⚠️</a> <a href="#bug-TetianaFomina" title="Bug reports">🐛</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/LiudmylaKostenko"><img src="https://avatars.githubusercontent.com/u/55603883?v=4?s=100" width="100px;" alt="Liudmyla Kostenko"/><br /><sub><b>Liudmyla Kostenko</b></sub></a><br /><a href="#code-LiudmylaKostenko" title="Code">💻</a></td>
-      <td align="center" valign="top" width="14.28%"><a href="http://brocoders.com"><img src="https://avatars.githubusercontent.com/u/226194?v=4?s=100" width="100px;" alt="Rodion"/><br /><sub><b>Rodion</b></sub></a><br /><a href="#business-sars" title="Business development">💼</a></td>
-    </tr>
-  </tbody>
-</table>
+The application uses JWT-based authentication with support for:
+- Email/password login
+- Google OAuth
+- Refresh token rotation
+- Password reset functionality
 
-<!-- markdownlint-restore -->
-<!-- prettier-ignore-end -->
+### Restaurant Management
 
-<!-- ALL-CONTRIBUTORS-LIST:END -->
+#### Ingredients Management
+![Ingredients](docs/images/ingredients.png)
 
-## Support
+- Add, edit, and delete ingredients
+- Track allergen information
+- Categorize ingredients
+- Search and filter functionality
 
-If you seek consulting, support, or wish to collaborate, please get in touch with us via [boilerplates@brocoders.com](boilerplates@brocoders.com) or feel free to ask us on [GitHub Discussions](https://github.com/brocoders/extensive-react-boilerplate/discussions). We are totally open to any suggestions and improvements.
+#### Menu Items
+![Menu Items](docs/images/menu-items.png)
+
+- Create menu items with detailed descriptions
+- Link ingredients to menu items
+- Set pricing and availability
+- Organize by menu sections
+
+#### Recipes
+![Recipes](docs/images/recipes.png)
+
+- Step-by-step recipe instructions
+- Equipment requirements
+- Ingredient measurements
+- Cooking times and temperatures
+
+### Quiz System
+
+#### Quiz Configuration
+![Quiz Config](docs/images/quiz-config.png)
+
+- Select difficulty level
+- Choose menu sections to include
+- View high scores leaderboard
+
+#### Quiz Gameplay
+![Quiz Question](docs/images/quiz-question.png)
+
+- Interactive questions based on restaurant data
+- Real-time feedback
+- Progress tracking
+- Score calculation
+
+## 🧪 Testing
+
+### Run All Tests
+```bash
+npm test
+```
+
+### Run Specific Test Suites
+```bash
+# Authentication tests
+npm run test:auth
+
+# Quiz functionality tests
+npm run test:quiz
+
+# Restaurant data management tests
+npm run test:restaurant
+
+# Complete demo walkthrough
+npm run test:demo
+```
+
+### Run Tests with UI
+```bash
+npm run test:ui
+```
+
+## 📁 Project Structure
+
+```
+menutraining-mantine/
+├── src/
+│   ├── app/                    # Next.js app directory
+│   │   └── [language]/         # Internationalized routes
+│   │       ├── admin-panel/    # Admin features
+│   │       ├── restaurant/     # Restaurant management
+│   │       └── profile/        # User profile
+│   ├── components/             # Reusable components
+│   │   ├── allergies/          # Allergy-related components
+│   │   ├── equipment/          # Equipment components
+│   │   ├── ingredients/        # Ingredient components
+│   │   ├── menu-items/         # Menu item components
+│   │   ├── menus/              # Menu components
+│   │   ├── recipes/            # Recipe components
+│   │   └── theme/              # Theme components
+│   ├── services/               # Business logic and API calls
+│   │   ├── api/                # API service layer
+│   │   ├── auth/               # Authentication services
+│   │   ├── i18n/               # Internationalization
+│   │   ├── quiz/               # Quiz logic and generators
+│   │   └── restaurant/         # Restaurant context
+│   └── hooks/                  # Custom React hooks
+├── playwright-tests/           # E2E tests
+├── public/                     # Static assets
+└── docs/                       # Documentation
+```
+
+## 🔧 Configuration
+
+### Theme Customization
+The application uses Mantine UI with custom theme configuration. Modify `src/components/theme/mantine-provider.tsx` to customize:
+- Colors
+- Typography
+- Spacing
+- Component styles
+
+### API Configuration
+API endpoints are configured in `src/services/api/config.ts`. The base URL is set via environment variable `NEXT_PUBLIC_API_URL`.
+
+### Authentication
+Authentication configuration is in `src/services/auth/config.ts`. Supports:
+- JWT token management
+- Refresh token rotation
+- Social authentication (Google)
+
+## 🚢 Deployment
+
+### Vercel (Recommended)
+1. Push code to GitHub
+2. Import project in Vercel
+3. Configure environment variables
+4. Deploy
+
+### Docker
+```bash
+docker build -t menutraining-frontend .
+docker run -p 3000:3000 menutraining-frontend
+```
+
+### Traditional Hosting
+1. Build the application: `yarn build`
+2. Copy `.next`, `public`, and `package.json` to server
+3. Install production dependencies: `yarn install --production`
+4. Start: `yarn start`
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit changes (`git commit -m 'Add some AmazingFeature'`)
+4. Push to branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+## 🆘 Support
+
+For support, email support@menutraining.com or open an issue in the GitHub repository.
+
+## 🔗 Related Projects
+
+- [Menu Training Server](../menutraining-server) - Backend API server
+- [React Boilerplate](https://github.com/brocoders/extensive-react-boilerplate) - Original boilerplate this project was based on
