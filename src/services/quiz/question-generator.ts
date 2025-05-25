@@ -113,126 +113,105 @@ export async function generateQuizQuestions(
       };
     }
 
-    // ULTRA-FAST: Generate exactly what we need, no more
+    // Generate exactly what we need
     const questions: QuizQuestion[] = [];
     const questionsPerType = Math.max(
       1,
-      Math.floor(questionCount / enabledTypeCount)
+      Math.ceil(questionCount / enabledTypeCount)
     );
-    let questionsGenerated = 0;
 
-    // Generate questions by type, stopping when we have enough
-    if (
-      useAllergyQuestions &&
-      allergies.length > 0 &&
-      questionsGenerated < questionCount
-    ) {
-      const needed = Math.min(
-        questionsPerType,
-        questionCount - questionsGenerated
+    // Track which question types are available
+    const availableGenerators: Array<() => QuizQuestion[]> = [];
+
+    if (useAllergyQuestions && allergies.length > 0) {
+      availableGenerators.push(() =>
+        generateLimitedAllergyQuestions(
+          allergies,
+          restaurantData.ingredients,
+          difficulty,
+          questionsPerType
+        )
       );
-      const allergyQuestions = generateLimitedAllergyQuestions(
-        allergies,
-        restaurantData.ingredients,
-        difficulty,
-        needed
-      );
-      questions.push(...allergyQuestions);
-      questionsGenerated += allergyQuestions.length;
     }
 
     if (
       useDishQuestions &&
-      (multiIngredientItems.length > 0 || singleIngredientItems.length > 0) &&
-      questionsGenerated < questionCount
+      (multiIngredientItems.length > 0 || singleIngredientItems.length > 0)
     ) {
-      const needed = Math.min(
-        questionsPerType,
-        questionCount - questionsGenerated
+      availableGenerators.push(() =>
+        generateLimitedMenuItemQuestions(
+          multiIngredientItems,
+          singleIngredientItems,
+          restaurantData,
+          difficulty,
+          questionsPerType
+        )
       );
-      const menuItemQuestions = generateLimitedMenuItemQuestions(
-        multiIngredientItems,
-        singleIngredientItems,
-        restaurantData,
-        difficulty,
-        needed
-      );
-      questions.push(...menuItemQuestions);
-      questionsGenerated += menuItemQuestions.length;
     }
 
-    if (
-      useContainsQuestions &&
-      restaurantData.menuItems.length > 0 &&
-      questionsGenerated < questionCount
-    ) {
-      const needed = Math.min(
-        questionsPerType,
-        questionCount - questionsGenerated
+    if (useContainsQuestions && restaurantData.menuItems.length > 0) {
+      availableGenerators.push(() =>
+        generateLimitedContainsQuestions(
+          restaurantData.menuItems,
+          restaurantData.ingredients,
+          questionsPerType
+        )
       );
-      const containsQuestions = generateLimitedContainsQuestions(
-        restaurantData.menuItems,
-        restaurantData.ingredients,
-        needed
-      );
-      questions.push(...containsQuestions);
-      questionsGenerated += containsQuestions.length;
     }
 
     if (
       useIngredientAllergyQuestions &&
-      Object.keys(restaurantData.allergies).length > 0 &&
-      questionsGenerated < questionCount
+      Object.keys(restaurantData.allergies).length > 0
     ) {
-      const needed = Math.min(
-        questionsPerType,
-        questionCount - questionsGenerated
-      );
-      const ingredientAllergyQuestions =
+      availableGenerators.push(() =>
         generateLimitedIngredientAllergyQuestions(
           restaurantData.ingredients,
           restaurantData.allergies,
-          needed
-        );
-      questions.push(...ingredientAllergyQuestions);
-      questionsGenerated += ingredientAllergyQuestions.length;
+          questionsPerType
+        )
+      );
     }
 
     if (
       useMenuItemAllergyQuestions &&
-      Object.keys(restaurantData.allergies).length > 0 &&
-      questionsGenerated < questionCount
+      Object.keys(restaurantData.allergies).length > 0
     ) {
-      const needed = Math.min(
-        questionsPerType,
-        questionCount - questionsGenerated
+      availableGenerators.push(() =>
+        generateLimitedMenuItemAllergyQuestions(
+          restaurantData.menuItems,
+          restaurantData.ingredients,
+          restaurantData.allergies,
+          questionsPerType
+        )
       );
-      const menuItemAllergyQuestions = generateLimitedMenuItemAllergyQuestions(
-        restaurantData.menuItems,
-        restaurantData.ingredients,
-        restaurantData.allergies,
-        needed
-      );
-      questions.push(...menuItemAllergyQuestions);
-      questionsGenerated += menuItemAllergyQuestions.length;
     }
 
-    if (
-      useWhichMenuItemQuestions &&
-      restaurantData.menuItems.length > 0 &&
-      questionsGenerated < questionCount
-    ) {
-      const needed = Math.min(
-        questionsPerType,
-        questionCount - questionsGenerated
+    if (useWhichMenuItemQuestions && restaurantData.menuItems.length > 0) {
+      availableGenerators.push(() =>
+        generateLimitedWhichMenuItemQuestions(
+          restaurantData.menuItems,
+          difficulty,
+          questionsPerType
+        )
       );
-      const whichMenuItemQuestions = generateLimitedWhichMenuItemQuestions(
-        restaurantData.menuItems,
-        difficulty,
-        needed
-      );
-      questions.push(...whichMenuItemQuestions);
-      questionsGenerated += whichMenuItemQuestions.length;
+    }
+
+    // Generate questions from each generator
+    let generatorIndex = 0;
+    let attempts = 0;
+    const maxAttempts = availableGenerators.length * 3;
+
+    while (questions.length < questionCount && attempts < maxAttempts) {
+      const generator =
+        availableGenerators[generatorIndex % availableGenerators.length];
+      const newQuestions = generator();
+
+      // Add only the questions we need to reach the target
+      const questionsNeeded = questionCount - questions.length;
+      questions.push(...newQuestions.slice(0, questionsNeeded));
+
+      generatorIndex++;
+      attempts++;
     }
 
     console.log(`Generated ${questions.length} questions`);
@@ -410,8 +389,10 @@ function generateLimitedIngredientAllergyQuestions(
   maxQuestions: number
 ): QuizQuestion[] {
   const questions: QuizQuestion[] = [];
+  let attempts = 0;
+  const maxAttempts = maxQuestions * 2;
 
-  for (let i = 0; i < maxQuestions; i++) {
+  while (questions.length < maxQuestions && attempts < maxAttempts) {
     const question = generateIngredientContainsAllergyQuestion(
       ingredients,
       allergies
@@ -419,6 +400,7 @@ function generateLimitedIngredientAllergyQuestions(
     if (question) {
       questions.push(question);
     }
+    attempts++;
   }
 
   return questions;
@@ -434,8 +416,10 @@ function generateLimitedMenuItemAllergyQuestions(
   maxQuestions: number
 ): QuizQuestion[] {
   const questions: QuizQuestion[] = [];
+  let attempts = 0;
+  const maxAttempts = maxQuestions * 2;
 
-  for (let i = 0; i < maxQuestions; i++) {
+  while (questions.length < maxQuestions && attempts < maxAttempts) {
     const question = generateMenuItemContainsAllergyQuestion(
       menuItems,
       ingredients,
@@ -444,6 +428,7 @@ function generateLimitedMenuItemAllergyQuestions(
     if (question) {
       questions.push(question);
     }
+    attempts++;
   }
 
   return questions;
@@ -458,21 +443,23 @@ function generateLimitedWhichMenuItemQuestions(
   maxQuestions: number
 ): QuizQuestion[] {
   const questions: QuizQuestion[] = [];
+  const usedMenuItemIds = new Set<string>();
 
-  // Filter menu items that have images
-  const menuItemsWithImages = menuItems.filter(
-    (item) => item.menuItemUrl && item.menuItemUrl.trim() !== ""
-  );
+  // Try to generate up to maxQuestions, with retry logic
+  let attempts = 0;
+  const maxAttempts = maxQuestions * 2;
 
-  const targetQuestionCount = Math.min(
-    maxQuestions,
-    menuItemsWithImages.length
-  );
-  for (let i = 0; i < targetQuestionCount; i++) {
+  while (questions.length < maxQuestions && attempts < maxAttempts) {
     const question = generateWhichMenuItemIsThisQuestion(menuItems, difficulty);
-    if (question) {
-      questions.push(question);
+    if (question && question.imageUrl) {
+      // Check if we haven't already used this menu item
+      const menuItemId = question.correctAnswerIds[0];
+      if (!usedMenuItemIds.has(menuItemId)) {
+        questions.push(question);
+        usedMenuItemIds.add(menuItemId);
+      }
     }
+    attempts++;
   }
 
   return questions;
