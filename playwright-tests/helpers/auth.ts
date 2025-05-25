@@ -6,14 +6,18 @@ export async function login(
   password: string = "password"
 ) {
   await page.goto("/en/sign-in");
+  await page.waitForLoadState("networkidle");
+  
+  // Fill email and password
   await page.fill('input[type="email"]', email);
   await page.fill('input[type="password"]', password);
+  
+  // Click submit button
   await page.click('button[type="submit"]');
-  await page.waitForTimeout(2000);
-
+  
   // Wait for navigation away from sign-in page
   await page.waitForURL((url) => !url.pathname.includes("sign-in"), {
-    timeout: 10000,
+    timeout: 15000,
   });
 }
 

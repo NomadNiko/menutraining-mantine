@@ -22,7 +22,9 @@ test.describe("Quiz Functionality", () => {
     await expect(page.locator('text="Lunch Menu"')).toBeVisible();
 
     // Check start button
-    await expect(page.locator('button:has-text("Start Quiz")')).toBeVisible();
+    await expect(
+      page.locator('[data-testid="start-quiz-button"]')
+    ).toBeVisible();
   });
 
   test("High scores display", async ({ page }) => {
@@ -40,25 +42,37 @@ test.describe("Quiz Functionality", () => {
     expect(rowCount).toBeGreaterThan(0);
   });
 
-  test("Start and play quiz", async ({ page }) => {
+  test("Start and play quiz with optimized loading", async ({ page }) => {
     await page.goto(ROUTES.QUIZ);
     await page.waitForLoadState("networkidle");
-    await page.waitForTimeout(2000);
+    await page.waitForTimeout(1000);
 
-    // Wait for quiz configuration to load
-    await page.waitForSelector('button:has-text("Start Quiz")', {
+    // Wait for quiz configuration to load using test ID
+    await page.waitForSelector('[data-testid="start-quiz-button"]', {
       timeout: 10000,
     });
 
-    // Start quiz
-    await page.locator('button:has-text("Start Quiz")').click();
+    // Start the timer to measure performance
+    const startTime = Date.now();
 
-    // Wait for loading modal and quiz to load (20 seconds as observed)
-    await page.waitForTimeout(20000);
+    // Start quiz using the test ID
+    await page.locator('[data-testid="start-quiz-button"]').click();
 
-    // Also wait for URL change to confirm navigation
-    await page.waitForURL("**/quiz/question", { timeout: 5000 }).catch(() => {
-      // If URL doesn't change, continue anyway
+    // Wait for loading to complete and navigation to quiz question page
+    // With optimizations, this should be much faster than 20 seconds
+    await page.waitForURL("**/quiz/question", { timeout: 15000 });
+
+    const loadTime = Date.now() - startTime;
+    console.log(`Quiz loading time: ${loadTime}ms`);
+
+    // Verify the loading time is improved (should be under 15 seconds with optimizations, down from 20+ seconds)
+    expect(loadTime).toBeLessThan(15000);
+
+    // Verify loading modal is not visible after navigation (may appear/disappear quickly)
+    await expect(
+      page.locator('[data-testid="quiz-loading-modal"]')
+    ).not.toBeVisible({
+      timeout: 2000,
     });
 
     // Look for quiz content
@@ -143,6 +157,8 @@ test.describe("Quiz Functionality", () => {
     await expect(lunchCheckbox).toBeVisible();
 
     // Check for the Start Quiz button
-    await expect(page.locator('button:has-text("Start Quiz")')).toBeVisible();
+    await expect(
+      page.locator('[data-testid="start-quiz-button"]')
+    ).toBeVisible();
   });
 });
