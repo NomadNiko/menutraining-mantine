@@ -31,7 +31,8 @@ import { FilterPanel } from "@/components/ingredients/FilterPanel";
 import { LoadMoreButton } from "@/components/ingredients/LoadMoreButton";
 import { ResultsInfo } from "@/components/ingredients/ResultsInfo";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useIngredientsWithClientSideSort } from "@/hooks/useIngredientsWithClientSideSort";
+import { useCachedIngredientsWithFilter } from "@/hooks/useCachedIngredientsWithFilter";
+import { useRestaurantDataCache } from "@/services/restaurant/restaurant-data-cache";
 
 function RestaurantIngredientsPage() {
   const { t } = useTranslation("admin-panel-ingredients");
@@ -102,7 +103,7 @@ function RestaurantIngredientsPage() {
     ]
   );
 
-  // Use the client-side sorting and pagination hook
+  // Use the cached data with client-side filtering and sorting
   const {
     ingredients,
     allergiesMap,
@@ -115,7 +116,10 @@ function RestaurantIngredientsPage() {
     handleSort,
     hasMore,
     loadMore,
-  } = useIngredientsWithClientSideSort(queryParams);
+  } = useCachedIngredientsWithFilter(queryParams);
+
+  // Get cache status
+  const {} = useRestaurantDataCache();
 
   // Update URL when filters change - debounced to reduce state updates
   useEffect(() => {
@@ -237,6 +241,7 @@ function RestaurantIngredientsPage() {
             href="/restaurant/ingredients/create"
             color="green"
             size="compact-sm"
+            data-testid="create-ingredient-button"
           >
             {t("create")}
           </Button>

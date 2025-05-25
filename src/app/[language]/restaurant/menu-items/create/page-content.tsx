@@ -11,6 +11,7 @@ import { CreateMenuItemDto } from "@/services/api/types/menu-item";
 import useSelectedRestaurant from "@/services/restaurant/use-selected-restaurant";
 import { useState } from "react";
 import { useResponsive } from "@/services/responsive/use-responsive";
+import { useRestaurantDataCache } from "@/services/restaurant/restaurant-data-cache";
 
 function CreateMenuItem() {
   const { t } = useTranslation("admin-panel-menu-items");
@@ -21,6 +22,7 @@ function CreateMenuItem() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const createMenuItemService = useCreateMenuItemService();
   const { isMobile, isTablet } = useResponsive();
+  const { refreshData } = useRestaurantDataCache();
 
   // Determine container size based on screen size
   const containerSize = isMobile || isTablet ? "xs" : "sm";
@@ -44,6 +46,8 @@ function CreateMenuItem() {
       const { status } = await createMenuItemService(dataWithRestaurant);
       if (status === HTTP_CODES_ENUM.CREATED) {
         enqueueSnackbar(t("createSuccess"), { variant: "success" });
+        // Refresh the cache before navigating
+        await refreshData();
         router.push("/restaurant/menu-items"); // Added navigation to redirect after success
       } else if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
         enqueueSnackbar(t("createError"), { variant: "error" });

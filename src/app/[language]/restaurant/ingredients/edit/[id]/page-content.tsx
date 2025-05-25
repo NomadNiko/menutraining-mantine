@@ -17,6 +17,7 @@ import {
 } from "@/services/api/types/ingredient";
 import useSelectedRestaurant from "@/services/restaurant/use-selected-restaurant";
 import { useResponsive } from "@/services/responsive/use-responsive";
+import { useRestaurantDataCache } from "@/services/restaurant/restaurant-data-cache";
 
 function EditIngredient() {
   const params = useParams<{ id: string }>();
@@ -37,6 +38,7 @@ function EditIngredient() {
 
   const getIngredientService = useGetIngredientService();
   const updateIngredientService = useUpdateIngredientService();
+  const { refreshData } = useRestaurantDataCache();
 
   // Load ingredient data
   useEffect(() => {
@@ -99,6 +101,8 @@ function EditIngredient() {
       });
       if (status === HTTP_CODES_ENUM.OK) {
         enqueueSnackbar(t("updateSuccess"), { variant: "success" });
+        // Refresh the cache before navigating
+        await refreshData();
         router.push("/restaurant/ingredients");
       } else if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
         enqueueSnackbar(t("updateError"), { variant: "error" });

@@ -27,7 +27,7 @@ import { FilterPanel } from "@/components/menu-items/FilterPanel";
 import { LoadMoreButton } from "@/components/menu-items/LoadMoreButton";
 import { ResultsInfo } from "@/components/menu-items/ResultsInfo";
 import { useSearchParams, useRouter } from "next/navigation";
-import { useMenuItemsWithClientSideSort } from "@/hooks/useMenuItemsWithClientSideSort";
+import { useCachedMenuItemsWithFilter } from "@/hooks/useCachedMenuItemsWithFilter";
 
 function RestaurantMenuItemsPage() {
   const { t } = useTranslation("admin-panel-menu-items");
@@ -83,7 +83,7 @@ function RestaurantMenuItemsPage() {
     ]
   );
 
-  // Use the client-side sorting and pagination hook
+  // Use the cached data with filtering
   const {
     menuItems,
     allergiesMap,
@@ -96,7 +96,7 @@ function RestaurantMenuItemsPage() {
     handleSort,
     hasMore,
     loadMore,
-  } = useMenuItemsWithClientSideSort(queryParams);
+  } = useCachedMenuItemsWithFilter(queryParams);
 
   // Update URL when filters change - debounced to reduce state updates
   useEffect(() => {

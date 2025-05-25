@@ -11,6 +11,7 @@ import { CreateIngredientDto } from "@/services/api/types/ingredient";
 import useSelectedRestaurant from "@/services/restaurant/use-selected-restaurant";
 import { useState } from "react";
 import { useResponsive } from "@/services/responsive/use-responsive";
+import { useRestaurantDataCache } from "@/services/restaurant/restaurant-data-cache";
 
 function CreateIngredient() {
   const { t } = useTranslation("admin-panel-ingredients");
@@ -21,6 +22,7 @@ function CreateIngredient() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const createIngredientService = useCreateIngredientService();
   const { isMobile, isTablet } = useResponsive();
+  const { refreshData } = useRestaurantDataCache();
 
   // Determine container size based on screen size
   const containerSize = isMobile || isTablet ? "xs" : "sm";
@@ -46,6 +48,8 @@ function CreateIngredient() {
       const { status } = await createIngredientService(dataWithRestaurant);
       if (status === HTTP_CODES_ENUM.CREATED) {
         enqueueSnackbar(t("createSuccess"), { variant: "success" });
+        // Refresh the cache before navigating
+        await refreshData();
         router.push("/restaurant/ingredients");
       } else if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
         enqueueSnackbar(t("createError"), { variant: "error" });

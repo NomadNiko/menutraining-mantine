@@ -15,6 +15,7 @@ import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { MenuItem, UpdateMenuItemDto } from "@/services/api/types/menu-item";
 import useSelectedRestaurant from "@/services/restaurant/use-selected-restaurant";
 import { useResponsive } from "@/services/responsive/use-responsive";
+import { useRestaurantDataCache } from "@/services/restaurant/restaurant-data-cache";
 
 function EditMenuItem() {
   const params = useParams<{ id: string }>();
@@ -23,6 +24,7 @@ function EditMenuItem() {
   const router = useRouter();
   const { setLoading } = useGlobalLoading();
   const { enqueueSnackbar } = useSnackbar();
+  const { refreshData } = useRestaurantDataCache();
   const { selectedRestaurant } = useSelectedRestaurant();
   const { isMobile, isTablet } = useResponsive();
 
@@ -99,6 +101,8 @@ function EditMenuItem() {
 
       if (status === HTTP_CODES_ENUM.OK) {
         enqueueSnackbar(t("updateSuccess"), { variant: "success" });
+        // Refresh the cache before navigating
+        await refreshData();
         router.push("/restaurant/menu-items");
       } else if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
         enqueueSnackbar(t("updateError"), { variant: "error" });
