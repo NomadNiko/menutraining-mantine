@@ -1,0 +1,281 @@
+/* src/components/data-preload/DataPreloadModal.module.css */
+
+/* Shared keyframes */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@keyframes slideRight {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes scaleUp {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+/* Data Loader 1 - Progress Bar Style */
+.dataLoader1 {
+  position: relative;
+  width: 100px;
+  height: 6px;
+  background: rgba(52, 152, 219, 0.2);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.dataLoader1::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, 
+    transparent,
+    #3498db,
+    #2980b9,
+    #3498db,
+    transparent
+  );
+  animation: slideRight 2s infinite;
+}
+
+/* Data Loader 2 - Circular Progress */
+.dataLoader2 {
+  position: relative;
+  width: 60px;
+  height: 60px;
+}
+
+.dataLoader2::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 4px solid rgba(52, 152, 219, 0.2);
+}
+
+.dataLoader2::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 4px solid transparent;
+  border-top-color: #3498db;
+  animation: rotate 1s linear infinite;
+}
+
+/* Data Loader 3 - Three Dots */
+.dataLoader3 {
+  position: relative;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+
+.dataLoader3::before,
+.dataLoader3::after,
+.dataLoader3 {
+  width: 12px;
+  height: 12px;
+  background: #3498db;
+  border-radius: 50%;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.dataLoader3::before {
+  content: "";
+  position: relative;
+  animation-delay: -0.32s;
+}
+
+.dataLoader3::after {
+  content: "";
+  position: relative;
+  animation-delay: -0.16s;
+}
+
+/* Data Loader 4 - Data Sync Animation */
+.dataLoader4 {
+  position: relative;
+  width: 80px;
+  height: 60px;
+}
+
+.dataLoader4::before,
+.dataLoader4::after {
+  content: "";
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  border: 3px solid #3498db;
+  border-radius: 4px;
+}
+
+.dataLoader4::before {
+  top: 0;
+  left: 0;
+  animation: dataSyncLeft 2s infinite;
+}
+
+.dataLoader4::after {
+  bottom: 0;
+  right: 0;
+  animation: dataSyncRight 2s infinite;
+}
+
+@keyframes dataSyncLeft {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(25px, 15px) scale(0.8);
+    opacity: 0.6;
+  }
+}
+
+@keyframes dataSyncRight {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: translate(-25px, -15px) scale(0.8);
+    opacity: 0.6;
+  }
+}
+
+/* Data Loader 5 - Database Icon Animation */
+.dataLoader5 {
+  position: relative;
+  width: 60px;
+  height: 60px;
+}
+
+.dataLoader5::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(ellipse at center top, transparent 15px, #3498db 16px, #3498db 20px, transparent 21px),
+    radial-gradient(ellipse at center center, transparent 15px, #3498db 16px, #3498db 20px, transparent 21px),
+    radial-gradient(ellipse at center bottom, transparent 15px, #3498db 16px, #3498db 20px, transparent 21px);
+  background-size: 100% 33.33%;
+  background-position: 
+    center 0%,
+    center 50%,
+    center 100%;
+  background-repeat: no-repeat;
+  animation: databasePulse 2s ease-in-out infinite;
+}
+
+@keyframes databasePulse {
+  0%, 100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  25% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(0.95);
+    opacity: 0.8;
+  }
+  75% {
+    transform: scale(1.05);
+    opacity: 0.8;
+  }
+}
+
+/* Data Loader 6 - Server Communication */
+.dataLoader6 {
+  position: relative;
+  width: 80px;
+  height: 50px;
+}
+
+.dataLoader6::before,
+.dataLoader6::after {
+  content: "";
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  background: #3498db;
+  border-radius: 50%;
+}
+
+.dataLoader6::before {
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  animation: serverSend 2s infinite;
+}
+
+.dataLoader6::after {
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  animation: serverReceive 2s infinite;
+}
+
+/* Center line */
+.dataLoader6 {
+  background: linear-gradient(
+    to right,
+    transparent 0%,
+    transparent 40%,
+    rgba(52, 152, 219, 0.3) 40%,
+    rgba(52, 152, 219, 0.3) 60%,
+    transparent 60%,
+    transparent 100%
+  );
+}
+
+@keyframes serverSend {
+  0%, 100% {
+    transform: translateY(-50%) translateX(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-50%) translateX(70px);
+    opacity: 0.3;
+  }
+}
+
+@keyframes serverReceive {
+  0%, 100% {
+    transform: translateY(-50%) translateX(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(-50%) translateX(-70px);
+    opacity: 0.3;
+  }
+}

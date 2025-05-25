@@ -18,6 +18,7 @@ import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { RoleEnum } from "@/services/api/types/role";
+import { RestaurantDataCacheProvider } from "./restaurant-data-cache";
 
 const SELECTED_RESTAURANT_KEY = "selected-restaurant-id";
 
@@ -152,7 +153,7 @@ function RestaurantContextProvider({ children }: PropsWithChildren<{}>) {
   return (
     <RestaurantContext.Provider value={contextValue}>
       <RestaurantActionsContext.Provider value={actionsValue}>
-        {children}
+        <RestaurantDataCacheProvider>{children}</RestaurantDataCacheProvider>
       </RestaurantActionsContext.Provider>
     </RestaurantContext.Provider>
   );
