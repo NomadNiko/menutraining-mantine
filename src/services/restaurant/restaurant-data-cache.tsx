@@ -78,10 +78,7 @@ export function RestaurantDataCacheProvider({
   const getMenusService = useGetMenusService();
 
   const loadAllData = useCallback(async () => {
-    if (!selectedRestaurant || isLoadingRef.current) {
-      console.log(
-        `[DataCache] Skipping load - restaurant: ${!!selectedRestaurant}, loading: ${isLoadingRef.current}`
-      );
+    if (!selectedRestaurant?.restaurantId || isLoadingRef.current) {
       return;
     }
 
@@ -107,15 +104,8 @@ export function RestaurantDataCacheProvider({
 
     try {
       // Fetch all data in parallel for maximum speed
-      const [
-        menuItemsRes,
-        ingredientsRes,
-        allergiesRes,
-        recipesRes,
-        equipmentRes,
-        menuSectionsRes,
-        menusRes,
-      ] = await Promise.all([
+      // Use Promise.allSettled to handle individual failures
+      const results = await Promise.allSettled([
         getMenuItemsService(undefined, {
           restaurantId: selectedRestaurant.restaurantId,
           limit: 1000, // Get all items
@@ -145,6 +135,35 @@ export function RestaurantDataCacheProvider({
           limit: 1000,
         }),
       ]);
+
+      // Extract results, using empty response for failed requests
+      const [
+        menuItemsRes,
+        ingredientsRes,
+        allergiesRes,
+        recipesRes,
+        equipmentRes,
+        menuSectionsRes,
+        menusRes,
+      ] = results.map((result, index) => {
+        if (result.status === "rejected") {
+          const endpoints = [
+            "menuItems",
+            "ingredients",
+            "allergies",
+            "recipes",
+            "equipment",
+            "menuSections",
+            "menus",
+          ];
+          console.error(
+            `[DataCache] Failed to fetch ${endpoints[index]}:`,
+            result.reason
+          );
+          return { status: 500, data: [] };
+        }
+        return result.value;
+      });
 
       // Process responses
       const processResponse = (response: { status: number; data: unknown }) => {
@@ -203,6 +222,7 @@ export function RestaurantDataCacheProvider({
       setIsLoadingData(false);
     }
   }, [
+    selectedRestaurant,
     getMenuItemsService,
     getIngredientsService,
     getAllergiesService,
