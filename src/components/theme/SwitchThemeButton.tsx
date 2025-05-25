@@ -10,6 +10,7 @@ export function SwitchThemeButton() {
       color={isDark ? "yellow" : "blue"}
       aria-label="Toggle color scheme"
       size="lg"
+      data-testid="theme-switch-button"
     >
       {isDark ? <IconSun size={24} /> : <IconMoon size={23} />}
     </ActionIcon>

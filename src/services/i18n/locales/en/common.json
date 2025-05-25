@@ -48,5 +48,15 @@
     "facebook": {
       "action": "Login with Facebook"
     }
+  },
+  "dataPreload": {
+    "loadingData": "Loading data...",
+    "loadingRestaurantData": "Loading restaurant data...",
+    "fetchingIngredients": "Fetching ingredients...",
+    "loadingMenuItems": "Loading menu items...",
+    "preparingRecipes": "Preparing recipes...",
+    "syncingAllergies": "Syncing allergy information...",
+    "organizingMenus": "Organizing menus...",
+    "optimizingPerformance": "Optimizing for better performance..."
   }
 }
