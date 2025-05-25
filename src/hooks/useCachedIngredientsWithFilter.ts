@@ -36,10 +36,12 @@ export function useCachedIngredientsWithFilter(queryParams: QueryParams) {
   const filteredIngredients = useMemo(() => {
     let filtered = [...cachedIngredients];
 
-    // Filter by restaurant ID
+    // Filter by restaurant ID - include both restaurant-specific and core ingredients
     if (queryParams.restaurantId) {
       filtered = filtered.filter(
-        (ing) => ing.restaurantId === queryParams.restaurantId
+        (ing) =>
+          ing.restaurantId === queryParams.restaurantId ||
+          ing.isCoreIngredient === true
       );
     }
 
