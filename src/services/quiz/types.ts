@@ -65,8 +65,7 @@ export const QUIZ_MODE_SETTINGS: Record<
     difficulty: Difficulty.EASY,
     questionTypes: [
       QuestionType.MENU_ITEM_CONTAINS_INGREDIENT,
-      QuestionType.INGREDIENTS_IN_DISH,
-      QuestionType.WHICH_MENU_ITEM_IS_THIS, // Added to easy mode
+      QuestionType.WHICH_MENU_ITEM_IS_THIS,
     ],
   },
   [QuizMode.MEDIUM]: {
@@ -74,15 +73,19 @@ export const QUIZ_MODE_SETTINGS: Record<
     difficulty: Difficulty.MEDIUM,
     questionTypes: [
       QuestionType.MENU_ITEM_CONTAINS_INGREDIENT,
+      QuestionType.WHICH_MENU_ITEM_IS_THIS,
       QuestionType.INGREDIENTS_IN_DISH,
-      QuestionType.INGREDIENT_CONTAINS_ALLERGY,
-      QuestionType.WHICH_MENU_ITEM_IS_THIS, // Added to medium mode
     ],
   },
   [QuizMode.HARD]: {
     questionCount: 20,
     difficulty: Difficulty.HARD,
-    questionTypes: Object.values(QuestionType), // Includes all types including new one
+    questionTypes: [
+      QuestionType.MENU_ITEM_CONTAINS_INGREDIENT,
+      QuestionType.WHICH_MENU_ITEM_IS_THIS,
+      QuestionType.INGREDIENTS_IN_DISH,
+      QuestionType.MENU_ITEM_CONTAINS_ALLERGY,
+    ],
   },
 };
 
