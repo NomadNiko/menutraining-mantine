@@ -31,6 +31,7 @@ import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { useResponsive } from "@/services/responsive/use-responsive";
 import { useRecipeCache } from "./RecipeDataPreloader";
 import { IconClock, IconToolsKitchen, IconUsers } from "@tabler/icons-react";
+import { normalizeRecipe } from "@/utils/recipe-normalizer";
 
 interface RecipeViewModalProps {
   recipeId: string | null;
@@ -83,14 +84,14 @@ export function RecipeViewModal({
         let recipeData: Recipe;
 
         if (cachedRecipe) {
-          recipeData = cachedRecipe;
+          recipeData = normalizeRecipe(cachedRecipe);
         } else {
           // Fetch from API if not in cache
           const { status, data } = await getRecipeService({ id: recipeId });
           if (status !== HTTP_CODES_ENUM.OK) {
             throw new Error(t("errors.recipeNotFound"));
           }
-          recipeData = data;
+          recipeData = normalizeRecipe(data);
           // Store in cache for future use
           cache.recipes[recipeId] = recipeData;
         }
@@ -221,9 +222,11 @@ export function RecipeViewModal({
           </Box>
 
           <Box>
-            <Title order={4}>{recipe.recipeName}</Title>
+            <Title order={2}>{recipe.recipeName}</Title>
             {recipe.recipeDescription && (
-              <Text mt="xs">{recipe.recipeDescription}</Text>
+              <Text mt="xs" size="lg">
+                {recipe.recipeDescription}
+              </Text>
             )}
             <Group gap="md" mt="md">
               <Badge leftSection={<IconUsers size={14} />} color="grape">
@@ -244,7 +247,8 @@ export function RecipeViewModal({
                 alt={recipe.recipeName}
                 mt="md"
                 radius="md"
-                height={200}
+                height={120}
+                maw={200}
               />
             )}
           </Box>
@@ -269,25 +273,31 @@ export function RecipeViewModal({
               >
                 <Card withBorder p="md" radius="md">
                   <Stack gap="md">
-                    <Text>{step.stepText}</Text>
+                    <Text size="lg" lh={1.6}>
+                      {step.stepText}
+                    </Text>
 
                     {step.stepImageUrl && (
                       <Image
                         src={step.stepImageUrl}
                         alt={`Step ${index + 1}`}
                         radius="md"
-                        height={150}
+                        height={100}
+                        maw={150}
                       />
                     )}
 
                     {step.equipment.length > 0 && (
                       <Box>
-                        <Text fw={500}>{t("viewRecipe.equipment")}:</Text>
+                        <Text fw={600} size="md">
+                          {t("viewRecipe.equipment")}:
+                        </Text>
                         <Group mt="xs">
                           {step.equipment.map((eq) => (
                             <Badge
                               key={eq.id}
                               leftSection={<IconToolsKitchen size={14} />}
+                              size="lg"
                             >
                               {eq.equipmentName}
                             </Badge>
@@ -296,14 +306,16 @@ export function RecipeViewModal({
                       </Box>
                     )}
 
-                    {step.ingredients && step.ingredients.length > 0 && (
+                    {step.ingredients.length > 0 && (
                       <Box>
-                        <Text fw={500}>{t("viewRecipe.ingredients")}:</Text>
+                        <Text fw={600} size="md">
+                          {t("viewRecipe.ingredients")}:
+                        </Text>
                         <Grid mt="xs">
                           {step.ingredients.map((ing, idx) => (
                             <Grid.Col key={idx} span={{ base: 12, sm: 6 }}>
                               <Group>
-                                <Text>
+                                <Text size="md">
                                   {ing.ingredientUnits}{" "}
                                   {ing.ingredientMeasure || ""}{" "}
                                   {ing.ingredient?.ingredientName ||

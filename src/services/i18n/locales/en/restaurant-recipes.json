@@ -34,6 +34,8 @@
   "totalTime": "Total Time",
   "actions": {
     "view": "View",
+    "quickView": "Quick View",
+    "fullView": "Full View",
     "edit": "Edit",
     "delete": "Delete"
   },
@@ -112,7 +114,12 @@
     "stepByStep": "Step by Step",
     "fullRecipe": "Full Recipe",
     "noIngredients": "No ingredients for this recipe",
-    "noEquipment": "No equipment needed for this recipe"
+    "noEquipment": "No equipment needed for this recipe",
+    "instructions": "Instructions",
+    "equipmentNeeded": "Equipment Needed",
+    "ingredientsForStep": "Ingredients for this Step",
+    "unknownIngredient": "Unknown Ingredient",
+    "allIngredients": "All Ingredients"
   },
   "errors": {
     "recipeNotFound": "Recipe not found",

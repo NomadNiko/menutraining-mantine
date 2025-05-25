@@ -15,6 +15,7 @@ import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import { Recipe, UpdateRecipeDto } from "@/services/api/types/recipe";
 import useSelectedRestaurant from "@/services/restaurant/use-selected-restaurant";
 import { useResponsive } from "@/services/responsive/use-responsive";
+import { normalizeRecipe } from "@/utils/recipe-normalizer";
 
 function EditRecipe() {
   const params = useParams<{ id: string }>();
@@ -44,7 +45,7 @@ function EditRecipe() {
         const { status, data } = await getRecipeService({ id });
 
         if (status === HTTP_CODES_ENUM.OK) {
-          setRecipe(data);
+          setRecipe(normalizeRecipe(data));
 
           // Verify this recipe belongs to the selected restaurant
           if (data.restaurantId === selectedRestaurant.restaurantId) {

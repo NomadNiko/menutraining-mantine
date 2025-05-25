@@ -5,3 +5,69 @@ html {
 body {
   font-family: var(--font-oxanium), system-ui, sans-serif;
 }
+
+/* Print styles */
+@media print {
+  /* Hide navigation and non-content elements */
+  .no-print {
+    display: none !important;
+  }
+  
+  /* Hide the top navigation bar */
+  header,
+  nav,
+  .mantine-AppShell-header,
+  .mantine-AppShell-navbar {
+    display: none !important;
+  }
+  
+  /* Scale content to 50% and ensure it takes full width */
+  .print-content {
+    transform: scale(0.5) !important;
+    transform-origin: top left !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    max-width: none !important;
+    width: 200% !important; /* Double width to compensate for 50% scale */
+    height: 200% !important; /* Double height to compensate for 50% scale */
+  }
+  
+  /* Apply scaling to the entire body for print */
+  body {
+    font-size: 6pt !important; /* Half of 12pt for 50% scale */
+    line-height: 1.4 !important;
+    color: black !important;
+    background: white !important;
+    zoom: 0.5 !important; /* Additional browser support for scaling */
+  }
+  
+  /* Ensure images print well */
+  img {
+    max-width: 100% !important;
+    height: auto !important;
+    page-break-inside: avoid;
+  }
+  
+  /* Page break rules */
+  .print-page-break {
+    page-break-before: always;
+  }
+  
+  .print-avoid-break {
+    page-break-inside: avoid;
+  }
+  
+  /* Remove shadows and borders for print */
+  .mantine-Paper-root,
+  .mantine-Card-root {
+    box-shadow: none !important;
+    border: 1px solid #ddd !important;
+  }
+  
+  /* Hide button backgrounds */
+  .mantine-Button-root {
+    background: transparent !important;
+    border: 1px solid #333 !important;
+    color: black !important;
+  }
+}

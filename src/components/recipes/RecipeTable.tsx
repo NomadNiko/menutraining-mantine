@@ -18,6 +18,7 @@ import {
   IconSortDescending,
   IconEye,
   IconClock,
+  IconExternalLink,
 } from "@tabler/icons-react";
 import Link from "@/components/link";
 import { useTranslation } from "@/services/i18n/client";
@@ -121,7 +122,7 @@ function RecipeTableComponent({
             width={120}
           />
           <SortableHeader label={t("table.steps")} field="steps" width={100} />
-          <th style={{ width: 250, textAlign: "right", padding: "10px" }}>
+          <th style={{ width: 320, textAlign: "right", padding: "10px" }}>
             {t("table.actions")}
           </th>
         </tr>
@@ -161,7 +162,7 @@ function RecipeTableComponent({
             </td>
             <td
               style={{
-                width: 250,
+                width: 320,
                 textAlign: "right",
                 padding: "10px",
               }}
@@ -174,7 +175,17 @@ function RecipeTableComponent({
                   color="blue"
                   leftSection={<IconEye size={14} />}
                 >
-                  {t("actions.view")}
+                  {t("actions.quickView")}
+                </Button>
+                <Button
+                  component={Link}
+                  href={`/restaurant/recipes/view/${recipe.id}`}
+                  size="xs"
+                  variant="light"
+                  color="teal"
+                  leftSection={<IconExternalLink size={14} />}
+                >
+                  {t("actions.fullView")}
                 </Button>
                 <Button
                   component={Link}

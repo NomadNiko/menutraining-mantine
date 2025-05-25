@@ -8,6 +8,7 @@ import { Recipe } from "@/services/api/types/recipe";
 import { Ingredient } from "@/services/api/types/ingredient";
 import { Equipment } from "@/services/api/types/equipment";
 import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
+import { normalizeRecipe } from "@/utils/recipe-normalizer";
 
 // Define our cache structure with proper types
 export interface RecipeCache {
@@ -50,14 +51,15 @@ export function RecipeDataPreloader({ recipes }: RecipeDataPreloaderProps) {
         // Skip if we already have this recipe in cache with full details
         if (globalRecipeCache.recipes[recipe.id]) return;
 
-        // Store recipe in cache
-        globalRecipeCache.recipes[recipe.id] = recipe;
+        // Store normalized recipe in cache
+        globalRecipeCache.recipes[recipe.id] = normalizeRecipe(recipe);
 
         // Collect all ingredient and equipment IDs from steps
         const ingredientIds = new Set<string>();
         const equipmentIds = new Set<string>();
 
-        recipe.recipeSteps.forEach((step) => {
+        const normalizedRecipe = normalizeRecipe(recipe);
+        normalizedRecipe.recipeSteps.forEach((step) => {
           // Add equipment IDs
           if (step.stepEquipment && step.stepEquipment.length > 0) {
             step.stepEquipment.forEach((eqId) => equipmentIds.add(eqId));

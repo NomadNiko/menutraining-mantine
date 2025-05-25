@@ -11,6 +11,7 @@ import {
 } from "@/services/api/types/recipe";
 import { Ingredient } from "@/services/api/types/ingredient";
 import { Equipment } from "@/services/api/types/equipment";
+import { normalizeRecipe } from "@/utils/recipe-normalizer";
 
 export interface RecipesQueryParams {
   restaurantId: string;
@@ -143,15 +144,22 @@ export const useRecipesQuery = ({
       if (status === HTTP_CODES_ENUM.OK) {
         const recipesData = Array.isArray(data) ? data : data?.data || [];
 
+        // Normalize all recipes to ensure arrays are properly initialized
+        const normalizedRecipes = recipesData.map((recipe) =>
+          normalizeRecipe(recipe)
+        );
+
         // Client-side filtering for multiple ingredients/equipment
-        let filteredRecipes = [...recipesData];
+        let filteredRecipes = [...normalizedRecipes];
         if (!useServerFiltering && ingredientIds && ingredientIds.length > 0) {
           filteredRecipes = filteredRecipes.filter((recipe) => {
             // Check each step for matching ingredients
             return recipe.recipeSteps.some((step: RecipeStepItem) => {
-              if (!step.stepIngredientItems) return false;
-              return step.stepIngredientItems.some((item: StepIngredientItem) =>
-                ingredientIds.includes(item.ingredientId)
+              return (
+                step.stepIngredientItems &&
+                step.stepIngredientItems.some((item: StepIngredientItem) =>
+                  ingredientIds.includes(item.ingredientId)
+                )
               );
             });
           });
@@ -161,9 +169,11 @@ export const useRecipesQuery = ({
           filteredRecipes = filteredRecipes.filter((recipe) => {
             // Check each step for matching equipment
             return recipe.recipeSteps.some((step: RecipeStepItem) => {
-              if (!step.stepEquipment) return false;
-              return step.stepEquipment.some((equipId: string) =>
-                equipmentIds.includes(equipId)
+              return (
+                step.stepEquipment &&
+                step.stepEquipment.some((equipId: string) =>
+                  equipmentIds.includes(equipId)
+                )
               );
             });
           });

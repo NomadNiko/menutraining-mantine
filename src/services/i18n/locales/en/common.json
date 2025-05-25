@@ -44,6 +44,11 @@
     "stay": "Stay on Page",
     "leave": "Leave Page"
   },
+  "common": {
+    "back": "Back",
+    "print": "Print",
+    "goBack": "Go Back"
+  },
   "auth": {
     "facebook": {
       "action": "Login with Facebook"

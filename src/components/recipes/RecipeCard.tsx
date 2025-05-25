@@ -1,7 +1,13 @@
 // src/components/recipes/RecipeCard.tsx
 "use client";
 import { Card, Text, Group, Stack, Button, Badge, Box } from "@mantine/core";
-import { IconEdit, IconTrash, IconEye, IconClock } from "@tabler/icons-react";
+import {
+  IconEdit,
+  IconTrash,
+  IconEye,
+  IconClock,
+  IconExternalLink,
+} from "@tabler/icons-react";
 import Link from "@/components/link";
 import { useTranslation } from "@/services/i18n/client";
 import { Recipe } from "@/services/api/types/recipe";
@@ -57,7 +63,18 @@ export function RecipeCard({ recipe, onDelete, onView }: RecipeCardProps) {
           leftSection={<IconEye size={14} />}
           onClick={() => onView(recipe.id)}
         >
-          {t("actions.view")}
+          {t("actions.quickView")}
+        </Button>
+
+        <Button
+          component={Link}
+          href={`/restaurant/recipes/view/${recipe.id}`}
+          size="compact-xs"
+          variant="light"
+          color="teal"
+          leftSection={<IconExternalLink size={14} />}
+        >
+          {t("actions.fullView")}
         </Button>
 
         <Button
