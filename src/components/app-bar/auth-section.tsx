@@ -107,6 +107,7 @@ const AuthSection = () => {
             href="/sign-in"
             variant="subtle"
             size="compact-sm"
+            data-testid="desktop-sign-in-button"
           >
             {t("common:navigation.signIn")}
           </Button>
@@ -116,6 +117,7 @@ const AuthSection = () => {
               href="/sign-up"
               variant="filled"
               size="compact-sm"
+              data-testid="desktop-sign-up-button"
             >
               {t("common:navigation.signUp")}
             </Button>

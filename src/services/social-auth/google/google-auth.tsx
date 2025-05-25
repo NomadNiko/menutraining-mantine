@@ -38,7 +38,9 @@ export default function GoogleAuth() {
 
   return (
     <>
-      <GoogleLogin onSuccess={onSuccess} locale={language} />
+      <div data-testid="google-login-button">
+        <GoogleLogin onSuccess={onSuccess} locale={language} />
+      </div>
       <FullPageLoader isLoading={isLoading} />
     </>
   );

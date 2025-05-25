@@ -17,6 +17,7 @@ import useGlobalLoading from "@/services/loading/use-global-loading";
 import { isGoogleAuthEnabled } from "@/services/social-auth/google/google-config";
 import Link from "@/components/link";
 import SocialAuth from "@/services/social-auth/social-auth";
+import { useSnackbar } from "@/components/mantine/feedback/notification-service";
 
 type SignInFormData = {
   email: string;
@@ -29,6 +30,7 @@ function SignIn() {
   const { setTokensInfo } = useAuthTokens();
   const fetchAuthLogin = useAuthLoginService();
   const { setLoading } = useGlobalLoading();
+  const { enqueueSnackbar } = useSnackbar();
 
   const validationSchema = yup.object().shape({
     email: yup
@@ -59,16 +61,23 @@ function SignIn() {
     try {
       const { data, status } = await fetchAuthLogin(formData);
       if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {
-        (Object.keys(data.errors) as Array<keyof SignInFormData>).forEach(
-          (key) => {
-            setError(key, {
-              type: "manual",
-              message: t(
-                `sign-in:inputs.${key}.validation.server.${data.errors[key]}`
-              ),
-            });
-          }
-        );
+        // Check if it's a general authentication error
+        if (data.errors && typeof data.errors === "object") {
+          (Object.keys(data.errors) as Array<keyof SignInFormData>).forEach(
+            (key) => {
+              setError(key, {
+                type: "manual",
+                message: t(
+                  `sign-in:inputs.${key}.validation.server.${data.errors[key]}`
+                ),
+              });
+            }
+          );
+        }
+        // Show general error message for invalid credentials
+        enqueueSnackbar(t("sign-in:errors.invalidCredentials"), {
+          variant: "error",
+        });
         return;
       }
       if (status === HTTP_CODES_ENUM.OK) {
@@ -79,6 +88,12 @@ function SignIn() {
         });
         setUser(data.user);
       }
+    } catch (error) {
+      // Handle network or other errors
+      console.error("Login error:", error);
+      enqueueSnackbar(t("sign-in:errors.networkError"), {
+        variant: "error",
+      });
     } finally {
       setIsSubmitting(false);
       setLoading(false);

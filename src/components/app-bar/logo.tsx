@@ -32,6 +32,7 @@ const Logo = ({ isMobile = false }: LogoProps) => {
         flexGrow: isMobile ? 0 : 0,
         textDecoration: "none",
       }}
+      data-testid={isMobile ? "mobile-logo-link" : "desktop-logo-link"}
     >
       <Box style={{ overflow: "hidden" }}>
         <Image

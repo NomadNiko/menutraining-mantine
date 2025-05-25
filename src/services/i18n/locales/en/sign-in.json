@@ -28,5 +28,11 @@
       }
     }
   },
-  "or": "OR"
+  "or": "OR",
+  "errors": {
+    "invalidCredentials": "Invalid email or password. Please check your credentials and try again.",
+    "networkError": "Unable to connect to the server. Please check your internet connection and try again.",
+    "accountLocked": "Your account has been locked. Please contact support.",
+    "tooManyAttempts": "Too many failed attempts. Please try again later."
+  }
 }

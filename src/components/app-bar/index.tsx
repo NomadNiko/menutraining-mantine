@@ -45,6 +45,7 @@ const ResponsiveAppBar = ({ children }: { children: React.ReactNode }) => {
                   onClick={() => setOpened((o) => !o)}
                   hiddenFrom="md"
                   size="sm"
+                  data-testid="mobile-burger-menu"
                 />
                 {/* Desktop Logo */}
                 <Logo />
