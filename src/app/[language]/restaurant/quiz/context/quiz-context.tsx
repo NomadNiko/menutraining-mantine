@@ -22,6 +22,9 @@ import HTTP_CODES_ENUM from "@/services/api/types/http-codes";
 import useSelectedRestaurant from "@/services/restaurant/use-selected-restaurant";
 import { MenuSection, SectionItem } from "@/services/api/types/menu-section";
 import { MenuItem } from "@/services/api/types/menu-item";
+import { Ingredient } from "@/services/api/types/ingredient";
+import { Allergy } from "@/services/api/types/allergy";
+import { useRestaurantDataCache } from "@/services/restaurant/restaurant-data-cache";
 
 // Storage key for quiz state
 const QUIZ_STATE_STORAGE_KEY = "restaurant_quiz_state";
@@ -159,6 +162,9 @@ export function QuizProvider({ children }: { children: ReactNode }) {
   const getAllergiesService = useGetAllergiesService();
   const getMenuSectionsService = useGetMenuSectionsService();
 
+  // Use the restaurant data cache
+  const { data: cacheData } = useRestaurantDataCache();
+
   // Load saved state from localStorage on initial render
   useEffect(() => {
     if (typeof window !== "undefined") {
@@ -178,7 +184,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-  // Start the quiz - fetch data and generate questions
+  // Start the quiz - use cached data
   const startQuiz = async (config: QuizConfiguration): Promise<boolean> => {
     if (!selectedRestaurant) {
       dispatch({
@@ -197,98 +203,134 @@ export function QuizProvider({ children }: { children: ReactNode }) {
       );
       console.log("Quiz configuration:", config);
 
-      // Fetch menu items for the restaurant
-      let menuItems: MenuItem[] = [];
-      const menuItemsResponse = await getMenuItemsService(undefined, {
-        restaurantId: selectedRestaurant.restaurantId,
-        limit: 300,
-      });
+      let menuItems: MenuItem[];
+      let ingredients: Ingredient[];
+      let allergiesMap: Record<string, Allergy>;
 
-      if (menuItemsResponse.status !== HTTP_CODES_ENUM.OK) {
-        throw new Error("Failed to fetch menu items");
-      }
+      // Use cached data if available
+      if (cacheData && !cacheData.isLoading && cacheData.menuItems.length > 0) {
+        console.log("Using cached data for quiz generation");
 
-      const allMenuItems = Array.isArray(menuItemsResponse.data)
-        ? menuItemsResponse.data
-        : menuItemsResponse.data?.data || [];
+        // Filter menu items by selected menu sections if specified
+        if (config.menuSectionIds.length > 0) {
+          const menuItemIdsInSections = new Set<string>();
+          cacheData.menuSections
+            .filter((section: MenuSection) =>
+              config.menuSectionIds.includes(section.id)
+            )
+            .forEach((section: MenuSection) => {
+              section.items?.forEach((item: SectionItem) => {
+                menuItemIdsInSections.add(item.menuItemId);
+              });
+            });
 
-      // Filter menu items by selected menu sections if specified
-      if (config.menuSectionIds.length > 0) {
-        // Fetch menu sections to get their items
-        const menuSectionsResponse = await getMenuSectionsService(undefined, {
-          restaurantId: selectedRestaurant.restaurantId,
-          limit: 300,
+          menuItems = cacheData.menuItems.filter((item: MenuItem) =>
+            menuItemIdsInSections.has(item.id)
+          );
+        } else {
+          menuItems = cacheData.menuItems;
+        }
+
+        ingredients = cacheData.ingredients;
+
+        // Convert allergies array to map
+        allergiesMap = {};
+        cacheData.allergies.forEach((allergy) => {
+          allergiesMap[allergy.allergyId] = allergy;
         });
+      } else {
+        console.log("Cache not ready, fetching data directly");
 
-        if (menuSectionsResponse.status === HTTP_CODES_ENUM.OK) {
+        // Fall back to fetching data
+        const [
+          menuItemsResponse,
+          ingredientsResponse,
+          allergiesResponse,
+          menuSectionsResponse,
+        ] = await Promise.all([
+          getMenuItemsService(undefined, {
+            restaurantId: selectedRestaurant.restaurantId,
+            limit: 300,
+          }),
+          getIngredientsService(undefined, {
+            restaurantId: selectedRestaurant.restaurantId,
+            limit: 300,
+          }),
+          getAllergiesService(undefined, {
+            page: 1,
+            limit: 300,
+          }),
+          config.menuSectionIds.length > 0
+            ? getMenuSectionsService(undefined, {
+                restaurantId: selectedRestaurant.restaurantId,
+                limit: 300,
+              })
+            : Promise.resolve({ status: HTTP_CODES_ENUM.OK, data: [] }),
+        ]);
+
+        // Check for API errors
+        if (menuItemsResponse.status !== HTTP_CODES_ENUM.OK) {
+          throw new Error("Failed to fetch menu items");
+        }
+        if (ingredientsResponse.status !== HTTP_CODES_ENUM.OK) {
+          throw new Error("Failed to fetch ingredients");
+        }
+        if (allergiesResponse.status !== HTTP_CODES_ENUM.OK) {
+          throw new Error("Failed to fetch allergies");
+        }
+
+        // Process menu items
+        const allMenuItems = Array.isArray(menuItemsResponse.data)
+          ? menuItemsResponse.data
+          : menuItemsResponse.data?.data || [];
+
+        // Filter menu items by selected menu sections if specified
+        if (
+          config.menuSectionIds.length > 0 &&
+          menuSectionsResponse.status === HTTP_CODES_ENUM.OK
+        ) {
           const allSections = Array.isArray(menuSectionsResponse.data)
             ? menuSectionsResponse.data
             : menuSectionsResponse.data?.data || [];
 
-          // Filter sections by selected IDs
-          const selectedSections = allSections.filter((section: MenuSection) =>
-            config.menuSectionIds.includes(section.id)
-          );
-
-          // Extract menu item IDs from selected sections
+          // Filter sections by selected IDs and extract menu item IDs
           const menuItemIdsInSections = new Set<string>();
-          selectedSections.forEach((section: MenuSection) => {
-            section.items?.forEach((item: SectionItem) => {
-              menuItemIdsInSections.add(item.menuItemId);
+          allSections
+            .filter((section: MenuSection) =>
+              config.menuSectionIds.includes(section.id)
+            )
+            .forEach((section: MenuSection) => {
+              section.items?.forEach((item: SectionItem) => {
+                menuItemIdsInSections.add(item.menuItemId);
+              });
             });
-          });
 
-          // Filter menu items to only include those in selected sections
           menuItems = allMenuItems.filter((item: MenuItem) =>
             menuItemIdsInSections.has(item.id)
           );
         } else {
-          // If fetching sections fails, use all menu items
           menuItems = allMenuItems;
         }
-      } else {
-        // Use all menu items if no sections specified
-        menuItems = allMenuItems;
+
+        // Process ingredients
+        ingredients = Array.isArray(ingredientsResponse.data)
+          ? ingredientsResponse.data
+          : ingredientsResponse.data?.data || [];
+
+        // Process allergies
+        const allergiesArray = Array.isArray(allergiesResponse.data)
+          ? allergiesResponse.data
+          : allergiesResponse.data?.data || [];
+
+        allergiesMap = {};
+        allergiesArray.forEach((allergy) => {
+          allergiesMap[allergy.allergyId] = allergy;
+        });
       }
 
-      console.log(`Filtered to ${menuItems.length} menu items`);
-
-      // Fetch ingredients for the restaurant
-      const ingredientsResponse = await getIngredientsService(undefined, {
-        restaurantId: selectedRestaurant.restaurantId,
-        limit: 300,
-      });
-
-      if (ingredientsResponse.status !== HTTP_CODES_ENUM.OK) {
-        throw new Error("Failed to fetch ingredients");
-      }
-
-      const ingredients = Array.isArray(ingredientsResponse.data)
-        ? ingredientsResponse.data
-        : ingredientsResponse.data?.data || [];
-
-      console.log(`Fetched ${ingredients.length} ingredients`);
-
-      // Fetch allergies
-      const allergiesResponse = await getAllergiesService(undefined, {
-        page: 1,
-        limit: 300,
-      });
-
-      if (allergiesResponse.status !== HTTP_CODES_ENUM.OK) {
-        throw new Error("Failed to fetch allergies");
-      }
-
-      const allergiesArray = Array.isArray(allergiesResponse.data)
-        ? allergiesResponse.data
-        : allergiesResponse.data?.data || [];
-
-      console.log(`Fetched ${allergiesArray.length} allergies`);
-
-      const allergiesMap: Record<string, (typeof allergiesArray)[0]> = {};
-      allergiesArray.forEach((allergy) => {
-        allergiesMap[allergy.allergyId] = allergy;
-      });
+      console.log(
+        `Using ${menuItems.length} menu items, ${ingredients.length} ingredients, ${Object.keys(allergiesMap).length} allergies`
+      );
 
       // Generate questions with configuration
       const result = await generateQuizQuestions(

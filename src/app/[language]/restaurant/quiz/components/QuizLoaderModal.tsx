@@ -115,6 +115,7 @@ export function QuizLoaderModal({
         },
       }}
       size="320px"
+      data-testid="quiz-loading-modal"
     >
       <Box
         style={{
@@ -164,6 +165,7 @@ export function QuizLoaderModal({
             style={{
               transition: "opacity 0.3s ease-in-out",
             }}
+            data-testid="quiz-loading-text"
           >
             {getCurrentPhrase()}
           </Text>

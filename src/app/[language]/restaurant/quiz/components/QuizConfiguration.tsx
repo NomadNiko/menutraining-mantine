@@ -206,6 +206,7 @@ export function QuizConfiguration({
             value={selectedMode}
             onChange={(value) => setSelectedMode(value as QuizMode)}
             fullWidth
+            data-testid="quiz-mode-selector"
           />
           <Text size="xs" c="dimmed" mt="xs">
             {getModeDescription(selectedMode)}
@@ -407,6 +408,7 @@ export function QuizConfiguration({
           size="lg"
           disabled={isLoading || isStartDisabled()}
           loading={isLoading}
+          data-testid="start-quiz-button"
         >
           {t("quiz.startButton")}
         </Button>

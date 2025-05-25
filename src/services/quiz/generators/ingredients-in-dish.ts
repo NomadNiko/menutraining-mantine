@@ -8,15 +8,10 @@ import {
 } from "../types";
 import { MenuItem } from "@/services/api/types/menu-item";
 import { Ingredient } from "@/services/api/types/ingredient";
-import {
-  getRandomSubset,
-  combineAndShuffleOptions,
-  getMenuItemAllIngredientIds,
-} from "./utils";
+import { getRandomSubset, combineAndShuffleOptions } from "./utils";
 
 /**
- * Generates a question about ingredients in a dish (for multi-ingredient items)
- * Now considers sub-ingredients when building correct answers and uses difficulty settings
+ * Generates a question about ingredients in a dish (SIMPLIFIED for speed)
  */
 export function generateIngredientsInDishQuestion(
   menuItem: MenuItem,
@@ -26,59 +21,33 @@ export function generateIngredientsInDishQuestion(
 ): QuizQuestion | null {
   try {
     // Early validation
-    if (!correctIngredients.length || !allIngredients.length) {
+    if (!correctIngredients.length || allIngredients.length < 4) {
       return null;
     }
 
     const settings = DIFFICULTY_SETTINGS[difficulty];
 
-    // Get all ingredient IDs that this menu item contains (including sub-ingredients)
-    const menuItemAllIngredientIds = getMenuItemAllIngredientIds(
-      menuItem,
-      allIngredients
+    // SIMPLIFIED: Use direct menu item ingredients without expensive sub-ingredient expansion
+    const menuItemIngredientIds = new Set(menuItem.menuItemIngredients);
+
+    // Use only the provided correct ingredients (no expensive lookups)
+    const validCorrectIngredients = correctIngredients.filter((ingredient) =>
+      menuItemIngredientIds.has(ingredient.id)
     );
 
-    // Filter correctIngredients to only include those that are actually in the menu item
-    // This ensures we don't show incorrect "correct" answers
-    const actualCorrectIngredients = correctIngredients.filter((ingredient) =>
-      menuItemAllIngredientIds.has(ingredient.id)
-    );
-
-    // Also add any ingredients from allIngredients that are in the menu item but not in correctIngredients
-    const additionalCorrectIngredients: AnswerOption[] = [];
-    for (const ingredient of allIngredients) {
-      if (
-        menuItemAllIngredientIds.has(ingredient.ingredientId) &&
-        !correctIngredients.some((ci) => ci.id === ingredient.ingredientId)
-      ) {
-        additionalCorrectIngredients.push({
-          id: ingredient.ingredientId,
-          text: ingredient.ingredientName,
-        });
-      }
-    }
-
-    // Combine all correct ingredients
-    const allCorrectIngredients = [
-      ...actualCorrectIngredients,
-      ...additionalCorrectIngredients,
-    ];
-
-    if (allCorrectIngredients.length === 0) {
+    if (validCorrectIngredients.length === 0) {
       return null;
     }
 
-    // Calculate required counts based on difficulty
-    const minCorrectNeeded = settings.minCorrect;
-    const maxCorrectAllowed = Math.min(
-      settings.maxCorrect,
-      allCorrectIngredients.length
-    );
-
-    // Filter incorrect ingredients efficiently - those NOT in the menu item
+    // SIMPLIFIED: Quick incorrect ingredient selection
     const incorrectIngredients: AnswerOption[] = [];
-    for (const ingredient of allIngredients) {
-      if (!menuItemAllIngredientIds.has(ingredient.ingredientId)) {
+    for (
+      let i = 0;
+      i < allIngredients.length && incorrectIngredients.length < 20;
+      i++
+    ) {
+      const ingredient = allIngredients[i];
+      if (!menuItemIngredientIds.has(ingredient.ingredientId)) {
         incorrectIngredients.push({
           id: ingredient.ingredientId,
           text: ingredient.ingredientName,
@@ -86,42 +55,22 @@ export function generateIngredientsInDishQuestion(
       }
     }
 
-    // Determine actual correct count within difficulty constraints
-    const correctCount = Math.min(
-      allCorrectIngredients.length,
-      Math.max(
-        minCorrectNeeded,
-        Math.floor(Math.random() * (maxCorrectAllowed - minCorrectNeeded + 1)) +
-          minCorrectNeeded
-      )
-    );
-
-    // Calculate incorrect count to reach total choices
-    const incorrectCount = settings.totalChoices - correctCount;
-    const minIncorrectNeeded = incorrectCount;
-
-    // Early validation - ensure we have enough incorrect options
-    if (incorrectIngredients.length < minIncorrectNeeded) {
+    if (incorrectIngredients.length < 2) {
       return null;
     }
 
+    // SIMPLIFIED: Use fixed counts based on difficulty
+    const correctCount = Math.min(2, validCorrectIngredients.length);
+    const incorrectCount = settings.totalChoices - correctCount;
+
     const selectedCorrect = getRandomSubset(
-      allCorrectIngredients,
+      validCorrectIngredients,
       correctCount
     );
-
     const selectedIncorrect = getRandomSubset(
       incorrectIngredients,
       incorrectCount
     );
-
-    // Ensure we have the right total number of options
-    if (
-      selectedCorrect.length + selectedIncorrect.length !==
-      settings.totalChoices
-    ) {
-      return null;
-    }
 
     // Combine and shuffle options
     const allOptions = combineAndShuffleOptions(

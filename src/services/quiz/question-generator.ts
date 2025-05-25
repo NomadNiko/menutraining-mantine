@@ -25,8 +25,8 @@ import { generateWhichMenuItemIsThisQuestion } from "./generators/which-menu-ite
 import { shuffleArray } from "./generators/utils";
 
 /**
- * Generates questions for the quiz efficiently by pre-generating all possible questions
- * and then selecting the required number.
+ * Generates questions for the quiz efficiently by generating only the required number
+ * instead of pre-generating all possible questions.
  */
 export async function generateQuizQuestions(
   restaurantData: RestaurantData,
@@ -63,7 +63,7 @@ export async function generateQuizQuestions(
     );
     const useWhichMenuItemQuestions = questionTypes.includes(
       QuestionType.WHICH_MENU_ITEM_IS_THIS
-    ); // New question type check
+    );
 
     if (
       !useAllergyQuestions &&
@@ -71,7 +71,7 @@ export async function generateQuizQuestions(
       !useContainsQuestions &&
       !useIngredientAllergyQuestions &&
       !useMenuItemAllergyQuestions &&
-      !useWhichMenuItemQuestions // Added to validation
+      !useWhichMenuItemQuestions
     ) {
       return {
         questions: [],
@@ -80,7 +80,7 @@ export async function generateQuizQuestions(
     }
 
     console.log(
-      `Generating up to ${questionCount} questions with difficulty: ${difficulty}`
+      `Generating ${questionCount} questions with difficulty: ${difficulty}`
     );
 
     // Pre-process data for efficiency
@@ -93,104 +93,160 @@ export async function generateQuizQuestions(
         `${allergies.length} allergies`
     );
 
-    // Generate all possible questions efficiently
-    const allPossibleQuestions: QuizQuestion[] = [];
+    // Calculate how many questions to generate per type
+    const enabledTypeCount = [
+      useAllergyQuestions && allergies.length > 0,
+      useDishQuestions &&
+        (multiIngredientItems.length > 0 || singleIngredientItems.length > 0),
+      useContainsQuestions && restaurantData.menuItems.length > 0,
+      useIngredientAllergyQuestions &&
+        Object.keys(restaurantData.allergies).length > 0,
+      useMenuItemAllergyQuestions &&
+        Object.keys(restaurantData.allergies).length > 0,
+      useWhichMenuItemQuestions && restaurantData.menuItems.length > 0,
+    ].filter(Boolean).length;
 
-    // Generate allergy questions if requested
-    if (useAllergyQuestions && allergies.length > 0) {
-      const allergyQuestions = generateAllergyQuestions(
-        allergies,
-        restaurantData.ingredients,
-        difficulty
-      );
-      allPossibleQuestions.push(...allergyQuestions);
+    if (enabledTypeCount === 0) {
+      return {
+        questions: [],
+        error: "No valid question types available for this restaurant data",
+      };
     }
 
-    // Generate menu item questions if requested
+    // ULTRA-FAST: Generate exactly what we need, no more
+    const questions: QuizQuestion[] = [];
+    const questionsPerType = Math.max(
+      1,
+      Math.floor(questionCount / enabledTypeCount)
+    );
+    let questionsGenerated = 0;
+
+    // Generate questions by type, stopping when we have enough
+    if (
+      useAllergyQuestions &&
+      allergies.length > 0 &&
+      questionsGenerated < questionCount
+    ) {
+      const needed = Math.min(
+        questionsPerType,
+        questionCount - questionsGenerated
+      );
+      const allergyQuestions = generateLimitedAllergyQuestions(
+        allergies,
+        restaurantData.ingredients,
+        difficulty,
+        needed
+      );
+      questions.push(...allergyQuestions);
+      questionsGenerated += allergyQuestions.length;
+    }
+
     if (
       useDishQuestions &&
-      (multiIngredientItems.length > 0 || singleIngredientItems.length > 0)
+      (multiIngredientItems.length > 0 || singleIngredientItems.length > 0) &&
+      questionsGenerated < questionCount
     ) {
-      const menuItemQuestions = generateMenuItemQuestions(
+      const needed = Math.min(
+        questionsPerType,
+        questionCount - questionsGenerated
+      );
+      const menuItemQuestions = generateLimitedMenuItemQuestions(
         multiIngredientItems,
         singleIngredientItems,
         restaurantData,
-        difficulty
+        difficulty,
+        needed
       );
-      allPossibleQuestions.push(...menuItemQuestions);
+      questions.push(...menuItemQuestions);
+      questionsGenerated += menuItemQuestions.length;
     }
 
-    // Generate true/false contains questions if requested
-    if (useContainsQuestions && restaurantData.menuItems.length > 0) {
-      const containsQuestions = generateContainsQuestions(
+    if (
+      useContainsQuestions &&
+      restaurantData.menuItems.length > 0 &&
+      questionsGenerated < questionCount
+    ) {
+      const needed = Math.min(
+        questionsPerType,
+        questionCount - questionsGenerated
+      );
+      const containsQuestions = generateLimitedContainsQuestions(
         restaurantData.menuItems,
-        restaurantData.ingredients
+        restaurantData.ingredients,
+        needed
       );
-      allPossibleQuestions.push(...containsQuestions);
+      questions.push(...containsQuestions);
+      questionsGenerated += containsQuestions.length;
     }
 
-    // Generate ingredient allergy questions if requested
     if (
       useIngredientAllergyQuestions &&
-      Object.keys(restaurantData.allergies).length > 0
+      Object.keys(restaurantData.allergies).length > 0 &&
+      questionsGenerated < questionCount
     ) {
-      const ingredientAllergyQuestions = generateIngredientAllergyQuestions(
-        restaurantData.ingredients,
-        restaurantData.allergies
+      const needed = Math.min(
+        questionsPerType,
+        questionCount - questionsGenerated
       );
-      allPossibleQuestions.push(...ingredientAllergyQuestions);
+      const ingredientAllergyQuestions =
+        generateLimitedIngredientAllergyQuestions(
+          restaurantData.ingredients,
+          restaurantData.allergies,
+          needed
+        );
+      questions.push(...ingredientAllergyQuestions);
+      questionsGenerated += ingredientAllergyQuestions.length;
     }
 
-    // Generate menu item allergy questions if requested
     if (
       useMenuItemAllergyQuestions &&
-      Object.keys(restaurantData.allergies).length > 0
+      Object.keys(restaurantData.allergies).length > 0 &&
+      questionsGenerated < questionCount
     ) {
-      const menuItemAllergyQuestions = generateMenuItemAllergyQuestions(
+      const needed = Math.min(
+        questionsPerType,
+        questionCount - questionsGenerated
+      );
+      const menuItemAllergyQuestions = generateLimitedMenuItemAllergyQuestions(
         restaurantData.menuItems,
         restaurantData.ingredients,
-        restaurantData.allergies
+        restaurantData.allergies,
+        needed
       );
-      allPossibleQuestions.push(...menuItemAllergyQuestions);
+      questions.push(...menuItemAllergyQuestions);
+      questionsGenerated += menuItemAllergyQuestions.length;
     }
 
-    // Generate "which menu item is this" questions if requested
-    if (useWhichMenuItemQuestions && restaurantData.menuItems.length > 0) {
-      const whichMenuItemQuestions = generateWhichMenuItemQuestions(
+    if (
+      useWhichMenuItemQuestions &&
+      restaurantData.menuItems.length > 0 &&
+      questionsGenerated < questionCount
+    ) {
+      const needed = Math.min(
+        questionsPerType,
+        questionCount - questionsGenerated
+      );
+      const whichMenuItemQuestions = generateLimitedWhichMenuItemQuestions(
         restaurantData.menuItems,
-        difficulty
+        difficulty,
+        needed
       );
-      allPossibleQuestions.push(...whichMenuItemQuestions);
+      questions.push(...whichMenuItemQuestions);
+      questionsGenerated += whichMenuItemQuestions.length;
     }
 
-    console.log(
-      `Generated ${allPossibleQuestions.length} total possible questions`
-    );
+    console.log(`Generated ${questions.length} questions`);
 
-    if (allPossibleQuestions.length === 0) {
+    if (questions.length === 0) {
       return {
         questions: [],
         error: "No valid questions could be generated",
       };
     }
 
-    // Shuffle and select the required number of questions
-    const shuffledQuestions = shuffleArray(allPossibleQuestions);
-    let selectedQuestions = shuffledQuestions.slice(0, questionCount);
-
-    // If we need more questions than we have unique ones, duplicate some
-    if (
-      selectedQuestions.length < questionCount &&
-      allPossibleQuestions.length > 0
-    ) {
-      console.log(
-        `Need ${questionCount} questions but only have ${selectedQuestions.length} unique ones. Duplicating...`
-      );
-      selectedQuestions = extendQuestionsWithDuplicates(
-        allPossibleQuestions,
-        questionCount
-      );
-    }
+    // Shuffle and limit to requested count
+    const shuffledQuestions = shuffleArray(questions);
+    const selectedQuestions = shuffledQuestions.slice(0, questionCount);
 
     console.log(`Final selection: ${selectedQuestions.length} questions`);
 
@@ -248,17 +304,20 @@ function preprocessData(restaurantData: RestaurantData) {
 }
 
 /**
- * Generate all possible allergy questions efficiently
+ * Generate limited allergy questions efficiently
  */
-function generateAllergyQuestions(
+function generateLimitedAllergyQuestions(
   allergies: Allergy[],
   ingredients: Ingredient[],
-  difficulty: Difficulty
+  difficulty: Difficulty,
+  maxQuestions: number
 ): QuizQuestion[] {
   const questions: QuizQuestion[] = [];
-  for (const allergy of allergies) {
+  const shuffledAllergies = shuffleArray([...allergies]);
+
+  for (let i = 0; i < Math.min(maxQuestions, shuffledAllergies.length); i++) {
     const question = generateIngredientsWithAllergyQuestion(
-      allergy,
+      shuffledAllergies[i],
       ingredients,
       difficulty
     );
@@ -270,9 +329,9 @@ function generateAllergyQuestions(
 }
 
 /**
- * Generate all possible menu item questions efficiently
+ * Generate limited menu item questions efficiently
  */
-function generateMenuItemQuestions(
+function generateLimitedMenuItemQuestions(
   multiIngredientItems: Array<{
     menuItem: MenuItem;
     ingredients: AnswerOption[];
@@ -282,36 +341,36 @@ function generateMenuItemQuestions(
     ingredients: AnswerOption[];
   }>,
   restaurantData: RestaurantData,
-  difficulty: Difficulty
+  difficulty: Difficulty,
+  maxQuestions: number
 ): QuizQuestion[] {
   const questions: QuizQuestion[] = [];
+  const allItems = [...multiIngredientItems, ...singleIngredientItems];
+  const shuffledItems = shuffleArray(allItems);
 
-  // Generate questions for multi-ingredient items
-  for (const { menuItem, ingredients } of multiIngredientItems) {
-    const question = generateIngredientsInDishQuestion(
-      menuItem,
-      ingredients,
-      restaurantData.ingredients,
-      difficulty
-    );
-    if (question) {
-      questions.push(question);
-    }
-  }
+  for (let i = 0; i < Math.min(maxQuestions, shuffledItems.length); i++) {
+    const { menuItem, ingredients } = shuffledItems[i];
 
-  // Generate questions for single-ingredient items
-  for (const { menuItem, ingredients } of singleIngredientItems) {
-    if (ingredients.length === 1) {
-      const question = generateSingleIngredientQuestion(
+    let question: QuizQuestion | null = null;
+    if (ingredients.length >= 2) {
+      question = generateIngredientsInDishQuestion(
+        menuItem,
+        ingredients,
+        restaurantData.ingredients,
+        difficulty
+      );
+    } else if (ingredients.length === 1) {
+      question = generateSingleIngredientQuestion(
         menuItem,
         ingredients[0],
         restaurantData.ingredients,
         restaurantData.menuItems,
         difficulty
       );
-      if (question) {
-        questions.push(question);
-      }
+    }
+
+    if (question) {
+      questions.push(question);
     }
   }
 
@@ -319,26 +378,23 @@ function generateMenuItemQuestions(
 }
 
 /**
- * Generate all possible true/false contains questions efficiently
+ * Generate limited true/false contains questions efficiently
  */
-function generateContainsQuestions(
+function generateLimitedContainsQuestions(
   menuItems: MenuItem[],
-  ingredients: Ingredient[]
+  ingredients: Ingredient[],
+  maxQuestions: number
 ): QuizQuestion[] {
   const questions: QuizQuestion[] = [];
+  const shuffledMenuItems = shuffleArray([...menuItems]);
 
-  // Generate multiple questions per menu item to increase variety
-  for (const menuItem of menuItems) {
-    // Generate up to 3 questions per menu item
-    const questionsPerItem = Math.min(3, ingredients.length);
-    for (let i = 0; i < questionsPerItem; i++) {
-      const question = generateMenuItemContainsIngredientQuestion(
-        menuItem,
-        ingredients
-      );
-      if (question) {
-        questions.push(question);
-      }
+  for (let i = 0; i < Math.min(maxQuestions, shuffledMenuItems.length); i++) {
+    const question = generateMenuItemContainsIngredientQuestion(
+      shuffledMenuItems[i],
+      ingredients
+    );
+    if (question) {
+      questions.push(question);
     }
   }
 
@@ -346,17 +402,16 @@ function generateContainsQuestions(
 }
 
 /**
- * Generate all possible ingredient allergy questions efficiently
+ * Generate limited ingredient allergy questions efficiently
  */
-function generateIngredientAllergyQuestions(
+function generateLimitedIngredientAllergyQuestions(
   ingredients: Ingredient[],
-  allergies: Record<string, Allergy>
+  allergies: Record<string, Allergy>,
+  maxQuestions: number
 ): QuizQuestion[] {
   const questions: QuizQuestion[] = [];
 
-  // Generate multiple questions to increase variety
-  const targetQuestionCount = Math.min(15, ingredients.length);
-  for (let i = 0; i < targetQuestionCount; i++) {
+  for (let i = 0; i < maxQuestions; i++) {
     const question = generateIngredientContainsAllergyQuestion(
       ingredients,
       allergies
@@ -370,18 +425,17 @@ function generateIngredientAllergyQuestions(
 }
 
 /**
- * Generate all possible menu item allergy questions efficiently
+ * Generate limited menu item allergy questions efficiently
  */
-function generateMenuItemAllergyQuestions(
+function generateLimitedMenuItemAllergyQuestions(
   menuItems: MenuItem[],
   ingredients: Ingredient[],
-  allergies: Record<string, Allergy>
+  allergies: Record<string, Allergy>,
+  maxQuestions: number
 ): QuizQuestion[] {
   const questions: QuizQuestion[] = [];
 
-  // Generate multiple questions to increase variety
-  const targetQuestionCount = Math.min(15, menuItems.length);
-  for (let i = 0; i < targetQuestionCount; i++) {
+  for (let i = 0; i < maxQuestions; i++) {
     const question = generateMenuItemContainsAllergyQuestion(
       menuItems,
       ingredients,
@@ -396,11 +450,12 @@ function generateMenuItemAllergyQuestions(
 }
 
 /**
- * Generate all possible "which menu item is this" questions efficiently
+ * Generate limited "which menu item is this" questions efficiently
  */
-function generateWhichMenuItemQuestions(
+function generateLimitedWhichMenuItemQuestions(
   menuItems: MenuItem[],
-  difficulty: Difficulty
+  difficulty: Difficulty,
+  maxQuestions: number
 ): QuizQuestion[] {
   const questions: QuizQuestion[] = [];
 
@@ -409,8 +464,10 @@ function generateWhichMenuItemQuestions(
     (item) => item.menuItemUrl && item.menuItemUrl.trim() !== ""
   );
 
-  // Generate multiple questions to increase variety
-  const targetQuestionCount = Math.min(10, menuItemsWithImages.length);
+  const targetQuestionCount = Math.min(
+    maxQuestions,
+    menuItemsWithImages.length
+  );
   for (let i = 0; i < targetQuestionCount; i++) {
     const question = generateWhichMenuItemIsThisQuestion(menuItems, difficulty);
     if (question) {
@@ -419,34 +476,6 @@ function generateWhichMenuItemQuestions(
   }
 
   return questions;
-}
-
-/**
- * Extend questions by duplicating existing ones with unique IDs
- */
-function extendQuestionsWithDuplicates(
-  allQuestions: QuizQuestion[],
-  targetCount: number
-): QuizQuestion[] {
-  const result: QuizQuestion[] = [];
-  let questionIndex = 0;
-
-  for (let i = 0; i < targetCount; i++) {
-    if (questionIndex >= allQuestions.length) {
-      questionIndex = 0; // Reset to beginning
-    }
-
-    const originalQuestion = allQuestions[questionIndex];
-    const duplicatedQuestion: QuizQuestion = {
-      ...originalQuestion,
-      id: `${originalQuestion.id}_dup_${i}`,
-    };
-
-    result.push(duplicatedQuestion);
-    questionIndex++;
-  }
-
-  return shuffleArray(result);
 }
 
 // Re-export generators and utilities for direct access

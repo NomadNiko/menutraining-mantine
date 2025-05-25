@@ -163,6 +163,7 @@ export function FilterPanel({
             opened ? <IconChevronUp size={16} /> : <IconChevronDown size={16} />
           }
           size="compact-sm"
+          data-testid="filter-toggle-button"
         >
           {opened ? t("filters.hide") : t("filters.show")}
         </Button>
@@ -190,6 +191,7 @@ export function FilterPanel({
                   setLocalAllergyExcludeMode(value === "exclude")
                 }
                 disabled={disabled || localSelectedAllergies.length === 0}
+                data-testid="allergy-mode-selector"
               />
               <Text size="xs" c="dimmed" mt="xs">
                 {localAllergyExcludeMode
@@ -226,6 +228,7 @@ export function FilterPanel({
                   setLocalCategoryExcludeMode(value === "exclude")
                 }
                 disabled={disabled || localSelectedCategories.length === 0}
+                data-testid="category-mode-selector"
               />
               <Text size="xs" c="dimmed" mt="xs">
                 {localCategoryExcludeMode
@@ -253,6 +256,7 @@ export function FilterPanel({
               onChange={handleSubIngredientTypeChange}
               disabled={disabled}
               width="sm"
+              data-testid="sub-ingredients-selector"
             />
             <Text size="xs" c="dimmed" mt="xs">
               {t("filters.subIngredientsType.hint")}
@@ -264,6 +268,7 @@ export function FilterPanel({
               onClick={handleApplyFilters}
               disabled={disabled}
               size="compact-sm"
+              data-testid="apply-filters-button"
             >
               {t("filters.apply")}
             </Button>
@@ -278,6 +283,7 @@ export function FilterPanel({
                   localHasSubIngredients === null)
               }
               size="compact-sm"
+              data-testid="reset-filters-button"
             >
               {t("filters.reset")}
             </Button>

@@ -51,8 +51,11 @@ export function combineAndShuffleOptions(
   return shuffleArray([...correctOptions, ...incorrectOptions]);
 }
 
+// Cache for expanded ingredient IDs to avoid recomputation
+const expandedIngredientCache = new Map<string, Set<string>>();
+
 /**
- * Recursively expands ingredient IDs to include all sub-ingredients
+ * Recursively expands ingredient IDs to include all sub-ingredients (with caching)
  * @param ingredientIds Array of ingredient IDs to expand
  * @param allIngredients Array of all available ingredients
  * @param visited Set to prevent infinite recursion
@@ -63,6 +66,14 @@ export function expandIngredientIds(
   allIngredients: Ingredient[],
   visited: Set<string> = new Set()
 ): Set<string> {
+  // Create cache key
+  const cacheKey = `${ingredientIds.sort().join(",")}_${allIngredients.length}`;
+
+  // Check cache first
+  if (expandedIngredientCache.has(cacheKey)) {
+    return new Set(expandedIngredientCache.get(cacheKey)!);
+  }
+
   const expandedIds = new Set<string>();
 
   // Create a map for faster lookups
@@ -96,6 +107,9 @@ export function expandIngredientIds(
 
   // Expand each ingredient ID
   ingredientIds.forEach(expandRecursively);
+
+  // Cache the result
+  expandedIngredientCache.set(cacheKey, new Set(expandedIds));
 
   return expandedIds;
 }

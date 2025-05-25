@@ -220,6 +220,7 @@ const IngredientRow = memo(function IngredientRow({
                 height: "100%",
               },
             }}
+            data-testid={`edit-ingredient-${ingredient.id}`}
           >
             <Text size="xs" truncate>
               {t("actions.edit")}
@@ -242,6 +243,7 @@ const IngredientRow = memo(function IngredientRow({
                 height: "100%",
               },
             }}
+            data-testid={`delete-ingredient-${ingredient.id}`}
           >
             <Text size="xs" truncate>
               {t("actions.delete")}
