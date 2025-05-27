@@ -121,7 +121,7 @@ function RecipesPage() {
           <SimpleGrid cols={{ base: 1, sm: 2, md: 3 }} spacing="lg">
             {filteredRestaurants.map((restaurant) => (
               <Card
-                key={restaurant.id}
+                key={restaurant.restaurantId}
                 withBorder
                 padding="lg"
                 radius="md"

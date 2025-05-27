@@ -123,7 +123,7 @@ export function MenuViewModal({
                   // Fall back to API if not in cache
                   try {
                     const menuItemResponse = await getMenuItemService({
-                      id: item.menuItemId,
+                      menuItemId: item.menuItemId,
                     });
                     if (menuItemResponse.status === HTTP_CODES_ENUM.OK) {
                       const menuItem: MenuItemWithSectionData = {
@@ -160,7 +160,7 @@ export function MenuViewModal({
               // Fall back to API if section not in cache
               try {
                 const sectionResponse = await getMenuSectionService({
-                  id: sectionId,
+                  menuSectionId: sectionId,
                 });
                 if (sectionResponse.status === HTTP_CODES_ENUM.OK) {
                   const sectionData = sectionResponse.data;
@@ -172,7 +172,7 @@ export function MenuViewModal({
                   for (const item of sectionData.items) {
                     try {
                       const menuItemResponse = await getMenuItemService({
-                        id: item.menuItemId,
+                        menuItemId: item.menuItemId,
                       });
                       if (menuItemResponse.status === HTTP_CODES_ENUM.OK) {
                         const menuItem: MenuItemWithSectionData = {
@@ -224,7 +224,7 @@ export function MenuViewModal({
           });
         } else {
           // If not in cache, fall back to API call pattern
-          const { status, data } = await getMenuService({ id: menuId });
+          const { status, data } = await getMenuService({ menuId });
           if (status !== HTTP_CODES_ENUM.OK) {
             throw new Error(t("errors.menuNotFound"));
           }
@@ -239,7 +239,7 @@ export function MenuViewModal({
           for (const sectionId of menuData.menuSections) {
             try {
               const sectionResponse = await getMenuSectionService({
-                id: sectionId,
+                menuSectionId: sectionId,
               });
               if (sectionResponse.status === HTTP_CODES_ENUM.OK) {
                 const sectionData = sectionResponse.data;
@@ -251,7 +251,7 @@ export function MenuViewModal({
                 for (const item of sectionData.items) {
                   try {
                     const menuItemResponse = await getMenuItemService({
-                      id: item.menuItemId,
+                      menuItemId: item.menuItemId,
                     });
                     if (menuItemResponse.status === HTTP_CODES_ENUM.OK) {
                       const menuItem: MenuItemWithSectionData = {
@@ -369,7 +369,7 @@ export function MenuViewModal({
             </Text>
           ) : (
             menu.sections.map((section) => (
-              <Box key={section.id}>
+              <Box key={section.menuSectionId}>
                 <Group justify="space-between" mb="xs">
                   <Title order={5}>{section.title}</Title>
                   {section.startTime && section.endTime && (

@@ -2,7 +2,8 @@
 
 /* Shared keyframes */
 @keyframes pulse {
-  0%, 100% {
+  0%,
+  100% {
     opacity: 1;
   }
   50% {
@@ -29,7 +30,8 @@
 }
 
 @keyframes scaleUp {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
   }
   50% {
@@ -54,7 +56,8 @@
   left: -100%;
   width: 100%;
   height: 100%;
-  background: linear-gradient(90deg, 
+  background: linear-gradient(
+    90deg,
     transparent,
     #3498db,
     #2980b9,
@@ -150,7 +153,8 @@
 }
 
 @keyframes dataSyncLeft {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0) scale(1);
     opacity: 1;
   }
@@ -161,7 +165,8 @@
 }
 
 @keyframes dataSyncRight {
-  0%, 100% {
+  0%,
+  100% {
     transform: translate(0, 0) scale(1);
     opacity: 1;
   }
@@ -182,12 +187,30 @@
   content: "";
   position: absolute;
   inset: 0;
-  background: 
-    radial-gradient(ellipse at center top, transparent 15px, #3498db 16px, #3498db 20px, transparent 21px),
-    radial-gradient(ellipse at center center, transparent 15px, #3498db 16px, #3498db 20px, transparent 21px),
-    radial-gradient(ellipse at center bottom, transparent 15px, #3498db 16px, #3498db 20px, transparent 21px);
+  background:
+    radial-gradient(
+      ellipse at center top,
+      transparent 15px,
+      #3498db 16px,
+      #3498db 20px,
+      transparent 21px
+    ),
+    radial-gradient(
+      ellipse at center center,
+      transparent 15px,
+      #3498db 16px,
+      #3498db 20px,
+      transparent 21px
+    ),
+    radial-gradient(
+      ellipse at center bottom,
+      transparent 15px,
+      #3498db 16px,
+      #3498db 20px,
+      transparent 21px
+    );
   background-size: 100% 33.33%;
-  background-position: 
+  background-position:
     center 0%,
     center 50%,
     center 100%;
@@ -196,7 +219,8 @@
 }
 
 @keyframes databasePulse {
-  0%, 100% {
+  0%,
+  100% {
     transform: scale(1);
     opacity: 1;
   }
@@ -259,7 +283,8 @@
 }
 
 @keyframes serverSend {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(-50%) translateX(0);
     opacity: 1;
   }
@@ -270,7 +295,8 @@
 }
 
 @keyframes serverReceive {
-  0%, 100% {
+  0%,
+  100% {
     transform: translateY(-50%) translateX(0);
     opacity: 1;
   }

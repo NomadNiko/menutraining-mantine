@@ -220,7 +220,7 @@ const IngredientRow = memo(function IngredientRow({
                 height: "100%",
               },
             }}
-            data-testid={`edit-ingredient-${ingredient.id}`}
+            data-testid={`edit-ingredient-${ingredient.ingredientId}`}
           >
             <Text size="xs" truncate>
               {t("actions.edit")}
@@ -231,7 +231,9 @@ const IngredientRow = memo(function IngredientRow({
             variant="light"
             color="red"
             leftSection={<IconTrash size={14} />}
-            onClick={() => onDelete(ingredient.id, ingredient.ingredientName)}
+            onClick={() =>
+              onDelete(ingredient.ingredientId, ingredient.ingredientName)
+            }
             style={{
               width: "88px",
               height: "24px",
@@ -243,7 +245,7 @@ const IngredientRow = memo(function IngredientRow({
                 height: "100%",
               },
             }}
-            data-testid={`delete-ingredient-${ingredient.id}`}
+            data-testid={`delete-ingredient-${ingredient.ingredientId}`}
           >
             <Text size="xs" truncate>
               {t("actions.delete")}
@@ -356,12 +358,12 @@ function IngredientTableComponent({
       <tbody>
         {ingredients.map((ingredient, index) => (
           <IngredientRow
-            key={ingredient.id}
+            key={ingredient.ingredientId}
             ingredient={ingredient}
             allergies={allergies}
             onDelete={onDelete}
             rowColor={index % 2 === 0 ? rowColors.even : rowColors.odd}
-            editUrl={getEditUrl(ingredient.id)}
+            editUrl={getEditUrl(ingredient.ingredientId)}
             t={t}
           />
         ))}

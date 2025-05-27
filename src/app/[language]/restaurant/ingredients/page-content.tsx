@@ -198,7 +198,9 @@ function RestaurantIngredientsPage() {
       if (confirmed) {
         setLoading(true);
         try {
-          const { status } = await deleteIngredientService({ id });
+          const { status } = await deleteIngredientService({
+            ingredientId: id,
+          });
           if (status === HTTP_CODES_ENUM.NO_CONTENT) {
             enqueueSnackbar(t("deleteSuccess"), { variant: "success" });
             refetch(); // Refresh the data after delete

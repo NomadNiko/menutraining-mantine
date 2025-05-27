@@ -68,7 +68,9 @@ function EditAllergy() {
     const fetchAllergy = async () => {
       setLoading(true);
       try {
-        const { status, data } = await getAllergyService({ id: params.id });
+        const { status, data } = await getAllergyService({
+          allergyId: params.id,
+        });
         if (status === HTTP_CODES_ENUM.OK) {
           reset({
             allergyName: data.allergyName,
@@ -96,7 +98,7 @@ function EditAllergy() {
       };
 
       const { status, data } = await patchAllergyService(cleanData, {
-        id: params.id,
+        allergyId: params.id,
       });
 
       if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {

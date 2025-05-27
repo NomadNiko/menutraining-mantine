@@ -69,7 +69,9 @@ function EditEquipment() {
     const fetchEquipment = async () => {
       setLoading(true);
       try {
-        const { status, data } = await getEquipmentService({ id: params.id });
+        const { status, data } = await getEquipmentService({
+          equipmentId: params.id,
+        });
         if (status === HTTP_CODES_ENUM.OK) {
           reset({
             equipmentName: data.equipmentName,
@@ -97,7 +99,7 @@ function EditEquipment() {
       };
 
       const { status, data } = await patchEquipmentService(cleanData, {
-        id: params.id,
+        equipmentId: params.id,
       });
 
       if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {

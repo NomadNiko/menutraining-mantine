@@ -86,7 +86,7 @@ function Allergies() {
     }
   };
 
-  const handleDeleteAllergy = async (id: string, name: string) => {
+  const handleDeleteAllergy = async (allergyId: string, name: string) => {
     const confirmed = await confirmDialog({
       title: t("deleteConfirmTitle"),
       message: t("deleteConfirmMessage", { name }),
@@ -94,10 +94,10 @@ function Allergies() {
     if (confirmed) {
       setLoading(true);
       try {
-        const { status } = await deleteAllergyService({ id });
+        const { status } = await deleteAllergyService({ allergyId });
         if (status === HTTP_CODES_ENUM.NO_CONTENT) {
           setAllergies((prevAllergies) =>
-            prevAllergies.filter((allergy) => allergy.id !== id)
+            prevAllergies.filter((allergy) => allergy.allergyId !== allergyId)
           );
           enqueueSnackbar(t("deleteSuccess"), { variant: "success" });
         }
@@ -165,7 +165,7 @@ function Allergies() {
                         </tr>
                       ) : (
                         allergies.map((allergy) => (
-                          <tr key={allergy.id}>
+                          <tr key={allergy.allergyId}>
                             <td style={{ width: 120, textAlign: "center" }}>
                               {allergy.allergyLogoUrl ? (
                                 <Avatar
@@ -187,7 +187,7 @@ function Allergies() {
                               <Group gap="xs" justify="flex-end">
                                 <Button
                                   component={Link}
-                                  href={`/admin-panel/allergies/edit/${allergy.id}`}
+                                  href={`/admin-panel/allergies/edit/${allergy.allergyId}`}
                                   size="xs"
                                   variant="light"
                                   leftSection={<IconEdit size={14} />}
@@ -214,7 +214,7 @@ function Allergies() {
                                   leftSection={<IconTrash size={14} />}
                                   onClick={() =>
                                     handleDeleteAllergy(
-                                      allergy.id,
+                                      allergy.allergyId,
                                       allergy.allergyName
                                     )
                                   }

@@ -42,7 +42,9 @@ export function MenuCard({ menu, onDelete, onView }: MenuCardProps) {
         }
 
         try {
-          const response = await getMenuSectionService({ id: sectionId });
+          const response = await getMenuSectionService({
+            menuSectionId: sectionId,
+          });
           if (response.status === HTTP_CODES_ENUM.OK) {
             newSectionMap[sectionId] = response.data;
             cache.sections[sectionId] = response.data;
@@ -151,13 +153,13 @@ export function MenuCard({ menu, onDelete, onView }: MenuCardProps) {
           variant="light"
           color="blue"
           leftSection={<IconEye size={14} />}
-          onClick={() => onView(menu.id)}
+          onClick={() => onView(menu.menuId)}
         >
           {t("actions.view")}
         </Button>
         <Button
           component={Link}
-          href={`/restaurant/menus/edit/${menu.id}`}
+          href={`/restaurant/menus/edit/${menu.menuId}`}
           size="compact-xs"
           variant="light"
           leftSection={<IconEdit size={14} />}
@@ -169,7 +171,7 @@ export function MenuCard({ menu, onDelete, onView }: MenuCardProps) {
           variant="light"
           color="red"
           leftSection={<IconTrash size={14} />}
-          onClick={() => onDelete(menu.id, menu.name)}
+          onClick={() => onDelete(menu.menuId, menu.name)}
         >
           {t("actions.delete")}
         </Button>

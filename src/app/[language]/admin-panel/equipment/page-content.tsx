@@ -87,7 +87,7 @@ function EquipmentList() {
     }
   };
 
-  const handleDeleteEquipment = async (id: string, name: string) => {
+  const handleDeleteEquipment = async (equipmentId: string, name: string) => {
     const confirmed = await confirmDialog({
       title: t("deleteConfirmTitle"),
       message: t("deleteConfirmMessage", { name }),
@@ -95,10 +95,10 @@ function EquipmentList() {
     if (confirmed) {
       setLoading(true);
       try {
-        const { status } = await deleteEquipmentService({ id });
+        const { status } = await deleteEquipmentService({ equipmentId });
         if (status === HTTP_CODES_ENUM.NO_CONTENT) {
           setEquipment((prevEquipment) =>
-            prevEquipment.filter((item) => item.id !== id)
+            prevEquipment.filter((item) => item.equipmentId !== equipmentId)
           );
           enqueueSnackbar(t("deleteSuccess"), { variant: "success" });
         }

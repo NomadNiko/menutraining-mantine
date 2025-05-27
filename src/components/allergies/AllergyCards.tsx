@@ -64,7 +64,11 @@ export function AllergyCards({
   return (
     <Stack gap="md">
       {allergies.map((allergy) => (
-        <AllergyCard key={allergy.id} allergy={allergy} onDelete={onDelete} />
+        <AllergyCard
+          key={allergy.allergyId}
+          allergy={allergy}
+          onDelete={onDelete}
+        />
       ))}
 
       {/* Loader for fetching next page */}

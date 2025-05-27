@@ -42,7 +42,7 @@ function MenuSectionCardsComponent({
       <SimpleGrid cols={1}>
         {menuSections.map((section) => (
           <MenuSectionCard
-            key={section.id}
+            key={section.menuSectionId}
             menuSection={section}
             onDelete={onDelete}
             onView={onView}

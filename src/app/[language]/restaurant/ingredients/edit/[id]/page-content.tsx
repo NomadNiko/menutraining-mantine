@@ -21,7 +21,7 @@ import { useRestaurantDataCache } from "@/services/restaurant/restaurant-data-ca
 
 function EditIngredient() {
   const params = useParams<{ id: string }>();
-  const id = params.id;
+  const ingredientId = params.id;
   const { t } = useTranslation("admin-panel-ingredients");
   const router = useRouter();
   const { setLoading } = useGlobalLoading();
@@ -47,7 +47,7 @@ function EditIngredient() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const { status, data } = await getIngredientService({ id });
+        const { status, data } = await getIngredientService({ ingredientId });
         if (status === HTTP_CODES_ENUM.OK) {
           const ingredientData = data;
           setIngredient(ingredientData);
@@ -75,7 +75,7 @@ function EditIngredient() {
 
     fetchData();
   }, [
-    id,
+    ingredientId,
     selectedRestaurant,
     getIngredientService,
     setLoading,
@@ -97,7 +97,7 @@ function EditIngredient() {
       };
 
       const { status } = await updateIngredientService(dataWithRestaurant, {
-        id,
+        ingredientId,
       });
       if (status === HTTP_CODES_ENUM.OK) {
         enqueueSnackbar(t("updateSuccess"), { variant: "success" });

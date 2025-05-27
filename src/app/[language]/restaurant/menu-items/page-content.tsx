@@ -168,7 +168,7 @@ function RestaurantMenuItemsPage() {
       if (confirmed) {
         setLoading(true);
         try {
-          const { status } = await deleteMenuItemService({ id });
+          const { status } = await deleteMenuItemService({ menuItemId: id });
           if (status === HTTP_CODES_ENUM.NO_CONTENT) {
             enqueueSnackbar(t("deleteSuccess"), { variant: "success" });
             refetch(); // Refresh the data after delete

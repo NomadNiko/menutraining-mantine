@@ -84,7 +84,7 @@ export function MenuSectionViewModal({
               // Fall back to API if not in cache
               try {
                 const menuItemResponse = await getMenuItemService({
-                  id: item.menuItemId,
+                  menuItemId: item.menuItemId,
                 });
                 if (menuItemResponse.status === HTTP_CODES_ENUM.OK) {
                   const menuItem: MenuItemWithSectionData = {
@@ -120,7 +120,7 @@ export function MenuSectionViewModal({
         } else {
           // If not in cache, fall back to API call
           const { status, data } = await getMenuSectionService({
-            id: sectionId,
+            menuSectionId: sectionId,
           });
           if (status !== HTTP_CODES_ENUM.OK) {
             throw new Error(t("errors.sectionNotFound"));
@@ -136,7 +136,7 @@ export function MenuSectionViewModal({
           for (const item of sectionData.items) {
             try {
               const menuItemResponse = await getMenuItemService({
-                id: item.menuItemId,
+                menuItemId: item.menuItemId,
               });
               if (menuItemResponse.status === HTTP_CODES_ENUM.OK) {
                 const menuItem: MenuItemWithSectionData = {

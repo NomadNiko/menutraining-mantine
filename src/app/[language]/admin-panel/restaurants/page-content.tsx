@@ -90,7 +90,7 @@ function Restaurants() {
     }
   };
 
-  const handleDeleteRestaurant = async (id: string, name: string) => {
+  const handleDeleteRestaurant = async (restaurantId: string, name: string) => {
     const confirmed = await confirmDialog({
       title: t("deleteConfirmTitle"),
       message: t("deleteConfirmMessage", { name }),
@@ -98,10 +98,12 @@ function Restaurants() {
     if (confirmed) {
       setLoading(true);
       try {
-        const { status } = await deleteRestaurantService({ id });
+        const { status } = await deleteRestaurantService({ restaurantId });
         if (status === HTTP_CODES_ENUM.NO_CONTENT) {
           setRestaurants((prevRestaurants) =>
-            prevRestaurants.filter((restaurant) => restaurant.id !== id)
+            prevRestaurants.filter(
+              (restaurant) => restaurant.restaurantId !== restaurantId
+            )
           );
           enqueueSnackbar(t("deleteSuccess"), { variant: "success" });
         }
@@ -180,7 +182,7 @@ function Restaurants() {
                         </tr>
                       ) : (
                         restaurants.map((restaurant) => (
-                          <tr key={restaurant.id}>
+                          <tr key={restaurant.restaurantId}>
                             <td style={{ width: 200, textAlign: "left" }}>
                               {restaurant.name}
                             </td>
@@ -194,7 +196,7 @@ function Restaurants() {
                               <Group gap="xs" justify="flex-end">
                                 <Button
                                   component={Link}
-                                  href={`/admin-panel/restaurants/edit/${restaurant.id}`}
+                                  href={`/admin-panel/restaurants/edit/${restaurant.restaurantId}`}
                                   size="xs"
                                   variant="light"
                                   leftSection={<IconEdit size={14} />}
@@ -216,7 +218,7 @@ function Restaurants() {
                                 </Button>
                                 <Button
                                   component={Link}
-                                  href={`/admin-panel/restaurants/${restaurant.id}/users`}
+                                  href={`/admin-panel/restaurants/${restaurant.restaurantId}/users`}
                                   size="xs"
                                   variant="light"
                                   leftSection={<IconUsers size={14} />}
@@ -243,7 +245,7 @@ function Restaurants() {
                                   leftSection={<IconTrash size={14} />}
                                   onClick={() =>
                                     handleDeleteRestaurant(
-                                      restaurant.id,
+                                      restaurant.restaurantId,
                                       restaurant.name
                                     )
                                   }

@@ -49,10 +49,10 @@ export function RecipeDataPreloader({ recipes }: RecipeDataPreloaderProps) {
     const preloadRecipeData = async (recipe: Recipe) => {
       try {
         // Skip if we already have this recipe in cache with full details
-        if (globalRecipeCache.recipes[recipe.id]) return;
+        if (globalRecipeCache.recipes[recipe.recipeId]) return;
 
         // Store normalized recipe in cache
-        globalRecipeCache.recipes[recipe.id] = normalizeRecipe(recipe);
+        globalRecipeCache.recipes[recipe.recipeId] = normalizeRecipe(recipe);
 
         // Collect all ingredient and equipment IDs from steps
         const ingredientIds = new Set<string>();
@@ -79,7 +79,7 @@ export function RecipeDataPreloader({ recipes }: RecipeDataPreloaderProps) {
           if (globalRecipeCache.ingredients[ingredientId]) continue;
 
           try {
-            const response = await getIngredientService({ id: ingredientId });
+            const response = await getIngredientService({ ingredientId });
             if (response.status === HTTP_CODES_ENUM.OK) {
               globalRecipeCache.ingredients[ingredientId] = response.data;
             }
@@ -97,7 +97,7 @@ export function RecipeDataPreloader({ recipes }: RecipeDataPreloaderProps) {
           if (globalRecipeCache.equipment[equipmentId]) continue;
 
           try {
-            const response = await getEquipmentService({ id: equipmentId });
+            const response = await getEquipmentService({ equipmentId });
             if (response.status === HTTP_CODES_ENUM.OK) {
               globalRecipeCache.equipment[equipmentId] = response.data;
             }

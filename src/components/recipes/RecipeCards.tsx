@@ -42,7 +42,7 @@ function RecipeCardsComponent({
       <SimpleGrid cols={1}>
         {recipes.map((recipe) => (
           <RecipeCard
-            key={recipe.id}
+            key={recipe.recipeId}
             recipe={recipe}
             onDelete={onDelete}
             onView={onView}

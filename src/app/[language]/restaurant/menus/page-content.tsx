@@ -176,7 +176,7 @@ function MenusPage() {
       if (confirmed) {
         setLoading(true);
         try {
-          const { status } = await deleteMenuService({ id });
+          const { status } = await deleteMenuService({ menuId: id });
           if (status === HTTP_CODES_ENUM.NO_CONTENT) {
             enqueueSnackbar(t("deleteSuccess"), { variant: "success" });
             fetchMenus();

@@ -133,7 +133,7 @@ export function IngredientCard({
       <Group justify="flex-end" mt="md">
         <Button
           component={Link}
-          href={`/restaurant/ingredients/edit/${ingredient.id}`}
+          href={`/restaurant/ingredients/edit/${ingredient.ingredientId}`}
           size="compact-xs"
           variant="light"
           leftSection={<IconEdit size={14} />}
@@ -145,7 +145,9 @@ export function IngredientCard({
           variant="light"
           color="red"
           leftSection={<IconTrash size={14} />}
-          onClick={() => onDelete(ingredient.id, ingredient.ingredientName)}
+          onClick={() =>
+            onDelete(ingredient.ingredientId, ingredient.ingredientName)
+          }
         >
           {t("actions.delete")}
         </Button>

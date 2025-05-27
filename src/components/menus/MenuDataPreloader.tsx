@@ -51,10 +51,10 @@ export function MenuDataPreloader({ menus }: MenuDataPreloaderProps) {
     const preloadMenuData = async (menu: Menu) => {
       try {
         // Skip if we already have this menu in cache
-        if (globalMenuCache.menus[menu.id]) return;
+        if (globalMenuCache.menus[menu.menuId]) return;
 
         // Store menu in cache
-        globalMenuCache.menus[menu.id] = menu;
+        globalMenuCache.menus[menu.menuId] = menu;
 
         // Preload sections for this menu
         for (const sectionId of menu.menuSections) {
@@ -63,7 +63,7 @@ export function MenuDataPreloader({ menus }: MenuDataPreloaderProps) {
 
           try {
             const sectionResponse = await getMenuSectionService({
-              id: sectionId,
+              menuSectionId: sectionId,
             });
 
             if (sectionResponse.status === HTTP_CODES_ENUM.OK) {
@@ -77,7 +77,7 @@ export function MenuDataPreloader({ menus }: MenuDataPreloaderProps) {
 
                 try {
                   const menuItemResponse = await getMenuItemService({
-                    id: item.menuItemId,
+                    menuItemId: item.menuItemId,
                   });
 
                   if (menuItemResponse.status === HTTP_CODES_ENUM.OK) {

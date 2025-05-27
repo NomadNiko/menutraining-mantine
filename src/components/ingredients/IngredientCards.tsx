@@ -42,7 +42,7 @@ function IngredientCardsComponent({
       <SimpleGrid cols={1}>
         {ingredients.map((ingredient) => (
           <IngredientCard
-            key={ingredient.id}
+            key={ingredient.ingredientId}
             ingredient={ingredient}
             allergies={allergies}
             onDelete={onDelete}

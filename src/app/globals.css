@@ -12,7 +12,7 @@ body {
   .no-print {
     display: none !important;
   }
-  
+
   /* Hide the top navigation bar */
   header,
   nav,
@@ -20,7 +20,7 @@ body {
   .mantine-AppShell-navbar {
     display: none !important;
   }
-  
+
   /* Scale content to 50% and ensure it takes full width */
   .print-content {
     transform: scale(0.5) !important;
@@ -31,7 +31,7 @@ body {
     width: 200% !important; /* Double width to compensate for 50% scale */
     height: 200% !important; /* Double height to compensate for 50% scale */
   }
-  
+
   /* Apply scaling to the entire body for print */
   body {
     font-size: 6pt !important; /* Half of 12pt for 50% scale */
@@ -40,30 +40,30 @@ body {
     background: white !important;
     zoom: 0.5 !important; /* Additional browser support for scaling */
   }
-  
+
   /* Ensure images print well */
   img {
     max-width: 100% !important;
     height: auto !important;
     page-break-inside: avoid;
   }
-  
+
   /* Page break rules */
   .print-page-break {
     page-break-before: always;
   }
-  
+
   .print-avoid-break {
     page-break-inside: avoid;
   }
-  
+
   /* Remove shadows and borders for print */
   .mantine-Paper-root,
   .mantine-Card-root {
     box-shadow: none !important;
     border: 1px solid #ddd !important;
   }
-  
+
   /* Hide button backgrounds */
   .mantine-Button-root {
     background: transparent !important;

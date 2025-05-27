@@ -216,7 +216,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
           const menuItemIdsInSections = new Set<string>();
           cacheData.menuSections
             .filter((section: MenuSection) =>
-              config.menuSectionIds.includes(section.id)
+              config.menuSectionIds.includes(section.menuSectionId)
             )
             .forEach((section: MenuSection) => {
               section.items?.forEach((item: SectionItem) => {
@@ -297,7 +297,7 @@ export function QuizProvider({ children }: { children: ReactNode }) {
           const menuItemIdsInSections = new Set<string>();
           allSections
             .filter((section: MenuSection) =>
-              config.menuSectionIds.includes(section.id)
+              config.menuSectionIds.includes(section.menuSectionId)
             )
             .forEach((section: MenuSection) => {
               section.items?.forEach((item: SectionItem) => {

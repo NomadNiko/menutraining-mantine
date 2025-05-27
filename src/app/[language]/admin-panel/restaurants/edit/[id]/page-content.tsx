@@ -84,7 +84,9 @@ function EditRestaurant() {
     const fetchRestaurant = async () => {
       setLoading(true);
       try {
-        const { status, data } = await getRestaurantService({ id: params.id });
+        const { status, data } = await getRestaurantService({
+          restaurantId: params.id,
+        });
         if (status === HTTP_CODES_ENUM.OK) {
           reset({
             name: data.name,
@@ -117,7 +119,7 @@ function EditRestaurant() {
       }, {} as RestaurantPatchRequest);
 
       const { status, data } = await patchRestaurantService(cleanData, {
-        id: params.id,
+        restaurantId: params.id,
       });
 
       if (status === HTTP_CODES_ENUM.UNPROCESSABLE_ENTITY) {

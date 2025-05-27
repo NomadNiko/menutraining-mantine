@@ -34,7 +34,7 @@ export function EquipmentCard({ equipment, onDelete }: EquipmentCardProps) {
       <Group justify="flex-end" mt="md">
         <Button
           component={Link}
-          href={`/admin-panel/equipment/edit/${equipment.id}`}
+          href={`/admin-panel/equipment/edit/${equipment.equipmentId}`}
           size="compact-xs"
           variant="light"
           leftSection={<IconEdit size={14} />}
@@ -46,7 +46,9 @@ export function EquipmentCard({ equipment, onDelete }: EquipmentCardProps) {
           variant="light"
           color="red"
           leftSection={<IconTrash size={14} />}
-          onClick={() => onDelete(equipment.id, equipment.equipmentName)}
+          onClick={() =>
+            onDelete(equipment.equipmentId, equipment.equipmentName)
+          }
         >
           {t("actions.delete")}
         </Button>

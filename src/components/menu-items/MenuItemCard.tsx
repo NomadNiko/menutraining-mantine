@@ -26,8 +26,8 @@ export function MenuItemCard({ menuItem, onDelete }: MenuItemCardProps) {
   const pathname = usePathname();
   const isRestaurantRoute = pathname.includes("/restaurant/");
   const editUrl = isRestaurantRoute
-    ? `/restaurant/menu-items/edit/${menuItem.id}`
-    : `/admin-panel/menu-items/edit/${menuItem.id}`;
+    ? `/restaurant/menu-items/edit/${menuItem.menuItemId}`
+    : `/admin-panel/menu-items/edit/${menuItem.menuItemId}`;
   return (
     <Card shadow="sm" p="md" radius="md" withBorder mb="sm">
       <Stack gap="xs">
@@ -125,7 +125,7 @@ export function MenuItemCard({ menuItem, onDelete }: MenuItemCardProps) {
           variant="light"
           color="red"
           leftSection={<IconTrash size={14} />}
-          onClick={() => onDelete(menuItem.id, menuItem.menuItemName)}
+          onClick={() => onDelete(menuItem.menuItemId, menuItem.menuItemName)}
         >
           {t("actions.delete")}
         </Button>

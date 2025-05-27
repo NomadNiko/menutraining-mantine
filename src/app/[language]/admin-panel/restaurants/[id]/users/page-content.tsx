@@ -94,8 +94,10 @@ function RestaurantUsers() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        // First get the restaurant using the MongoDB ObjectId
-        const restaurantResult = await getRestaurantService({ id: params.id });
+        // First get the restaurant using the restaurantId
+        const restaurantResult = await getRestaurantService({
+          restaurantId: params.id,
+        });
         if (restaurantResult.status === HTTP_CODES_ENUM.OK) {
           setRestaurant(restaurantResult.data);
           // Then use the restaurant.restaurantId to fetch users

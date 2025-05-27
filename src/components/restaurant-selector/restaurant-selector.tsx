@@ -45,18 +45,17 @@ const RestaurantSelector = () => {
         <Menu.Dropdown>
           {(availableRestaurants || []).map((restaurant) => (
             <Menu.Item
-              key={restaurant.id}
+              key={restaurant.restaurantId}
               onClick={() => {
                 setSelectedRestaurant(restaurant);
                 setMenuOpened(false);
               }}
-              data-testid={`restaurant-option-${restaurant.id}`}
+              data-testid={`restaurant-option-${restaurant.restaurantId}`}
             >
               <Group justify="space-between" w="100%">
                 <Text>{restaurant.name}</Text>
-                {selectedRestaurant?.id === restaurant.id && (
-                  <Text c="blue">✓</Text>
-                )}
+                {selectedRestaurant?.restaurantId ===
+                  restaurant.restaurantId && <Text c="blue">✓</Text>}
               </Group>
             </Menu.Item>
           ))}

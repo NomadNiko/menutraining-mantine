@@ -42,7 +42,7 @@ function EditRecipe() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const { status, data } = await getRecipeService({ id });
+        const { status, data } = await getRecipeService({ recipeId: id });
 
         if (status === HTTP_CODES_ENUM.OK) {
           setRecipe(normalizeRecipe(data));
@@ -92,7 +92,9 @@ function EditRecipe() {
         restaurantId: selectedRestaurant.restaurantId,
       };
 
-      const { status } = await updateRecipeService(dataWithRestaurant, { id });
+      const { status } = await updateRecipeService(dataWithRestaurant, {
+        recipeId: id,
+      });
 
       if (status === HTTP_CODES_ENUM.OK) {
         enqueueSnackbar(t("updateSuccess"), { variant: "success" });

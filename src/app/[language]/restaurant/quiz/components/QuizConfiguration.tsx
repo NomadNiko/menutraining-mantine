@@ -392,10 +392,12 @@ export function QuizConfiguration({
             <Stack gap="xs">
               {menuSections.map((section) => (
                 <Checkbox
-                  key={section.id}
+                  key={section.menuSectionId}
                   label={section.title}
-                  checked={selectedMenuSections.includes(section.id)}
-                  onChange={() => handleMenuSectionToggle(section.id)}
+                  checked={selectedMenuSections.includes(section.menuSectionId)}
+                  onChange={() =>
+                    handleMenuSectionToggle(section.menuSectionId)
+                  }
                 />
               ))}
             </Stack>

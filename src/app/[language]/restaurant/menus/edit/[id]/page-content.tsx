@@ -41,7 +41,7 @@ function EditMenu() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const { status, data } = await getMenuService({ id });
+        const { status, data } = await getMenuService({ menuId: id });
 
         if (status === HTTP_CODES_ENUM.OK) {
           setMenu(data);
@@ -91,7 +91,9 @@ function EditMenu() {
         restaurantId: selectedRestaurant.restaurantId,
       };
 
-      const { status } = await updateMenuService(dataWithRestaurant, { id });
+      const { status } = await updateMenuService(dataWithRestaurant, {
+        menuId: id,
+      });
 
       if (status === HTTP_CODES_ENUM.OK) {
         enqueueSnackbar(t("updateSuccess"), { variant: "success" });

@@ -61,7 +61,7 @@ export function MenuSectionDataPreloader({
 
             try {
               const menuItemResponse = await getMenuItemService({
-                id: item.menuItemId,
+                menuItemId: item.menuItemId,
               });
 
               if (menuItemResponse.status === HTTP_CODES_ENUM.OK) {
@@ -79,7 +79,7 @@ export function MenuSectionDataPreloader({
           // If we don't have full section data with items, fetch it
           try {
             const sectionResponse = await getMenuSectionService({
-              id: menuSection.id,
+              menuSectionId: menuSection.menuSectionId,
             });
 
             if (sectionResponse.status === HTTP_CODES_ENUM.OK) {
@@ -93,7 +93,7 @@ export function MenuSectionDataPreloader({
 
                 try {
                   const menuItemResponse = await getMenuItemService({
-                    id: item.menuItemId,
+                    menuItemId: item.menuItemId,
                   });
 
                   if (menuItemResponse.status === HTTP_CODES_ENUM.OK) {

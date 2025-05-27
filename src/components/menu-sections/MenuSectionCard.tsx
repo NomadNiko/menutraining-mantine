@@ -79,14 +79,14 @@ export function MenuSectionCard({
             variant="light"
             color="blue"
             leftSection={<IconEye size={14} />}
-            onClick={() => onView(menuSection.id)}
+            onClick={() => onView(menuSection.menuSectionId)}
           >
             {t("actions.view")}
           </Button>
         )}
         <Button
           component={Link}
-          href={`/restaurant/menu-sections/edit/${menuSection.id}`}
+          href={`/restaurant/menu-sections/edit/${menuSection.menuSectionId}`}
           size="compact-xs"
           variant="light"
           leftSection={<IconEdit size={14} />}
@@ -98,7 +98,7 @@ export function MenuSectionCard({
           variant="light"
           color="red"
           leftSection={<IconTrash size={14} />}
-          onClick={() => onDelete(menuSection.id, menuSection.title)}
+          onClick={() => onDelete(menuSection.menuSectionId, menuSection.title)}
         >
           {t("actions.delete")}
         </Button>

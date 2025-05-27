@@ -85,7 +85,7 @@ export function RecipeViewPageContent({
           recipeData = normalizeRecipe(cachedRecipe);
         } else {
           // Fetch from API if not in cache
-          const { status, data } = await getRecipeService({ id: recipeId });
+          const { status, data } = await getRecipeService({ recipeId });
           if (status !== HTTP_CODES_ENUM.OK) {
             throw new Error(t("errors.recipeNotFound"));
           }
@@ -105,7 +105,9 @@ export function RecipeViewPageContent({
                   cache.equipment[eqId];
                 if (!equipmentItem) {
                   try {
-                    const response = await getEquipmentService({ id: eqId });
+                    const response = await getEquipmentService({
+                      equipmentId: eqId,
+                    });
                     if (response.status === HTTP_CODES_ENUM.OK) {
                       equipmentItem = response.data;
                       cache.equipment[eqId] = equipmentItem;
@@ -134,7 +136,7 @@ export function RecipeViewPageContent({
                 if (!ingredient) {
                   try {
                     const response = await getIngredientService({
-                      id: item.ingredientId,
+                      ingredientId: item.ingredientId,
                     });
                     if (response.status === HTTP_CODES_ENUM.OK) {
                       ingredient = response.data;

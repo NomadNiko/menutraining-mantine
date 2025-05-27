@@ -122,7 +122,7 @@ export function MenuSectionForm({
     try {
       // Check if we already have this menu item in our map
       if (!menuItemsMap[menuItemId]) {
-        const { status, data } = await getMenuItemService({ id: menuItemId });
+        const { status, data } = await getMenuItemService({ menuItemId });
         if (status === HTTP_CODES_ENUM.OK && data) {
           setMenuItemsMap((prev) => ({
             ...prev,

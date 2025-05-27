@@ -129,7 +129,7 @@ function RecipeTableComponent({
       </thead>
       <tbody>
         {recipes.map((recipe) => (
-          <tr key={recipe.id}>
+          <tr key={recipe.recipeId}>
             <td style={{ width: 200, padding: "10px" }}>
               <Text fw={500}>{recipe.recipeName}</Text>
               {recipe.recipeDescription && (
@@ -169,7 +169,7 @@ function RecipeTableComponent({
             >
               <Group gap="xs" justify="flex-end">
                 <Button
-                  onClick={() => onView(recipe.id)}
+                  onClick={() => onView(recipe.recipeId)}
                   size="xs"
                   variant="light"
                   color="blue"
@@ -179,7 +179,7 @@ function RecipeTableComponent({
                 </Button>
                 <Button
                   component={Link}
-                  href={`/restaurant/recipes/view/${recipe.id}`}
+                  href={`/restaurant/recipes/view/${recipe.recipeId}`}
                   size="xs"
                   variant="light"
                   color="teal"
@@ -189,7 +189,7 @@ function RecipeTableComponent({
                 </Button>
                 <Button
                   component={Link}
-                  href={`/restaurant/recipes/edit/${recipe.id}`}
+                  href={`/restaurant/recipes/${recipe.recipeId}/edit-streamlined`}
                   size="xs"
                   variant="light"
                   leftSection={<IconEdit size={14} />}
@@ -201,7 +201,7 @@ function RecipeTableComponent({
                   variant="light"
                   color="red"
                   leftSection={<IconTrash size={14} />}
-                  onClick={() => onDelete(recipe.id, recipe.recipeName)}
+                  onClick={() => onDelete(recipe.recipeId, recipe.recipeName)}
                 >
                   {t("actions.delete")}
                 </Button>

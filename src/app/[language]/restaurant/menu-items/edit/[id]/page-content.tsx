@@ -44,7 +44,7 @@ function EditMenuItem() {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const { status, data } = await getMenuItemService({ id });
+        const { status, data } = await getMenuItemService({ menuItemId: id });
 
         if (status === HTTP_CODES_ENUM.OK) {
           const menuItemData = data;
@@ -96,7 +96,7 @@ function EditMenuItem() {
       };
 
       const { status } = await updateMenuItemService(dataWithRestaurant, {
-        id,
+        menuItemId: id,
       });
 
       if (status === HTTP_CODES_ENUM.OK) {

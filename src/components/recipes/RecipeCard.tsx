@@ -61,14 +61,14 @@ export function RecipeCard({ recipe, onDelete, onView }: RecipeCardProps) {
           variant="light"
           color="blue"
           leftSection={<IconEye size={14} />}
-          onClick={() => onView(recipe.id)}
+          onClick={() => onView(recipe.recipeId)}
         >
           {t("actions.quickView")}
         </Button>
 
         <Button
           component={Link}
-          href={`/restaurant/recipes/view/${recipe.id}`}
+          href={`/restaurant/recipes/view/${recipe.recipeId}`}
           size="compact-xs"
           variant="light"
           color="teal"
@@ -79,7 +79,7 @@ export function RecipeCard({ recipe, onDelete, onView }: RecipeCardProps) {
 
         <Button
           component={Link}
-          href={`/restaurant/recipes/edit/${recipe.id}`}
+          href={`/restaurant/recipes/${recipe.recipeId}/edit-streamlined`}
           size="compact-xs"
           variant="light"
           leftSection={<IconEdit size={14} />}
@@ -92,7 +92,7 @@ export function RecipeCard({ recipe, onDelete, onView }: RecipeCardProps) {
           variant="light"
           color="red"
           leftSection={<IconTrash size={14} />}
-          onClick={() => onDelete(recipe.id, recipe.recipeName)}
+          onClick={() => onDelete(recipe.recipeId, recipe.recipeName)}
         >
           {t("actions.delete")}
         </Button>

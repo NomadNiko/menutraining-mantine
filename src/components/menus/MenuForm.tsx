@@ -127,7 +127,7 @@ export function MenuForm({
     if (!selectedSectionIds || !menuSections.length) return [];
 
     return selectedSectionIds
-      .map((id) => menuSections.find((section) => section.id === id))
+      .map((id) => menuSections.find((section) => section.menuSectionId === id))
       .filter(Boolean) as MenuSection[];
   }, [selectedSectionIds, menuSections]);
 
@@ -149,7 +149,7 @@ export function MenuForm({
   // Map section options with the correct id field
   const sectionOptions = useMemo(() => {
     return menuSections.map((section) => ({
-      value: section.id,
+      value: section.menuSectionId,
       label: section.title,
     }));
   }, [menuSections]);
@@ -268,8 +268,8 @@ export function MenuForm({
                       <div {...provided.droppableProps} ref={provided.innerRef}>
                         {selectedSections.map((section, index) => (
                           <Draggable
-                            key={section.id}
-                            draggableId={section.id}
+                            key={section.menuSectionId}
+                            draggableId={section.menuSectionId}
                             index={index}
                           >
                             {(provided: DraggableProvided) => (

@@ -229,7 +229,7 @@ const MenuItemRow = memo(function MenuItemRow({
             variant="light"
             color="red"
             leftSection={<IconTrash size={14} />}
-            onClick={() => onDelete(menuItem.id, menuItem.menuItemName)}
+            onClick={() => onDelete(menuItem.menuItemId, menuItem.menuItemName)}
             style={{
               width: "88px",
               height: "24px",
@@ -358,7 +358,7 @@ function MenuItemTableComponent({
             allergiesMap={allergiesMap}
             onDelete={onDelete}
             rowColor={index % 2 === 0 ? rowColors.even : rowColors.odd}
-            editUrl={getEditUrl(menuItem.id)}
+            editUrl={getEditUrl(menuItem.menuItemId)}
             t={t}
           />
         ))}

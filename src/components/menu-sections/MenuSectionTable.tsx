@@ -141,7 +141,7 @@ function MenuSectionTableComponent({
       </thead>
       <tbody>
         {menuSections.map((section) => (
-          <tr key={section.id}>
+          <tr key={section.menuSectionId}>
             <td style={{ width: 250, padding: "10px" }}>
               <Text fw={500}>{section.title}</Text>
             </td>
@@ -169,7 +169,7 @@ function MenuSectionTableComponent({
               <Group gap="xs" justify="flex-end">
                 {onView && (
                   <Button
-                    onClick={() => onView(section.id)}
+                    onClick={() => onView(section.menuSectionId)}
                     size="xs"
                     variant="light"
                     color="blue"
@@ -180,7 +180,7 @@ function MenuSectionTableComponent({
                 )}
                 <Button
                   component={Link}
-                  href={`/restaurant/menu-sections/edit/${section.id}`}
+                  href={`/restaurant/menu-sections/edit/${section.menuSectionId}`}
                   size="xs"
                   variant="light"
                   leftSection={<IconEdit size={14} />}
@@ -192,7 +192,7 @@ function MenuSectionTableComponent({
                   variant="light"
                   color="red"
                   leftSection={<IconTrash size={14} />}
-                  onClick={() => onDelete(section.id, section.title)}
+                  onClick={() => onDelete(section.menuSectionId, section.title)}
                 >
                   {t("actions.delete")}
                 </Button>

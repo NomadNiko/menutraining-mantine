@@ -217,7 +217,7 @@ function RecipesPage() {
       if (confirmed) {
         setLoading(true);
         try {
-          const { status } = await deleteRecipeService({ id });
+          const { status } = await deleteRecipeService({ recipeId: id });
           if (status === HTTP_CODES_ENUM.NO_CONTENT) {
             enqueueSnackbar(t("deleteSuccess"), { variant: "success" });
             refetch();
@@ -264,7 +264,7 @@ function RecipesPage() {
         </Title>
         <Button
           component={Link}
-          href="/restaurant/recipes/create"
+          href="/restaurant/recipes/create-streamlined"
           color="green"
           size="compact-sm"
         >
