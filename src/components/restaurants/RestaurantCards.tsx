@@ -65,7 +65,7 @@ export function RestaurantCards({
     <Stack gap="md">
       {restaurants.map((restaurant) => (
         <RestaurantCard
-          key={restaurant.id}
+          key={restaurant.restaurantId}
           restaurant={restaurant}
           onDelete={onDelete}
         />

@@ -110,13 +110,13 @@ function RestaurantContextProvider({ children }: PropsWithChildren<{}>) {
   const handleSetSelectedRestaurant = useCallback(
     (restaurant: Restaurant) => {
       const currentRestaurantId = selectedRestaurant?.id;
-      const newRestaurantId = restaurant.id;
+      const newRestaurantId = restaurant.restaurantId;
       console.log("Manually setting selected restaurant:", restaurant);
 
       // Only proceed if the restaurant is actually changing
       if (currentRestaurantId !== newRestaurantId) {
         setSelectedRestaurant(restaurant);
-        localStorage.setItem(SELECTED_RESTAURANT_KEY, restaurant.id);
+        localStorage.setItem(SELECTED_RESTAURANT_KEY, restaurant.restaurantId);
 
         // Clear cache and refresh page
         clearRestaurantCache();

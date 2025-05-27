@@ -39,13 +39,8 @@ export const useGetRestaurantsService = createGetService<
 
 export const useGetRestaurantService = createGetService<
   Restaurant,
-  { id: string }
->((params) => `/v1/restaurants/${params.id}`);
-
-export const useGetRestaurantByCodeService = createGetService<
-  Restaurant,
   { restaurantId: string }
->((params) => `/v1/restaurants/code/${params.restaurantId}`);
+>((params) => `/v1/restaurants/${params.restaurantId}`);
 
 export const usePostRestaurantService = createPostService<
   RestaurantPostRequest,
@@ -55,13 +50,13 @@ export const usePostRestaurantService = createPostService<
 export const usePatchRestaurantService = createPatchService<
   RestaurantPatchRequest,
   Restaurant,
-  { id: string }
->((params) => `/v1/restaurants/${params.id}`);
+  { restaurantId: string }
+>((params) => `/v1/restaurants/${params.restaurantId}`);
 
 export const useDeleteRestaurantService = createDeleteService<
   void,
-  { id: string }
->((params) => `/v1/restaurants/${params.id}`);
+  { restaurantId: string }
+>((params) => `/v1/restaurants/${params.restaurantId}`);
 
 // API Services for restaurant user management
 export const useAddUserToRestaurantService = createPostService<

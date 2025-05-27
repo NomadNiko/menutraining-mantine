@@ -45,14 +45,10 @@ export const useGetRecipesService = createGetService<
   formatQueryParams: formatRecipesQueryParams,
 });
 
-export const useGetRecipeService = createGetService<Recipe, { id: string }>(
-  (params) => `/v1/recipes/${params.id}`
-);
-
-export const useGetRecipeByCodeService = createGetService<
+export const useGetRecipeService = createGetService<
   Recipe,
   { recipeId: string }
->((params) => `/v1/recipes/code/${params.recipeId}`);
+>((params) => `/v1/recipes/${params.recipeId}`);
 
 export const useCreateRecipeService = createPostService<
   CreateRecipeDto,
@@ -62,9 +58,10 @@ export const useCreateRecipeService = createPostService<
 export const useUpdateRecipeService = createPatchService<
   UpdateRecipeDto,
   Recipe,
-  { id: string }
->((params) => `/v1/recipes/${params.id}`);
+  { recipeId: string }
+>((params) => `/v1/recipes/${params.recipeId}`);
 
-export const useDeleteRecipeService = createDeleteService<void, { id: string }>(
-  (params) => `/v1/recipes/${params.id}`
-);
+export const useDeleteRecipeService = createDeleteService<
+  void,
+  { recipeId: string }
+>((params) => `/v1/recipes/${params.recipeId}`);

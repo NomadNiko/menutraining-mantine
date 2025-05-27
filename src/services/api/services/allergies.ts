@@ -35,14 +35,10 @@ export const useGetAllergiesService = createGetService<
   formatQueryParams: formatAllergiesQueryParams,
 });
 
-export const useGetAllergyService = createGetService<Allergy, { id: string }>(
-  (params) => `/v1/allergies/${params.id}`
-);
-
-export const useGetAllergyByCodeService = createGetService<
+export const useGetAllergyService = createGetService<
   Allergy,
   { allergyId: string }
->((params) => `/v1/allergies/code/${params.allergyId}`);
+>((params) => `/v1/allergies/${params.allergyId}`);
 
 export const usePostAllergyService = createPostService<
   AllergyPostRequest,
@@ -52,10 +48,10 @@ export const usePostAllergyService = createPostService<
 export const usePatchAllergyService = createPatchService<
   AllergyPatchRequest,
   Allergy,
-  { id: string }
->((params) => `/v1/allergies/${params.id}`);
+  { allergyId: string }
+>((params) => `/v1/allergies/${params.allergyId}`);
 
 export const useDeleteAllergyService = createDeleteService<
   void,
-  { id: string }
->((params) => `/v1/allergies/${params.id}`);
+  { allergyId: string }
+>((params) => `/v1/allergies/${params.allergyId}`);

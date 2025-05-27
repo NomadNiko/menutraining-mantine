@@ -38,13 +38,8 @@ export const useGetMenuSectionsService = createGetService<
 
 export const useGetMenuSectionService = createGetService<
   MenuSection,
-  { id: string }
->((params) => `/v1/menu-sections/${params.id}`);
-
-export const useGetMenuSectionByCodeService = createGetService<
-  MenuSection,
   { menuSectionId: string }
->((params) => `/v1/menu-sections/code/${params.menuSectionId}`);
+>((params) => `/v1/menu-sections/${params.menuSectionId}`);
 
 export const useCreateMenuSectionService = createPostService<
   CreateMenuSectionDto,
@@ -54,10 +49,10 @@ export const useCreateMenuSectionService = createPostService<
 export const useUpdateMenuSectionService = createPatchService<
   UpdateMenuSectionDto,
   MenuSection,
-  { id: string }
->((params) => `/v1/menu-sections/${params.id}`);
+  { menuSectionId: string }
+>((params) => `/v1/menu-sections/${params.menuSectionId}`);
 
 export const useDeleteMenuSectionService = createDeleteService<
   void,
-  { id: string }
->((params) => `/v1/menu-sections/${params.id}`);
+  { menuSectionId: string }
+>((params) => `/v1/menu-sections/${params.menuSectionId}`);

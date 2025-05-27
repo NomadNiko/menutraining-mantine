@@ -39,14 +39,9 @@ export const useGetMenusService = createGetService<
   formatQueryParams: formatMenusQueryParams,
 });
 
-export const useGetMenuService = createGetService<Menu, { id: string }>(
-  (params) => `/v1/menus/${params.id}`
+export const useGetMenuService = createGetService<Menu, { menuId: string }>(
+  (params) => `/v1/menus/${params.menuId}`
 );
-
-export const useGetMenuByCodeService = createGetService<
-  Menu,
-  { menuId: string }
->((params) => `/v1/menus/code/${params.menuId}`);
 
 export const useCreateMenuService = createPostService<CreateMenuDto, Menu>(
   "/v1/menus"
@@ -55,9 +50,10 @@ export const useCreateMenuService = createPostService<CreateMenuDto, Menu>(
 export const useUpdateMenuService = createPatchService<
   UpdateMenuDto,
   Menu,
-  { id: string }
->((params) => `/v1/menus/${params.id}`);
+  { menuId: string }
+>((params) => `/v1/menus/${params.menuId}`);
 
-export const useDeleteMenuService = createDeleteService<void, { id: string }>(
-  (params) => `/v1/menus/${params.id}`
-);
+export const useDeleteMenuService = createDeleteService<
+  void,
+  { menuId: string }
+>((params) => `/v1/menus/${params.menuId}`);

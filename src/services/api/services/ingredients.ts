@@ -41,13 +41,8 @@ export const useGetIngredientsService = createGetService<
 
 export const useGetIngredientService = createGetService<
   Ingredient,
-  { id: string }
->((params) => `/v1/ingredients/${params.id}`);
-
-export const useGetIngredientByCodeService = createGetService<
-  Ingredient,
   { ingredientId: string }
->((params) => `/v1/ingredients/code/${params.ingredientId}`);
+>((params) => `/v1/ingredients/${params.ingredientId}`);
 
 export const useCreateIngredientService = createPostService<
   CreateIngredientDto,
@@ -57,10 +52,10 @@ export const useCreateIngredientService = createPostService<
 export const useUpdateIngredientService = createPatchService<
   UpdateIngredientDto,
   Ingredient,
-  { id: string }
->((params) => `/v1/ingredients/${params.id}`);
+  { ingredientId: string }
+>((params) => `/v1/ingredients/${params.ingredientId}`);
 
 export const useDeleteIngredientService = createDeleteService<
   void,
-  { id: string }
->((params) => `/v1/ingredients/${params.id}`);
+  { ingredientId: string }
+>((params) => `/v1/ingredients/${params.ingredientId}`);

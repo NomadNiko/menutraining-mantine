@@ -46,7 +46,7 @@ export function RestaurantCard({ restaurant, onDelete }: RestaurantCardProps) {
       <Group justify="flex-end" mt="md">
         <Button
           component={Link}
-          href={`/admin-panel/restaurants/edit/${restaurant.id}`}
+          href={`/admin-panel/restaurants/edit/${restaurant.restaurantId}`}
           size="compact-xs"
           variant="light"
           leftSection={<IconEdit size={14} />}
@@ -55,7 +55,7 @@ export function RestaurantCard({ restaurant, onDelete }: RestaurantCardProps) {
         </Button>
         <Button
           component={Link}
-          href={`/admin-panel/restaurants/${restaurant.id}/users`}
+          href={`/admin-panel/restaurants/${restaurant.restaurantId}/users`}
           size="compact-xs"
           variant="light"
           leftSection={<IconUsers size={14} />}
@@ -67,7 +67,7 @@ export function RestaurantCard({ restaurant, onDelete }: RestaurantCardProps) {
           variant="light"
           color="red"
           leftSection={<IconTrash size={14} />}
-          onClick={() => onDelete(restaurant.id, restaurant.name)}
+          onClick={() => onDelete(restaurant.restaurantId, restaurant.name)}
         >
           {t("actions.delete")}
         </Button>

@@ -38,13 +38,8 @@ export const useGetEquipmentService = createGetService<
 
 export const useGetEquipmentItemService = createGetService<
   Equipment,
-  { id: string }
->((params) => `/v1/equipment/${params.id}`);
-
-export const useGetEquipmentByCodeService = createGetService<
-  Equipment,
   { equipmentId: string }
->((params) => `/v1/equipment/code/${params.equipmentId}`);
+>((params) => `/v1/equipment/${params.equipmentId}`);
 
 export const usePostEquipmentService = createPostService<
   EquipmentPostRequest,
@@ -54,10 +49,10 @@ export const usePostEquipmentService = createPostService<
 export const usePatchEquipmentService = createPatchService<
   EquipmentPatchRequest,
   Equipment,
-  { id: string }
->((params) => `/v1/equipment/${params.id}`);
+  { equipmentId: string }
+>((params) => `/v1/equipment/${params.equipmentId}`);
 
 export const useDeleteEquipmentService = createDeleteService<
   void,
-  { id: string }
->((params) => `/v1/equipment/${params.id}`);
+  { equipmentId: string }
+>((params) => `/v1/equipment/${params.equipmentId}`);

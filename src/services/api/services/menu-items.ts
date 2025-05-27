@@ -35,14 +35,10 @@ export const useGetMenuItemsService = createGetService<
   formatQueryParams: formatMenuItemsQueryParams,
 });
 
-export const useGetMenuItemService = createGetService<MenuItem, { id: string }>(
-  (params) => `/v1/menu-items/${params.id}`
-);
-
-export const useGetMenuItemByCodeService = createGetService<
+export const useGetMenuItemService = createGetService<
   MenuItem,
   { menuItemId: string }
->((params) => `/v1/menu-items/code/${params.menuItemId}`);
+>((params) => `/v1/menu-items/${params.menuItemId}`);
 
 export const useCreateMenuItemService = createPostService<
   CreateMenuItemDto,
@@ -52,10 +48,10 @@ export const useCreateMenuItemService = createPostService<
 export const useUpdateMenuItemService = createPatchService<
   UpdateMenuItemDto,
   MenuItem,
-  { id: string }
->((params) => `/v1/menu-items/${params.id}`);
+  { menuItemId: string }
+>((params) => `/v1/menu-items/${params.menuItemId}`);
 
 export const useDeleteMenuItemService = createDeleteService<
   void,
-  { id: string }
->((params) => `/v1/menu-items/${params.id}`);
+  { menuItemId: string }
+>((params) => `/v1/menu-items/${params.menuItemId}`);
