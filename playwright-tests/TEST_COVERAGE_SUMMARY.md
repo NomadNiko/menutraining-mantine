@@ -1,18 +1,22 @@
 # Test Coverage Summary
 
 ## Overview
+
 This document provides a comprehensive overview of all Playwright E2E tests for the Menu Training application.
 
 ## Test Files Created
 
 ### 1. Authentication Tests
+
 - **File**: `auth/authentication.spec.ts` (existing)
+
   - User sign in
   - Invalid credentials
   - Protected route guards
   - Session management
 
 - **File**: `auth/auth-edge-cases.spec.ts`
+
   - Password reset flow
   - Sign up validation
   - Session timeout handling
@@ -27,7 +31,9 @@ This document provides a comprehensive overview of all Playwright E2E tests for 
   - Error message display
 
 ### 2. Ingredient Management Tests
+
 - **File**: `ingredients/ingredient-crud.spec.ts`
+
   - Create ingredient with all fields
   - Edit existing ingredient
   - Delete with confirmation
@@ -40,6 +46,7 @@ This document provides a comprehensive overview of all Playwright E2E tests for 
   - Export functionality
 
 - **File**: `ingredients/ingredient-complete-test.spec.ts`
+
   - Complete creation flow
   - Edit with all fields
   - Search with proper selectors
@@ -56,7 +63,9 @@ This document provides a comprehensive overview of all Playwright E2E tests for 
   - Filter panel
 
 ### 3. Menu Item Management Tests
+
 - **File**: `menu-items/menu-item-crud.spec.ts`
+
   - Create with ingredients and allergies
   - Edit and update ingredients
   - Filter by allergies
@@ -69,6 +78,7 @@ This document provides a comprehensive overview of all Playwright E2E tests for 
   - No ingredients case
 
 - **File**: `menu-items/menu-item-complete-test.spec.ts`
+
   - Create with ingredient selection
   - Filter by allergies
   - Search menu items
@@ -85,6 +95,7 @@ This document provides a comprehensive overview of all Playwright E2E tests for 
   - Filter panel
 
 ### 4. Recipe Management Tests
+
 - **File**: `recipes/recipe-crud.spec.ts`
   - Create recipe with steps
   - Edit recipe and update steps
@@ -96,6 +107,7 @@ This document provides a comprehensive overview of all Playwright E2E tests for 
   - Time validation
 
 ### 5. Menu Section Management Tests
+
 - **File**: `menu-sections/menu-section-crud.spec.ts`
   - Create section with items
   - Edit and reorder items
@@ -107,6 +119,7 @@ This document provides a comprehensive overview of all Playwright E2E tests for 
   - Duplicate section
 
 ### 6. Menu Management Tests
+
 - **File**: `menus/menu-crud.spec.ts`
   - Create menu with sections
   - Edit and toggle active status
@@ -118,13 +131,16 @@ This document provides a comprehensive overview of all Playwright E2E tests for 
   - Preview menu
 
 ### 7. Quiz Tests
+
 - **File**: `quiz/quiz.spec.ts` (existing)
+
   - Quiz mode selection
   - Question answering
   - Score tracking
   - Timer functionality
 
 - **File**: `quiz/quiz-advanced.spec.ts`
+
   - All quiz modes
   - Timer functionality
   - Sudden death mode
@@ -142,6 +158,7 @@ This document provides a comprehensive overview of all Playwright E2E tests for 
   - High scores section
 
 ### 8. Admin Panel Tests
+
 - **File**: `admin/admin-panel.spec.ts`
   - Access control
   - User management
@@ -153,12 +170,14 @@ This document provides a comprehensive overview of all Playwright E2E tests for 
   - Equipment management
 
 ### 9. Restaurant Data Management Tests
+
 - **File**: `restaurant/data-management.spec.ts` (existing)
   - Restaurant selection
   - Data loading
   - Navigation between sections
 
 ### 10. Demo Tests
+
 - **File**: `demo/menu-training-demo.spec.ts` (existing)
   - Complete user journey
   - Feature showcase
@@ -166,6 +185,7 @@ This document provides a comprehensive overview of all Playwright E2E tests for 
 ## Test Coverage Areas
 
 ### ✅ Completed
+
 1. Authentication (sign in/out, password reset, OAuth)
 2. Ingredients (CRUD, search, filter, validation)
 3. Menu Items (CRUD, ingredients, allergies, pricing)
@@ -178,11 +198,13 @@ This document provides a comprehensive overview of all Playwright E2E tests for 
 10. Error handling and validation
 
 ### 🔄 In Progress
+
 1. Performance testing for large datasets
 2. Mobile responsive testing
 3. Accessibility compliance testing
 
 ### 📋 TODO
+
 1. Network error handling tests
 2. Concurrent user tests
 3. Data export/import tests
@@ -193,6 +215,7 @@ This document provides a comprehensive overview of all Playwright E2E tests for 
 ## Key Test Patterns
 
 ### 1. CRUD Operations
+
 ```typescript
 - Create with all fields
 - Edit and update
@@ -201,6 +224,7 @@ This document provides a comprehensive overview of all Playwright E2E tests for 
 ```
 
 ### 2. Search and Filter
+
 ```typescript
 - Text search with debounce
 - Multi-criteria filtering
@@ -209,6 +233,7 @@ This document provides a comprehensive overview of all Playwright E2E tests for 
 ```
 
 ### 3. Form Validation
+
 ```typescript
 - Required fields
 - Format validation
@@ -217,6 +242,7 @@ This document provides a comprehensive overview of all Playwright E2E tests for 
 ```
 
 ### 4. UI Interactions
+
 ```typescript
 - Modal dialogs
 - Confirmation prompts
@@ -227,21 +253,25 @@ This document provides a comprehensive overview of all Playwright E2E tests for 
 ## Running Tests
 
 ### Run all tests
+
 ```bash
 npm test
 ```
 
 ### Run specific test file
+
 ```bash
 npx playwright test playwright-tests/ingredients/ingredient-crud.spec.ts
 ```
 
 ### Run tests in debug mode
+
 ```bash
 npx playwright test --debug
 ```
 
 ### Run tests with specific browser
+
 ```bash
 npx playwright test --project=chromium
 ```
@@ -262,9 +292,52 @@ npx playwright test --project=chromium
 2. **Cache Timing**: Need to wait for cache refresh after CRUD operations
 3. **Dynamic Content**: Some selectors need multiple fallbacks for different states
 
+## Recent Updates (January 2025)
+
+### New Features to Test
+
+1. **Streamlined Recipe Workflow**
+
+   - Route: `/restaurant/recipes/create-streamlined`
+   - Edit Route: `/restaurant/recipes/[id]/edit-streamlined`
+   - Features:
+     - Instant save on creation
+     - Auto-save with 3-second debounce
+     - Visual save indicators
+     - Incremental step addition
+
+2. **Test Cases Needed**
+
+   ```typescript
+   // Recipe creation with instant save
+   test("should save recipe immediately on creation", async ({ page }) => {
+     // Navigate to streamlined create
+     // Fill form and submit
+     // Verify redirect to edit page
+     // Check recipe exists in database
+   });
+
+   // Auto-save functionality
+   test("should auto-save changes after 3 seconds", async ({ page }) => {
+     // Navigate to edit page
+     // Make changes
+     // Wait 3 seconds
+     // Verify save indicator
+     // Refresh and check persistence
+   });
+
+   // Visual feedback
+   test("should show saving/saved indicators", async ({ page }) => {
+     // Make changes
+     // Check "Saving..." appears
+     // Check "Saved" appears after
+   });
+   ```
+
 ## Maintenance
 
 - Update selectors when UI changes
 - Add new tests for new features
 - Review and update timeouts as needed
 - Keep test data isolated to avoid conflicts
+- Test both legacy and streamlined workflows

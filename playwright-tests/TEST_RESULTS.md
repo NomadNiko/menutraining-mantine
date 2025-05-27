@@ -10,12 +10,14 @@
 ## Test Categories
 
 ### ✅ Authentication Tests (4/4 passed)
+
 - User can sign in successfully
-- Invalid credentials show error  
+- Invalid credentials show error
 - Protected routes redirect to sign-in
 - User can access profile
 
 ### ✅ Restaurant Data Management (6/6 passed)
+
 - Ingredients page displays data
 - Menu Items page displays data
 - Recipes page is accessible
@@ -24,11 +26,13 @@
 - Restaurant context is maintained
 
 ### ✅ Demo Tests (3/3 passed)
+
 - Complete application walkthrough
 - Quiz gameplay (with limitations)
 - User can access restaurant features
 
 ### ✅ Quiz Tests (4/4 passed)
+
 - ✅ Quiz configuration options
 - ✅ High scores display
 - ✅ Start and play quiz (with 20-second wait for loading)
@@ -41,6 +45,7 @@
 2. **Restaurant Data**: Nikos Place has 11 ingredients and 11 menu items loaded
 
 3. **Navigation**: All main sections are accessible and working:
+
    - Ingredients
    - Menu Items
    - Recipes
@@ -48,7 +53,7 @@
    - Menus
    - Quiz
 
-4. **Quiz System**: 
+4. **Quiz System**:
    - Configuration page loads correctly
    - High scores are displayed
    - Issue with starting quiz gameplay (may need menu section selection)
@@ -66,7 +71,7 @@ npm test
 
 # Run specific test suites
 npm run test:auth
-npm run test:restaurant  
+npm run test:restaurant
 npm run test:quiz
 npm run test:demo
 
@@ -80,3 +85,17 @@ npm run test:ui
 - Backend: http://localhost:3001
 - Test User: aloha@ixplor.app (Tony Tester)
 - Restaurant: Nikos Place (RST-000001)
+
+## Upcoming Test Updates
+
+### Streamlined Recipe Workflow (January 2025)
+
+New tests needed for:
+
+1. **Instant Save Creation**: Verify recipes save immediately on creation
+2. **Auto-Save Feature**: Test 3-second debounce and save indicators
+3. **Step Management**: Test incremental step addition after creation
+4. **Visual Feedback**: Verify "Saving..." and "Saved" indicators
+5. **Data Persistence**: Ensure changes persist across page refreshes
+
+These tests will be added to the `recipes/` test suite.

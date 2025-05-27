@@ -9,7 +9,7 @@
 
 ## Introduction
 
-As far as this boilerplate uses [Next.js](https://nextjs.org/) framework for building React applications, the folders are used as routes.  This means the more folders you add to your app folder, the more routes you will get. Additionally, if you create a new folder inside of another folder, you will get nested routes. To better understand these concepts, we suggest looking at the image below.
+As far as this boilerplate uses [Next.js](https://nextjs.org/) framework for building React applications, the folders are used as routes. This means the more folders you add to your app folder, the more routes you will get. Additionally, if you create a new folder inside of another folder, you will get nested routes. To better understand these concepts, we suggest looking at the image below.
 
 <img src="https://github.com/brocoders/extensive-react-boilerplate/assets/72293912/25dc524e-b2e2-41cf-b1af-99f729ee9c2f" width="450"/>
 
@@ -49,6 +49,20 @@ As far as this boilerplate uses [Next.js](https://nextjs.org/) framework for bui
 ## Pages
 
 Pages are located in the `src/app/[language]` folder. We use `[language]` directory to support internationalization with ability generate static website (`output: export`). Example [here](https://github.com/i18next/next-13-app-dir-i18next-example).
+
+### Key Routes
+
+- **Authentication**: `/sign-in`, `/sign-up`, `/forgot-password`
+- **Dashboard**: `/` (root)
+- **Restaurant Management**:
+  - `/restaurant/ingredients` - Ingredient management
+  - `/restaurant/menu-items` - Menu item management
+  - `/restaurant/recipes` - Recipe management (with new streamlined workflow)
+  - `/restaurant/menu-sections` - Menu section organization
+  - `/restaurant/menus` - Menu management
+- **Quiz System**: `/restaurant/quiz` - Interactive training quizzes
+- **Admin Panel**: `/admin-panel` - User and system management
+- **Profile**: `/profile` - User profile and settings
 
 ---
 

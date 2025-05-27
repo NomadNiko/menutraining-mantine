@@ -17,21 +17,25 @@ playwright-tests/
 ## Running Tests
 
 ### Prerequisites
+
 - Make sure both frontend and backend are running:
+
   ```bash
   # Backend (in menutraining-server directory)
   yarn start
-  
+
   # Frontend (in menutraining-mantine directory)
   yarn start
   ```
 
 ### Run all tests
+
 ```bash
 npm test
 ```
 
 ### Run specific test suites
+
 ```bash
 # Run demo tests
 npm run test:demo
@@ -47,6 +51,7 @@ npm run test:restaurant
 ```
 
 ### Run tests with UI (interactive mode)
+
 ```bash
 npm run test:ui
 ```
@@ -54,6 +59,7 @@ npm run test:ui
 ## Test Accounts
 
 The tests use the following account:
+
 - Email: `aloha@ixplor.app`
 - Password: `password`
 - Restaurant: Nikos Place (RST-000001)
@@ -61,12 +67,14 @@ The tests use the following account:
 ## Test Categories
 
 ### Authentication Tests (`auth/`)
+
 - User login/logout
 - Protected route access
 - Profile page access
 - Invalid credentials handling
 
 ### Quiz Tests (`quiz/`)
+
 - Quiz configuration options
 - Difficulty level selection
 - High scores display
@@ -74,6 +82,7 @@ The tests use the following account:
 - Question and answer interaction
 
 ### Restaurant Data Tests (`restaurant/`)
+
 - Ingredients page data display
 - Menu items management
 - Recipes access
@@ -81,6 +90,7 @@ The tests use the following account:
 - Restaurant context persistence
 
 ### Demo Tests (`demo/`)
+
 - Complete application walkthrough
 - Screenshot generation for documentation
 - Feature verification
@@ -89,19 +99,21 @@ The tests use the following account:
 ## Writing New Tests
 
 1. Use the helper functions from `helpers/` for common operations:
+
    ```typescript
-   import { login } from '../helpers/auth';
-   import { ROUTES } from '../helpers/navigation';
+   import { login } from "../helpers/auth";
+   import { ROUTES } from "../helpers/navigation";
    ```
 
 2. Follow the existing test structure:
+
    ```typescript
-   test.describe('Feature Name', () => {
+   test.describe("Feature Name", () => {
      test.beforeEach(async ({ page }) => {
        await login(page);
      });
-     
-     test('specific test case', async ({ page }) => {
+
+     test("specific test case", async ({ page }) => {
        // Test implementation
      });
    });
@@ -111,9 +123,29 @@ The tests use the following account:
 4. Take screenshots for important states
 5. Handle async operations properly with appropriate waits
 
+## Recent Updates (January 2025)
+
+### New Features to Test
+
+1. **Streamlined Recipe Workflow**
+
+   - New creation route: `/restaurant/recipes/create-streamlined`
+   - New edit route: `/restaurant/recipes/[id]/edit-streamlined`
+   - Instant save on recipe creation
+   - Auto-save with 3-second debounce
+   - Visual save state indicators
+
+2. **Test Priorities**
+   - Verify instant save functionality
+   - Test auto-save debounce timing
+   - Check save state indicator visibility
+   - Ensure data persistence across page refreshes
+   - Test navigation between create and edit modes
+
 ## Debugging
 
 - Use `page.pause()` to pause execution during debugging
 - Run with `--debug` flag for step-by-step debugging
 - Check `playwright-report/` for test failure details
 - Screenshots are saved in `playwright-tests/screenshots/`
+- For auto-save tests, use `page.waitForTimeout(3000)` to ensure debounce completes
