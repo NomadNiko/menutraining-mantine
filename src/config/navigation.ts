@@ -91,6 +91,11 @@ const createNavigationConfig = (): NavigationItem[] => [
         path: "/admin-panel/equipment",
         roles: [RoleEnum.ADMIN],
       },
+      {
+        label: "common:navigation.itemsWithoutImages",
+        path: "/admin-panel/items-without-images",
+        roles: [RoleEnum.ADMIN],
+      },
     ],
   },
 ];

@@ -19,7 +19,8 @@
     "equipment": "Equipment",
     "admin": "Admin",
     "food": "Food",
-    "menuGroup": "Menu"
+    "menuGroup": "Menu",
+    "itemsWithoutImages": "Items Without Images"
   },
   "formInputs": {
     "avatarInput": {

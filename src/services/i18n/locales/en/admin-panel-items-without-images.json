@@ -1,0 +1,18 @@
+{
+  "itemsWithoutImages": {
+    "title": "Items Without Images",
+    "metaTitle": "Items Without Images - Admin Panel",
+    "noItems": "No items without images found",
+    "totalItems": "items",
+    "tabs": {
+      "ingredients": "Ingredients",
+      "menuItems": "Menu Items",
+      "equipment": "Equipment",
+      "allergies": "Allergies"
+    },
+    "table": {
+      "name": "Name",
+      "actions": "Actions"
+    }
+  }
+}
