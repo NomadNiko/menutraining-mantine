@@ -36,6 +36,28 @@
       "dropzoneText": "Drop the image here ...",
       "dragAndDrop": "Or drag 'n' drop some images here",
       "selectFile": "Select an image"
+    },
+    "foodImageInput": {
+      "dropzoneText": "Drop your image here",
+      "dragAndDrop": "or drag and drop your image here",
+      "selectFile": "Select Image",
+      "changeImage": "Change Image",
+      "placeholder": "Upload food image",
+      "requirements": "300-600px square, JPEG",
+      "imageAlt": "Food image",
+      "tooSmallError": "Image is too small. Minimum size is 300x300 pixels.",
+      "invalidImage": "Invalid image file.",
+      "uploadError": "Failed to upload image. Please try again."
+    },
+    "foodImageCropper": {
+      "title": "Crop Food Image",
+      "tooSmallError": "Image is too small. Minimum size is 300x300 pixels.",
+      "autoScaled": "Image has been automatically scaled down to fit requirements.",
+      "scale": "Scale",
+      "rotation": "Rotation",
+      "reset": "Reset",
+      "crop": "Crop & Save",
+      "instructions": "Drag to reposition, use the slider to scale, and click crop when ready. Final image will be 300x300 pixels in JPEG format."
     }
   },
   "leavePage": {

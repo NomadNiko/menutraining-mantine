@@ -23,7 +23,7 @@ import {
   Ingredient,
   UpdateIngredientDto,
 } from "@/services/api/types/ingredient";
-import FormAvatarInput from "@/components/form/avatar-input/form-avatar-input";
+import FormFoodImageInput from "@/components/form/food-image-input/food-image-input";
 import { FileEntity } from "@/services/api/types/file-entity";
 import { usePathname } from "next/navigation";
 
@@ -155,7 +155,7 @@ export function IngredientForm({
             </Box>
           )}
           {/* Image upload component */}
-          <FormAvatarInput<IngredientFormData>
+          <FormFoodImageInput<IngredientFormData>
             name="photo"
             testId="ingredient-image"
           />

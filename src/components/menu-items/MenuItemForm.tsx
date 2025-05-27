@@ -23,7 +23,7 @@ import {
   MenuItem,
   UpdateMenuItemDto,
 } from "@/services/api/types/menu-item";
-import FormAvatarInput from "@/components/form/avatar-input/form-avatar-input";
+import FormFoodImageInput from "@/components/form/food-image-input/food-image-input";
 import { FileEntity } from "@/services/api/types/file-entity";
 import { usePathname } from "next/navigation";
 
@@ -167,7 +167,7 @@ export function MenuItemForm({
           )}
 
           {/* Image upload component */}
-          <FormAvatarInput<MenuItemFormData>
+          <FormFoodImageInput<MenuItemFormData>
             name="photo"
             testId="menu-item-image"
           />

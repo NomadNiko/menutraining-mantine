@@ -34,7 +34,7 @@ import {
   Draggable,
   DropResult,
 } from "@hello-pangea/dnd";
-import FormAvatarInput from "@/components/form/avatar-input/form-avatar-input";
+import FormFoodImageInput from "@/components/form/food-image-input/food-image-input";
 import { RecipeStep, RecipeStepForm } from "./RecipeStepForm";
 import { Ingredient } from "@/services/api/types/ingredient";
 import { useGetIngredientsService } from "@/services/api/services/ingredients";
@@ -262,7 +262,7 @@ export function RecipeForm({
         />
         <Box>
           <Text mb="xs">{t("form.recipeImage")}</Text>
-          <FormAvatarInput name="recipeImageUrl" testId="recipe-image" />
+          <FormFoodImageInput name="recipeImageUrl" testId="recipe-image" />
         </Box>
         <Group grow>
           <NumberInput
