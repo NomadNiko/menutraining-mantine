@@ -77,6 +77,8 @@
     "cancel": "Cancel",
     "submit": "Create Recipe",
     "update": "Update Recipe",
+    "createAndContinue": "Create Recipe & Add Steps",
+    "done": "Done",
     "stepText": "Step Instructions",
     "stepImage": "Step Image",
     "addedEquipment": "Added Equipment",
@@ -92,6 +94,10 @@
     "quantity": "Quantity",
     "addIngredient": "Add Ingredient",
     "currentStepImage": "Current Step Image",
+    "uploadImage": "Upload Image",
+    "newImagePreview": "New Image Preview",
+    "acceptNewUpload": "Accept New Upload",
+    "revert": "Revert",
     "validation": {
       "nameRequired": "Recipe name is required"
     }
@@ -124,5 +130,12 @@
   "errors": {
     "recipeNotFound": "Recipe not found",
     "loadingFailed": "Failed to load recipe details"
-  }
+  },
+  "loadError": "Error loading recipe",
+  "basicInfo": "Basic Information",
+  "streamlinedInstructions": "Enter the basic recipe information first. After creating the recipe, you'll be able to add steps one by one.",
+  "saving": "Saving...",
+  "saved": "Saved",
+  "saveSuccess": "Recipe saved successfully",
+  "saveError": "Failed to save recipe"
 }
